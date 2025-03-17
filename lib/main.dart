@@ -1,8 +1,14 @@
 import 'package:bookkeeping/db/database.dart';
+import 'package:bookkeeping/model/JournalEntry.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'data/repository/JournalLocalDataSource.dart';
+import 'data/repository/JournalRepository.dart';
+import 'db/JournalDao.dart';
 
 void main() async {
   await DatabaseHelper().init();
@@ -39,7 +45,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: _router);
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(
+          create:
+              (context) => JournalRepository(
+                localDataSource: JournalLocalDataSource(dao: JournalDao()),
+              ),
+        ),
+      ],
+      child: MaterialApp.router(routerConfig: _router),
+    );
   }
 }
 
