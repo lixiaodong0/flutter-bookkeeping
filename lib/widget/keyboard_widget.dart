@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 //自定义键盘
@@ -7,66 +6,66 @@ class KeyboardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var totalWidth = MediaQuery.of(context).size.width.toInt();
     return Container(
-      padding: const EdgeInsets.all(8),
       child: Stack(
         children: [
           Column(
             spacing: 8,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 8,
                 children: [
-                  _keyButton("1", onClick: () {}),
-                  _keyButton("2", onClick: () {}),
-                  _keyButton("3", onClick: () {}),
-                  _backspaceButton(() {}),
+                  _keySizedContainer(totalWidth, _keyButton("1", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _keyButton("2", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _keyButton("3", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _backspaceButton(() {})),
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 8,
                 children: [
-                  _keyButton("4", onClick: () {}),
-                  _keyButton("5", onClick: () {}),
-                  _keyButton("6", onClick: () {}),
-                  _placeholderButton(),
+                  _keySizedContainer(totalWidth, _keyButton("4", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _keyButton("5", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _keyButton("6", () {})),
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 8,
                 children: [
-                  _keyButton("7", onClick: () {}),
-                  _keyButton("8", onClick: () {}),
-                  _keyButton("9", onClick: () {}),
-                  _placeholderButton(),
+                  _keySizedContainer(totalWidth, _keyButton("7", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _keyButton("8", () {})),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(totalWidth, _keyButton("9", () {})),
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 8,
                 children: [
-                  _keyButton("0", flex: 2, onClick: () {}),
-                  _keyButton(".", onClick: () {}),
-                  _placeholderButton(),
+                  _keySizedContainer(
+                    totalWidth,
+                    _keyButton("0", () {}),
+                    itemColumns: 2,
+                  ),
+                  Padding(padding: const EdgeInsets.only(right: 8)),
+                  _keySizedContainer(
+                    totalWidth,
+                    _keyButton(".", () {}),
+                    itemColumns: 1,
+                  ),
                 ],
               ),
             ],
           ),
           Container(
-            alignment: Alignment.topLeft,
-            padding: const EdgeInsets.only(top: 48),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              spacing: 8,
-              children: [
-                _placeholderButton(),
-                _placeholderButton(),
-                _placeholderButton(),
-                _confirmButton("确认", () {}),
-              ],
+            alignment: Alignment.topRight,
+            padding: const EdgeInsets.only(top: 48,right: 8),
+            child: _keySizedContainer(
+              totalWidth,
+              _keyButton("确认", () {}),
+              height: 120 + (2 * 8),
             ),
           ),
         ],
@@ -74,61 +73,103 @@ class KeyboardWidget extends StatelessWidget {
     );
   }
 
-  Widget _keyButton(String key, {int flex = 1, required VoidCallback onClick}) {
-    return Expanded(
-      flex: flex,
-      child: SizedBox(
-        height: 40,
-        child: OutlinedButton(
-          onPressed: onClick,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          child: Text(
-            key,
-            style: const TextStyle(fontSize: 18, color: Colors.black),
-          ),
+  Widget _keyButton(String key, VoidCallback onClick) {
+    return OutlinedButton(
+      onPressed: onClick,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      child: Text(
+        key,
+        style: const TextStyle(fontSize: 18, color: Colors.black),
+      ),
+    );
+  }
+
+  Widget _keySizedContainer(
+    int totalWidth,
+    Widget child, {
+    int rowColumns = 4,
+    int itemColumns = 1,
+    int spacing = 8,
+    double height = 40,
+  }) {
+    var fullWidth = totalWidth - (rowColumns * spacing);
+    var itemWidth = (fullWidth / rowColumns) * itemColumns;
+    if (itemColumns > 1) {
+      itemWidth += spacing * (itemColumns - 1);
+    }
+    return SizedBox(width: itemWidth, height: height, child: child);
+  }
+
+  Widget _zeroButton(
+    BuildContext context,
+    String key, {
+    required VoidCallback onClick,
+  }) {
+    var width = MediaQuery.of(context).size.width;
+    var itemWidth = width / 4 * 2;
+    return SizedBox(
+      width: itemWidth - 4,
+      height: 40,
+      child: OutlinedButton(
+        onPressed: onClick,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        child: Text(
+          key,
+          style: const TextStyle(fontSize: 18, color: Colors.black),
+        ),
+      ),
+    );
+  }
+
+  Widget _pointButton(
+    BuildContext context,
+    String key, {
+    required VoidCallback onClick,
+  }) {
+    var width = MediaQuery.of(context).size.width;
+    var itemWidth = width / 4;
+    return SizedBox(
+      width: itemWidth - 8,
+      height: 40,
+      child: OutlinedButton(
+        onPressed: onClick,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        child: Text(
+          key,
+          style: const TextStyle(fontSize: 18, color: Colors.black),
         ),
       ),
     );
   }
 
   Widget _backspaceButton(VoidCallback onClick) {
-    return Expanded(
-      child: SizedBox(
-        height: 40,
-        child: OutlinedButton(
-          onPressed: onClick,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          child: Icon(Icons.backspace),
-        ),
+    return OutlinedButton(
+      onPressed: onClick,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
+      child: Icon(Icons.backspace),
     );
   }
 
   Widget _confirmButton(String key, VoidCallback onClick) {
-    return Expanded(
-      child: SizedBox(
-        height: 120,
-        child: OutlinedButton(
-          onPressed: onClick,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          child: Text(key),
-        ),
+    return OutlinedButton(
+      onPressed: onClick,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
+      child: Text(key),
     );
   }
 
