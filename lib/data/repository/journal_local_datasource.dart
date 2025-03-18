@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/journal_bean.dart';
+import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/db/journal_dao.dart';
 
 import '../../model/journal_entry.dart';
@@ -13,13 +14,9 @@ class JournalLocalDataSource implements JournalDataSource {
   Future<JournalBean?> addJournal(JournalEntry entry) async {
     var result = await dao.insert(entry);
     if (result > 0) {
-      return JournalBean(
-        id: result,
-        type: entry.type,
-        amount: entry.amount,
-        date: entry.date,
-        description: entry.description,
-      );
+      var bean = toJournalBean(entry);
+      bean.id = result;
+      return bean;
     }
     return null;
   }
@@ -33,7 +30,7 @@ class JournalLocalDataSource implements JournalDataSource {
   static JournalBean toJournalBean(JournalEntry entry) {
     return JournalBean(
       id: entry.id ?? 0,
-      type: entry.type,
+      type: JournalType.fromName(entry.type),
       amount: entry.amount,
       date: entry.date,
       description: entry.description,

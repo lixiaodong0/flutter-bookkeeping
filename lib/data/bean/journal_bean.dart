@@ -1,6 +1,8 @@
+import 'package:bookkeeping/data/bean/journal_type.dart';
+
 final class JournalBean {
-  final int id;
-  final String type;
+  int id;
+  final JournalType type;
   final double amount;
   final DateTime date;
   final String description;
