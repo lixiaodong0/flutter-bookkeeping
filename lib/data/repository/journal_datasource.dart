@@ -1,6 +1,6 @@
-import 'package:bookkeeping/model/JournalEntry.dart';
+import 'package:bookkeeping/model/journal_entry.dart';
 
-import '../bean/JournalBean.dart';
+import '../bean/journal_bean.dart';
 
 abstract class JournalDataSource {
   Future<List<JournalBean>> getAllJournal();

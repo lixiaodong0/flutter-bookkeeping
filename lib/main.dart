@@ -1,14 +1,13 @@
 import 'package:bookkeeping/db/database.dart';
-import 'package:bookkeeping/model/JournalEntry.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'data/repository/JournalLocalDataSource.dart';
-import 'data/repository/JournalRepository.dart';
-import 'db/JournalDao.dart';
+import 'data/repository/journal_local_datasource.dart';
+import 'data/repository/journal_repository.dart';
+import 'db/journal_dao.dart';
 
 void main() async {
   await DatabaseHelper().init();

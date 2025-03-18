@@ -1,20 +1,17 @@
-import 'package:bookkeeping/data/bean/JournalBean.dart';
-import 'package:bookkeeping/model/JournalEntry.dart';
+import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:equatable/equatable.dart';
 
 final class TransactionState extends Equatable {
   final List<JournalBean> lists;
-  final int count;
 
-  const TransactionState({this.lists = const [], this.count = 0});
+  const TransactionState({this.lists = const []});
 
   @override
-  List<Object?> get props => [lists, count];
+  List<Object?> get props => [lists];
 
-  TransactionState copyWith({List<JournalBean>? lists, int? count}) {
+  TransactionState copyWith({List<JournalBean>? lists}) {
     return TransactionState(
       lists: lists ?? this.lists,
-      count: count ?? this.count,
     );
   }
 }

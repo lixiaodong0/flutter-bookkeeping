@@ -1,8 +1,7 @@
-import 'dart:ffi';
 
 import 'package:sqflite/sqflite.dart';
 
-import '../model/JournalEntry.dart';
+import '../model/journal_entry.dart';
 import 'database.dart';
 
 class JournalDao {
