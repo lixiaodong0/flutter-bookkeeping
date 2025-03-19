@@ -3,7 +3,7 @@ import 'package:bookkeeping/data/bean/journal_type.dart';
 final class JournalBean {
   int id;
   final JournalType type;
-  final double amount;
+  final String amount;
   final DateTime date;
   final String description;
 

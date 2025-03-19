@@ -16,9 +16,26 @@ class TransactionScreen extends StatelessWidget {
     return BlocProvider(
       create:
           (context) =>
-              TransactionBloc(repository: context.read<JournalRepository>())
-                ..add(TransactionInitLoad()),
-      child: TransactionList(),
+      TransactionBloc(repository: context.read<JournalRepository>())
+        ..add(TransactionInitLoad()),
+      child: BlocBuilder<TransactionBloc, TransactionState>(
+          builder: (context, state) {
+            return Scaffold(
+              body: TransactionList(),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  showRecordDialog(context, onSuccess: () {
+                    context.read<TransactionBloc>().add(TransactionInitLoad());
+                  });
+                },
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                ),
+                child: Text("记一笔"),
+              ),
+            );
+          }),
     );
   }
 }
@@ -35,14 +52,6 @@ class _TransactionListState extends State<TransactionList> {
   Widget build(BuildContext context) {
     return BlocBuilder<TransactionBloc, TransactionState>(
       builder: (context, state) {
-
-        return Column(children: [
-
-          ElevatedButton(onPressed: (){
-            showRecordDialog(context);
-          }, child: Text("显示弹窗"))
-        ]);
-
         return ListView.builder(
           itemCount: state.lists.length,
           itemBuilder: (context, index) {

@@ -15,7 +15,9 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionInitLoad event,
     Emitter<TransactionState> emit,
   ) async {
+    print("[_onTransactionInitLoad]");
     var result = await repository.getAllJournal();
+    print("[_onTransactionInitLoad]result:$result");
     emit(state.copyWith(lists: result));
   }
 

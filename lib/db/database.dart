@@ -24,7 +24,7 @@ class DatabaseHelper {
         //数据库创建
         log("database onCreate");
         return db.execute(
-          "CREATE TABLE journal_entry(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, amount REAL, date TEXT, description TEXT)",
+          "CREATE TABLE journal_entry(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, amount TEXT, date TEXT, description TEXT)",
         );
       },
       onUpgrade: (db, oldVersion, newVersion) {

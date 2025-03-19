@@ -33,7 +33,7 @@ class JournalLocalDataSource implements JournalDataSource {
       type: JournalType.fromName(entry.type),
       amount: entry.amount,
       date: entry.date,
-      description: entry.description,
+      description: entry.description ?? "",
     );
   }
 }

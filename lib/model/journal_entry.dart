@@ -4,16 +4,16 @@
 final class JournalEntry {
   final int? id; //主键可为空
   final String type; // 'income' 或 'expense'
-  final double amount;
+  final String amount;
   final DateTime date;
-  final String description;
+  final String? description;
 
   JournalEntry({
     this.id,
     required this.type,
     required this.amount,
     required this.date,
-    required this.description,
+    this.description,
   });
 
   factory JournalEntry.fromJson(Map<String, dynamic> json) => JournalEntry(

@@ -41,6 +41,8 @@ dependencies:
   equatable: ^2.0.0
   #路由框架
   go_router: ^14.8.1
+  #toast
+  fluttertoast: ^8.2.12
 
 
 dev_dependencies:

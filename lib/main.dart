@@ -14,6 +14,8 @@ void main() async {
   runApp(const MyApp());
 }
 
+final GlobalKey toastGlobalContext = GlobalKey();
+
 final GoRouter _router = GoRouter(
   initialLocation: "/transaction",
   routes: <RouteBase>[
@@ -66,6 +68,7 @@ class _ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: toastGlobalContext,
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         items: [
