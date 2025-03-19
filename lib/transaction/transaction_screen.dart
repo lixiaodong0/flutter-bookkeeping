@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/repository/journal_repository.dart';
-import '../dialog/record_dialog.dart';
+import '../record/record_dialog.dart';
 
 class TransactionScreen extends StatelessWidget {
   const TransactionScreen({super.key});

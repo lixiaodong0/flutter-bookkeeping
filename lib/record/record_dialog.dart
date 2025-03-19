@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,9 @@ class _RecordDialog extends StatefulWidget {
 
 class _RecordDialogState extends State<_RecordDialog> {
   String inputAmount = "";
+  JournalType journalType = JournalType.expense;
+  Color confirmColor = Colors.green;
+  bool confirmEnabled = false;
 
   @override
   void initState() {
@@ -92,6 +96,7 @@ class _RecordDialogState extends State<_RecordDialog> {
     newAmount = _validAmount(newAmount);
     setState(() {
       inputAmount = newAmount;
+      confirmEnabled = inputAmount.isNotEmpty;
     });
   }
 
@@ -116,6 +121,17 @@ class _RecordDialogState extends State<_RecordDialog> {
     return amount;
   }
 
+  void onClickJournalType(JournalType type) {
+    setState(() {
+      journalType = type;
+      if (type == JournalType.expense) {
+        confirmColor = Colors.green;
+      } else {
+        confirmColor = Colors.orange;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -129,13 +145,65 @@ class _RecordDialogState extends State<_RecordDialog> {
             },
             icon: const Icon(Icons.close),
           ),
+          _journalTypeContainer(),
           Padding(padding: EdgeInsets.only(top: 8)),
           _inputContainer(inputAmount),
           Padding(padding: EdgeInsets.only(top: 8)),
-          TextButton(onPressed: () {}, child:Text("添加备注",style: TextStyle(fontSize: 16,color: Colors.blue))),
-          KeyboardWidget(onClickKeyCode: onClickKeyCode),
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              "添加备注",
+              style: TextStyle(fontSize: 16, color: Colors.blue),
+            ),
+          ),
+          KeyboardWidget(
+            onClickKeyCode: onClickKeyCode,
+            confirmColor: confirmColor,
+            confirmEnabled: confirmEnabled,
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _journalTypeContainer() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          _journalTypeButton("支出", journalType == JournalType.expense, () {
+            onClickJournalType(JournalType.expense);
+          }),
+          Padding(padding: EdgeInsets.only(left: 8)),
+          _journalTypeButton("入账", journalType == JournalType.income, () {
+            onClickJournalType(JournalType.income);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _journalTypeButton(
+    String title,
+    bool selected,
+    VoidCallback onPressed,
+  ) {
+    Color textColor = Colors.grey;
+    Color? backgroundColor = Colors.grey[100];
+    if (selected) {
+      textColor = Colors.white;
+      backgroundColor = Colors.blue;
+    }
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        backgroundColor: backgroundColor,
+        padding: EdgeInsets.all(0),
+        minimumSize: const Size(48, 26),
+        fixedSize: const Size(48, 26),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      child: Text(title, style: TextStyle(color: textColor, fontSize: 12)),
     );
   }
 

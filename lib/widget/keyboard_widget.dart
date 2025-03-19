@@ -22,8 +22,15 @@ enum KeyCode {
 //Row没有android-Grid的跨行跨列展示，所以通过自定义计算来实现。
 final class KeyboardWidget extends StatelessWidget {
   final OnClickKeyCodeFunction onClickKeyCode;
+  final Color confirmColor;
+  final bool confirmEnabled;
 
-  const KeyboardWidget({super.key, required this.onClickKeyCode});
+  const KeyboardWidget({
+    super.key,
+    required this.onClickKeyCode,
+    this.confirmColor = Colors.blue,
+    this.confirmEnabled = false,
+  });
 
   static const double _keySpacing = 8;
 
@@ -173,7 +180,7 @@ final class KeyboardWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 48, right: _keySpacing),
                 child: _keySizedContainer(
                   totalWidth,
-                  _keyButton("确认", () {
+                  _confirmButton("确认", confirmColor, confirmEnabled, () {
                     onClickKeyCode(KeyCode.confirm);
                   }),
                   height: 120 + (2 * _keySpacing),
@@ -197,6 +204,29 @@ final class KeyboardWidget extends StatelessWidget {
       child: Text(
         key,
         style: const TextStyle(fontSize: 18, color: Colors.black),
+      ),
+    );
+  }
+
+  Widget _confirmButton(
+    String key,
+    Color backgroundColor,
+    bool enabled,
+    VoidCallback onClick,
+  ) {
+    if (!enabled) {
+      backgroundColor = backgroundColor.withAlpha(150);
+    }
+    return OutlinedButton(
+      onPressed: onClick,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        side: const BorderSide(color: Colors.transparent),
+      ),
+      child: Text(
+        key,
+        style: const TextStyle(fontSize: 18, color: Colors.white),
       ),
     );
   }
