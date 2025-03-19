@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
 
+typedef OnClickKeyCodeFunction = void Function(KeyCode);
+
+enum KeyCode {
+  one,
+  two,
+  three,
+  four,
+  five,
+  six,
+  seven,
+  eight,
+  nine,
+  zero,
+  dot,
+  backspace,
+  confirm,
+}
+
 //自定义键盘
 //Row没有android-Grid的跨行跨列展示，所以通过自定义计算来实现。
-class KeyboardWidget extends StatelessWidget {
-  const KeyboardWidget({super.key});
+final class KeyboardWidget extends StatelessWidget {
+  final OnClickKeyCodeFunction onClickKeyCode;
+
+  const KeyboardWidget({super.key, required this.onClickKeyCode});
 
   static const double _keySpacing = 8;
 
@@ -25,51 +45,39 @@ class KeyboardWidget extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: _keySpacing),
                       ),
-                      _keySizedContainer(totalWidth, _keyButton("1", () {})),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("1", () {
+                          onClickKeyCode(KeyCode.one);
+                        }),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(right: _keySpacing),
                       ),
-                      _keySizedContainer(totalWidth, _keyButton("2", () {})),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("2", () {
+                          onClickKeyCode(KeyCode.two);
+                        }),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(right: _keySpacing),
                       ),
-                      _keySizedContainer(totalWidth, _keyButton("3", () {})),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("3", () {
+                          onClickKeyCode(KeyCode.three);
+                        }),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(right: _keySpacing),
                       ),
-                      _keySizedContainer(totalWidth, _backspaceButton(() {})),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: _keySpacing),
+                      _keySizedContainer(
+                        totalWidth,
+                        _backspaceButton(() {
+                          onClickKeyCode(KeyCode.backspace);
+                        }),
                       ),
-                      _keySizedContainer(totalWidth, _keyButton("4", () {})),
-                      Padding(
-                        padding: const EdgeInsets.only(right: _keySpacing),
-                      ),
-                      _keySizedContainer(totalWidth, _keyButton("5", () {})),
-                      Padding(
-                        padding: const EdgeInsets.only(right: _keySpacing),
-                      ),
-                      _keySizedContainer(totalWidth, _keyButton("6", () {})),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: _keySpacing),
-                      ),
-                      _keySizedContainer(totalWidth, _keyButton("7", () {})),
-                      Padding(
-                        padding: const EdgeInsets.only(right: _keySpacing),
-                      ),
-                      _keySizedContainer(totalWidth, _keyButton("8", () {})),
-                      Padding(
-                        padding: const EdgeInsets.only(right: _keySpacing),
-                      ),
-                      _keySizedContainer(totalWidth, _keyButton("9", () {})),
                     ],
                   ),
                   Row(
@@ -79,7 +87,71 @@ class KeyboardWidget extends StatelessWidget {
                       ),
                       _keySizedContainer(
                         totalWidth,
-                        _keyButton("0", () {}),
+                        _keyButton("4", () {
+                          onClickKeyCode(KeyCode.four);
+                        }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: _keySpacing),
+                      ),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("5", () {
+                          onClickKeyCode(KeyCode.five);
+                        }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: _keySpacing),
+                      ),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("6", () {
+                          onClickKeyCode(KeyCode.six);
+                        }),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: _keySpacing),
+                      ),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("7", () {
+                          onClickKeyCode(KeyCode.seven);
+                        }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: _keySpacing),
+                      ),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("8", () {
+                          onClickKeyCode(KeyCode.eight);
+                        }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: _keySpacing),
+                      ),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("9", () {
+                          onClickKeyCode(KeyCode.nine);
+                        }),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: _keySpacing),
+                      ),
+                      _keySizedContainer(
+                        totalWidth,
+                        _keyButton("0", () {
+                          onClickKeyCode(KeyCode.zero);
+                        }),
                         itemColumns: 2,
                       ),
                       Padding(
@@ -87,7 +159,9 @@ class KeyboardWidget extends StatelessWidget {
                       ),
                       _keySizedContainer(
                         totalWidth,
-                        _keyButton(".", () {}),
+                        _keyButton(".", () {
+                          onClickKeyCode(KeyCode.dot);
+                        }),
                         itemColumns: 1,
                       ),
                     ],
@@ -99,7 +173,9 @@ class KeyboardWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 48, right: _keySpacing),
                 child: _keySizedContainer(
                   totalWidth,
-                  _keyButton("确认", () {}),
+                  _keyButton("确认", () {
+                    onClickKeyCode(KeyCode.confirm);
+                  }),
                   height: 120 + (2 * _keySpacing),
                 ),
               ),

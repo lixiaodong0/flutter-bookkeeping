@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/repository/journal_repository.dart';
+import '../dialog/record_dialog.dart';
 
 class TransactionScreen extends StatelessWidget {
   const TransactionScreen({super.key});
@@ -35,7 +36,12 @@ class _TransactionListState extends State<TransactionList> {
     return BlocBuilder<TransactionBloc, TransactionState>(
       builder: (context, state) {
 
-        return KeyboardWidget();
+        return Column(children: [
+
+          ElevatedButton(onPressed: (){
+            showRecordDialog(context);
+          }, child: Text("显示弹窗"))
+        ]);
 
         return ListView.builder(
           itemCount: state.lists.length,
