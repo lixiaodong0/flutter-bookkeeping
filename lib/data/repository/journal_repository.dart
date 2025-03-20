@@ -1,6 +1,7 @@
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/repository/journal_datasource.dart';
-import 'package:bookkeeping/model/journal_entry.dart';
+
+import '../../db/model/journal_entry.dart';
 
 class JournalRepository implements JournalDataSource {
   final JournalDataSource _localDataSource;

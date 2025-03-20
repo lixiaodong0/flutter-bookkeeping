@@ -1,8 +1,8 @@
 
 import 'package:sqflite/sqflite.dart';
 
-import '../model/journal_entry.dart';
 import 'database.dart';
+import 'model/journal_entry.dart';
 
 class JournalDao {
   static String table = "journal_entry";

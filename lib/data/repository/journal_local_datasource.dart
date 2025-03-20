@@ -2,7 +2,7 @@ import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/db/journal_dao.dart';
 
-import '../../model/journal_entry.dart';
+import '../../db/model/journal_entry.dart';
 import 'journal_datasource.dart';
 
 class JournalLocalDataSource implements JournalDataSource {
@@ -27,7 +27,7 @@ class JournalLocalDataSource implements JournalDataSource {
     return results.map((e) => toJournalBean(e)).toList();
   }
 
-  static JournalBean toJournalBean(JournalEntry entry) {
+  static JournalBean toJournalBean(JournalEntry entry,) {
     return JournalBean(
       id: entry.id ?? 0,
       type: JournalType.fromName(entry.type),

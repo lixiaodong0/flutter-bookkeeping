@@ -15,3 +15,10 @@ final class JournalBean {
     required this.description,
   });
 }
+
+class JournalTypeClassifyBean {
+  final int id;
+  final String name;
+
+  JournalTypeClassifyBean({required this.id, required this.name});
+}

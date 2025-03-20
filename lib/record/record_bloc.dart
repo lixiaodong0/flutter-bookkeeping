@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../data/bean/journal_type.dart';
 import '../data/repository/journal_repository.dart';
-import '../model/journal_entry.dart';
+import '../db/model/journal_entry.dart';
 import '../widget/keyboard_widget.dart';
 
 class RecordBloc extends Bloc<RecordEvent, RecordState> {

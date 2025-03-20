@@ -1,5 +1,5 @@
-import 'package:bookkeeping/model/journal_entry.dart';
 
+import '../../db/model/journal_entry.dart';
 import '../bean/journal_bean.dart';
 
 abstract class JournalDataSource {

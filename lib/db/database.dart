@@ -1,8 +1,12 @@
 import 'dart:developer';
 
+import 'package:bookkeeping/db/journal_dao.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+
+import 'generate/journal_type_classify_generate.dart';
+import 'journal_type_classify_dao.dart';
 
 class DatabaseHelper {
   //私有构造函数
@@ -21,11 +25,18 @@ class DatabaseHelper {
     db = await openDatabase(
       join(await getDatabasesPath(), "bookkeeping_database.db"),
       onCreate: (db, version) {
+        var start = DateTime.now().millisecondsSinceEpoch;
         //数据库创建
         log("database onCreate");
-        return db.execute(
-          "CREATE TABLE journal_entry(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, amount TEXT, date TEXT, description TEXT)",
+        db.execute(
+          "CREATE TABLE ${JournalDao.table}(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, amount TEXT, date TEXT, description TEXT)",
         );
+        db.execute(
+          "CREATE TABLE ${JournalTypeClassifyDao.table}(id INTEGER PRIMARY KEY AUTOINCREMENT, journalType TEXT, name TEXT, source TEXT, sort INTEGER)",
+        );
+        JournalTypeClassifyGenerate.generate(db);
+        var end = DateTime.now().millisecondsSinceEpoch - start;
+        log("database onCreate finish ${end / 1000}ms");
       },
       onUpgrade: (db, oldVersion, newVersion) {
         //数据库升级
