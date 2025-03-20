@@ -1,13 +1,13 @@
 import 'package:bookkeeping/data/bean/journal_type.dart';
 
-class JournalTypeClassifyEntry {
+class JournalProjectEntry {
   final int? id; //主键可为空，自动生成
   final JournalType journalType;
   final String name; //类型名称
   final String source; //来源
   final int sort; //排序
 
-  JournalTypeClassifyEntry({
+  JournalProjectEntry({
     this.id,
     required this.journalType,
     required this.name,
@@ -15,8 +15,8 @@ class JournalTypeClassifyEntry {
     this.sort = 0,
   });
 
-  factory JournalTypeClassifyEntry.fromJson(Map<String, dynamic> json) =>
-      JournalTypeClassifyEntry(
+  factory JournalProjectEntry.fromJson(Map<String, dynamic> json) =>
+      JournalProjectEntry(
         id: json['id'],
         name: json['name'],
         source: json['source'] ?? "",

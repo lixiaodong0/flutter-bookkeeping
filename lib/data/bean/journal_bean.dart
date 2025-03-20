@@ -16,9 +16,9 @@ final class JournalBean {
   });
 }
 
-class JournalTypeClassifyBean {
+class JournalProjectBean {
   final int id;
   final String name;
 
-  JournalTypeClassifyBean({required this.id, required this.name});
+  JournalProjectBean({required this.id, required this.name});
 }

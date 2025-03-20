@@ -1,5 +1,5 @@
 import 'package:bookkeeping/db/database.dart';
-import 'package:bookkeeping/db/journal_type_classify_dao.dart';
+import 'package:bookkeeping/db/journal_project_dao.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
 import 'package:flutter/material.dart';
