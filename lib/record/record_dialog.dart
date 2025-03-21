@@ -19,6 +19,7 @@ void showRecordDialog(
   var rootContext = Navigator.of(context, rootNavigator: true).context;
   showModalBottomSheet(
     context: rootContext,
+    scrollControlDisabledMaxHeightRatio: 0.7,
     builder: (BuildContext context) {
       return BlocProvider(
         create:
@@ -80,6 +81,7 @@ class _RecordDialog extends StatelessWidget {
               },
             ),
             Padding(padding: EdgeInsets.only(top: 8)),
+            _projectListContainer(),
             TextButton(
               onPressed: () {},
               child: Text(
@@ -184,6 +186,33 @@ class _RecordDialog extends StatelessWidget {
           Divider(height: 1, color: Colors.grey[400]),
         ],
       ),
+    );
+  }
+
+  Widget _projectListContainer() {
+    return BlocBuilder<RecordBloc, RecordState>(
+      builder: (context, state) {
+        return SizedBox(
+          height: 100,
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 6, //每行几列
+              childAspectRatio: 1.0, //显示区域宽高相等
+            ),
+            itemCount: state.projects.length,
+            itemBuilder: (context, index) {
+              return TextButton(
+                onPressed: () {
+                  context.read<RecordBloc>().add(
+                    RecordOnCheckedProject(checked: state.projects[index]),
+                  );
+                },
+                child: Text(state.projects[index].name),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

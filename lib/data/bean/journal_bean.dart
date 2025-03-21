@@ -8,7 +8,7 @@ final class JournalBean {
   final JournalType type;
   final String amount;
   final DateTime date;
-  final String description;
+  final String? description;
 
   final int journalProjectId;
   final String journalProjectName;
@@ -25,7 +25,7 @@ final class JournalBean {
 
   factory JournalBean.fromJson(Map<String, dynamic> json) => JournalBean(
     id: json[JournalEntry.tableColumnId],
-    type: JournalType.fromName(JournalEntry.tableColumnType),
+    type: JournalType.fromName(json[JournalEntry.tableColumnType]),
     amount: json[JournalEntry.tableColumnAmount],
     date: DateTime.parse(json[JournalEntry.tableColumnDate]),
     description: json[JournalEntry.tableColumnDescription],

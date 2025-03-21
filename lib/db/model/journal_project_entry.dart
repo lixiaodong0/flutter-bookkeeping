@@ -15,15 +15,6 @@ class JournalProjectEntry {
     this.sort = 0,
   });
 
-  factory JournalProjectEntry.fromJson(Map<String, dynamic> json) =>
-      JournalProjectEntry(
-        id: json[tableColumnId],
-        journalType: JournalType.fromName(json[tableColumnJournalType]),
-        name: json[tableColumnName],
-        source: json[tableColumnSource] ?? "",
-        sort: json[tableColumnSort] ?? 0,
-      );
-
   Map<String, dynamic> toMap() {
     return {
       tableColumnId: id,

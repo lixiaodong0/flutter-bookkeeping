@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/journal_project_bean.dart';
 import 'package:bookkeeping/widget/keyboard_widget.dart';
 
 import '../data/bean/journal_type.dart';
@@ -8,6 +9,12 @@ sealed class RecordEvent {
 
 final class RecordOnInitial extends RecordEvent {
   const RecordOnInitial();
+}
+
+final class RecordOnCheckedProject extends RecordEvent {
+  final JournalProjectBean checked;
+
+  const RecordOnCheckedProject({required this.checked});
 }
 
 final class RecordOnClickJournalType extends RecordEvent {

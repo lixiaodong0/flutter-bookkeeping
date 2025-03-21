@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:bloc/bloc.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/record/record_event.dart';
@@ -18,26 +20,42 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
   RecordBloc({required this.repository, required this.projectRepository})
     : super(RecordState()) {
     on<RecordOnInitial>(_onInitial);
+    on<RecordOnCheckedProject>(_onCheckedProject);
     on<RecordOnClickJournalType>(_onClickJournalType);
     on<RecordOnClickKeyCode>(_onClickKeyCode);
     on<RecordOnClickConfirm>(_onClickConfirm);
   }
 
   void _onInitial(RecordOnInitial event, Emitter<RecordState> emit) async {
+    print("[_onInitial]");
+    await _onSwitchJournalType(state.journalType, emit);
+  }
+
+  Future<void> _onSwitchJournalType(
+    JournalType journalType,
+    Emitter<RecordState> emit,
+  ) async {
     List<JournalProjectBean> list = [];
-    if (state.journalType == JournalType.expense) {
+    if (journalType == JournalType.expense) {
       list = await projectRepository.getAllExpenseJournalProjects();
     } else {
       list = await projectRepository.getAllIncomeJournalProjects();
     }
-    print("[_onInitial]list:$list");
-    emit(state.copyWith(projects: list));
+    print("[_onSwitchJournalType]list:$list");
+    emit(state.copyWith(projects: list, currentProject: list.firstOrNull));
+  }
+
+  void _onCheckedProject(
+    RecordOnCheckedProject event,
+    Emitter<RecordState> emit,
+  ) async {
+    emit(state.copyWith(currentProject: event.checked));
   }
 
   void _onClickJournalType(
     RecordOnClickJournalType event,
     Emitter<RecordState> emit,
-  ) {
+  ) async {
     var type = event.type;
     Color confirmColor;
     if (type == JournalType.expense) {
@@ -47,6 +65,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     }
     print("[_onClickJournalType]$type");
     emit(state.copyWith(journalType: type, confirmColor: confirmColor));
+    await _onSwitchJournalType(type, emit);
   }
 
   void _onClickKeyCode(RecordOnClickKeyCode event, Emitter<RecordState> emit) {
@@ -152,7 +171,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       date: DateTime.now(),
       journalProjectId: currentProject.id,
     );
-    repository.addJournal(entry);
+    await repository.addJournal(entry);
     emit(state.copyWith(confirmStatus: RecordFinishStatus.success));
   }
 }

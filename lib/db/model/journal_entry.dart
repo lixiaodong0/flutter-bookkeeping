@@ -20,14 +20,6 @@ final class JournalEntry {
     required this.journalProjectId,
   });
 
-  factory JournalEntry.fromJson(Map<String, dynamic> json) => JournalEntry(
-    id: json[tableColumnId],
-    type: json[tableColumnType],
-    amount: json[tableColumnAmount],
-    date: DateTime.parse(json[tableColumnDate]),
-    description: json[tableColumnDescription],
-    journalProjectId: json[tableColumnJournalProjectId],
-  );
 
   Map<String, dynamic> toMap() {
     return {

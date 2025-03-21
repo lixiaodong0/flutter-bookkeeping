@@ -23,6 +23,7 @@ class JournalDao {
       ${JournalEntry.table}.${JournalEntry.tableColumnAmount},
       ${JournalEntry.table}.${JournalEntry.tableColumnDate},
       ${JournalEntry.table}.${JournalEntry.tableColumnDescription},
+      ${JournalEntry.table}.${JournalEntry.tableColumnJournalProjectId},
       ${JournalProjectEntry.table}.${JournalProjectEntry.tableColumnName}
       FROM ${JournalEntry.table}
       JOIN
@@ -31,6 +32,7 @@ class JournalDao {
     // 获取数据库实例
     Database db = DatabaseHelper().db;
     final List<Map<String, dynamic>> results = await db.rawQuery(sql);
+    print(results);
     return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 }
