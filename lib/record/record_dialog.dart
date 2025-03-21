@@ -195,24 +195,54 @@ class _RecordDialog extends StatelessWidget {
         return SizedBox(
           height: 100,
           child: GridView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 6, //每行几列
-              childAspectRatio: 1.0, //显示区域宽高相等
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1 / 0.55, // 调整比例以适应所需高度
             ),
             itemCount: state.projects.length,
             itemBuilder: (context, index) {
-              return TextButton(
-                onPressed: () {
+              var item = state.projects[index];
+              return _projectItem(
+                item.name,
+                item.id == state.currentProject?.id,
+                state.journalType,
+                () {
                   context.read<RecordBloc>().add(
-                    RecordOnCheckedProject(checked: state.projects[index]),
+                    RecordOnCheckedProject(checked: item),
                   );
                 },
-                child: Text(state.projects[index].name),
               );
             },
           ),
         );
       },
+    );
+  }
+
+  Widget _projectItem(
+    String title,
+    bool selected,
+    JournalType type,
+    VoidCallback onClickItem,
+  ) {
+    Color backgroundColor = Colors.grey;
+    if (selected) {
+      if (type == JournalType.expense) {
+        backgroundColor = Colors.green;
+      } else {
+        backgroundColor = Colors.orange;
+      }
+    }
+    return TextButton(
+      onPressed: onClickItem,
+      style: TextButton.styleFrom(
+        backgroundColor: backgroundColor,
+        padding: EdgeInsets.zero,
+      ),
+      child: Text(title, style: TextStyle(color: Colors.white, fontSize: 10)),
     );
   }
 }
