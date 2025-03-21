@@ -6,6 +6,10 @@ sealed class RecordEvent {
   const RecordEvent();
 }
 
+final class RecordOnInitial extends RecordEvent {
+  const RecordOnInitial();
+}
+
 final class RecordOnClickJournalType extends RecordEvent {
   final JournalType type;
 

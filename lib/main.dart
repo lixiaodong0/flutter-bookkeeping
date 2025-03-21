@@ -1,3 +1,5 @@
+import 'package:bookkeeping/data/repository/datasource/journal_project_local_datasource.dart';
+import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/db/database.dart';
 import 'package:bookkeeping/db/journal_project_dao.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
@@ -6,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'data/repository/journal_local_datasource.dart';
+import 'data/repository/datasource/journal_local_datasource.dart';
 import 'data/repository/journal_repository.dart';
 import 'db/journal_dao.dart';
 
@@ -53,6 +55,14 @@ class MyApp extends StatelessWidget {
           create:
               (context) => JournalRepository(
                 localDataSource: JournalLocalDataSource(dao: JournalDao()),
+              ),
+        ),
+        RepositoryProvider(
+          create:
+              (context) => JournalProjectRepository(
+                localDataSource: JournalProjectLocalDataSource(
+                  dao: JournalProjectDao(),
+                ),
               ),
         ),
       ],

@@ -1,9 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/record/record_event.dart';
 import 'package:bookkeeping/record/record_state.dart';
 import 'package:bookkeeping/util/toast_util.dart';
 import 'package:flutter/material.dart';
 
+import '../data/bean/journal_project_bean.dart';
 import '../data/bean/journal_type.dart';
 import '../data/repository/journal_repository.dart';
 import '../db/model/journal_entry.dart';
@@ -11,11 +13,25 @@ import '../widget/keyboard_widget.dart';
 
 class RecordBloc extends Bloc<RecordEvent, RecordState> {
   final JournalRepository repository;
+  final JournalProjectRepository projectRepository;
 
-  RecordBloc({required this.repository}) : super(RecordState()) {
+  RecordBloc({required this.repository, required this.projectRepository})
+    : super(RecordState()) {
+    on<RecordOnInitial>(_onInitial);
     on<RecordOnClickJournalType>(_onClickJournalType);
     on<RecordOnClickKeyCode>(_onClickKeyCode);
     on<RecordOnClickConfirm>(_onClickConfirm);
+  }
+
+  void _onInitial(RecordOnInitial event, Emitter<RecordState> emit) async {
+    List<JournalProjectBean> list = [];
+    if (state.journalType == JournalType.expense) {
+      list = await projectRepository.getAllExpenseJournalProjects();
+    } else {
+      list = await projectRepository.getAllIncomeJournalProjects();
+    }
+    print("[_onInitial]list:$list");
+    emit(state.copyWith(projects: list));
   }
 
   void _onClickJournalType(
@@ -125,10 +141,16 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       showToast("所输入金额不得小于0.01");
       return;
     }
+    var currentProject = state.currentProject;
+    if (currentProject == null) {
+      showToast("请选择服务分类");
+      return;
+    }
     var entry = JournalEntry(
       amount: amount.toString(),
       type: state.journalType.name,
       date: DateTime.now(),
+      journalProjectId: currentProject.id,
     );
     repository.addJournal(entry);
     emit(state.copyWith(confirmStatus: RecordFinishStatus.success));

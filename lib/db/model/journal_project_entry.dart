@@ -17,20 +17,39 @@ class JournalProjectEntry {
 
   factory JournalProjectEntry.fromJson(Map<String, dynamic> json) =>
       JournalProjectEntry(
-        id: json['id'],
-        name: json['name'],
-        source: json['source'] ?? "",
-        journalType: JournalType.fromName(json['journalType']),
-        sort: json['sort'] ?? 0,
+        id: json[tableColumnId],
+        journalType: JournalType.fromName(json[tableColumnJournalType]),
+        name: json[tableColumnName],
+        source: json[tableColumnSource] ?? "",
+        sort: json[tableColumnSort] ?? 0,
       );
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'name': name,
-      'source': source,
-      'journalType': journalType.name,
-      'sort': sort,
+      tableColumnId: id,
+      tableColumnJournalType: journalType.name,
+      tableColumnName: name,
+      tableColumnSource: source,
+      tableColumnSort: sort,
     };
+  }
+
+  static final table = "journal_project_entry";
+  static final tableColumnId = "id";
+  static final tableColumnJournalType = "journal_type";
+  static final tableColumnName = "name";
+  static final tableColumnSource = "source";
+  static final tableColumnSort = "sort";
+
+  static String createTableSql() {
+    return '''
+      CREATE TABLE $table (
+        $tableColumnId INTEGER PRIMARY KEY AUTOINCREMENT,
+        $tableColumnJournalType TEXT NOT NULL,
+        $tableColumnName TEXT NOT NULL,
+        $tableColumnSource TEXT,
+        $tableColumnSort INTEGER
+      )
+    ''';
   }
 }

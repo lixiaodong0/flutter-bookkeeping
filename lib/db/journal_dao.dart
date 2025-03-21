@@ -1,25 +1,36 @@
-
+import 'package:bookkeeping/data/bean/journal_bean.dart';
+import 'package:bookkeeping/db/model/journal_project_entry.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'database.dart';
 import 'model/journal_entry.dart';
 
 class JournalDao {
-  static String table = "journal_entry";
-
   //插入数据
   Future<int> insert(JournalEntry journalEntry) async {
     // 获取数据库实例
     Database db = DatabaseHelper().db;
     // 执行插入操作
-    return await db.insert(table, journalEntry.toMap());
+    return await db.insert(JournalEntry.table, journalEntry.toMap());
   }
 
   //插入数据
-  Future<List<JournalEntry>> queryAll() async {
+  Future<List<JournalBean>> queryAll() async {
+    String sql = '''
+      SELECT 
+      ${JournalEntry.table}.${JournalEntry.tableColumnId},
+      ${JournalEntry.table}.${JournalEntry.tableColumnType},
+      ${JournalEntry.table}.${JournalEntry.tableColumnAmount},
+      ${JournalEntry.table}.${JournalEntry.tableColumnDate},
+      ${JournalEntry.table}.${JournalEntry.tableColumnDescription},
+      ${JournalProjectEntry.table}.${JournalProjectEntry.tableColumnName}
+      FROM ${JournalEntry.table}
+      JOIN
+      ${JournalProjectEntry.table} ON ${JournalEntry.table}.${JournalEntry.tableColumnJournalProjectId} = ${JournalProjectEntry.table}.${JournalProjectEntry.tableColumnId}
+    ''';
     // 获取数据库实例
     Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.query(table);
-    return results.map((e) => JournalEntry.fromJson(e)).toList();
+    final List<Map<String, dynamic>> results = await db.rawQuery(sql);
+    return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 }

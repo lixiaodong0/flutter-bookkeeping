@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:bookkeeping/db/journal_dao.dart';
+import 'package:bookkeeping/db/model/journal_entry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 import 'generate/journal_project_generate.dart';
 import 'journal_project_dao.dart';
+import 'model/journal_project_entry.dart';
 
 class DatabaseHelper {
   //私有构造函数
@@ -28,12 +30,8 @@ class DatabaseHelper {
         var start = DateTime.now().millisecondsSinceEpoch;
         //数据库创建
         log("database onCreate");
-        db.execute(
-          "CREATE TABLE ${JournalDao.table}(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, amount TEXT, date TEXT, description TEXT)",
-        );
-        db.execute(
-          "CREATE TABLE ${JournalProjectDao.table}(id INTEGER PRIMARY KEY AUTOINCREMENT, journalType TEXT, name TEXT, source TEXT, sort INTEGER)",
-        );
+        db.execute(JournalEntry.createTableSql());
+        db.execute(JournalProjectEntry.createTableSql());
         JournalProjectGenerate.generate(db);
         var end = DateTime.now().millisecondsSinceEpoch - start;
         log("database onCreate finish ${end / 1000}ms");

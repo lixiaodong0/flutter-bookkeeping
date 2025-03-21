@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/record/record_bloc.dart';
 import 'package:bookkeeping/record/record_event.dart';
 import 'package:bookkeeping/record/record_state.dart';
@@ -21,8 +22,11 @@ void showRecordDialog(
     builder: (BuildContext context) {
       return BlocProvider(
         create:
-            (context) =>
-                RecordBloc(repository: context.read<JournalRepository>()),
+            (context) => RecordBloc(
+              repository: context.read<JournalRepository>(),
+              projectRepository: context.read<JournalProjectRepository>(),
+            )..add(RecordOnInitial()),
+
         child: _RecordDialog(onRecordSuccess: onSuccess),
       );
     },
