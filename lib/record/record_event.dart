@@ -11,6 +11,12 @@ final class RecordOnInitial extends RecordEvent {
   const RecordOnInitial();
 }
 
+final class RecordOnUpdateCurrentDate extends RecordEvent {
+  final DateTime date;
+
+  const RecordOnUpdateCurrentDate({required this.date});
+}
+
 final class RecordOnCheckedProject extends RecordEvent {
   final JournalProjectBean checked;
 

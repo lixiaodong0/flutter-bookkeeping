@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/repository/journal_repository.dart';
+import '../widget/date_piacker_widget.dart';
 import '../widget/keyboard_widget.dart';
 
 typedef OnRecordSuccessFunction = void Function();
@@ -138,9 +139,50 @@ class _RecordDialog extends StatelessWidget {
               RecordOnClickJournalType(type: JournalType.income),
             );
           }),
+          Expanded(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _currentDateButton(
+                    context,
+                    state.currentDate ?? DateTime.now(),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _currentDateButton(BuildContext context, DateTime current) {
+    return TextButton(
+      onPressed: () {
+        DatePickerWidget.showDatePicker(
+          context,
+          defaultDate: DateTime.now(),
+          onChanged: (date) {
+            context.read<RecordBloc>().add(
+              RecordOnUpdateCurrentDate(date: date),
+            );
+          },
+        );
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.grey[100],
+        padding: EdgeInsets.all(0),
+        minimumSize: const Size(48, 26),
+        fixedSize: const Size(48, 26),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      child: Text(
+        "${current.month}月${current.day}日",
+        style: TextStyle(color: Colors.black, fontSize: 12),
+      ),
+    );
+    ;
   }
 
   Widget _journalTypeButton(

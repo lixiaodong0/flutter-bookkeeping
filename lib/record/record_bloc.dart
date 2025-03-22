@@ -18,12 +18,13 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
   final JournalProjectRepository projectRepository;
 
   RecordBloc({required this.repository, required this.projectRepository})
-    : super(RecordState()) {
+    : super(RecordState(currentDate: DateTime.now())) {
     on<RecordOnInitial>(_onInitial);
     on<RecordOnCheckedProject>(_onCheckedProject);
     on<RecordOnClickJournalType>(_onClickJournalType);
     on<RecordOnClickKeyCode>(_onClickKeyCode);
     on<RecordOnClickConfirm>(_onClickConfirm);
+    on<RecordOnUpdateCurrentDate>(_onOnUpdateCurrentDate);
   }
 
   void _onInitial(RecordOnInitial event, Emitter<RecordState> emit) async {
@@ -43,6 +44,13 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     }
     print("[_onSwitchJournalType]list:$list");
     emit(state.copyWith(projects: list, currentProject: list.firstOrNull));
+  }
+
+  void _onOnUpdateCurrentDate(
+    RecordOnUpdateCurrentDate event,
+    Emitter<RecordState> emit,
+  ) async {
+    emit(state.copyWith(currentDate: event.date));
   }
 
   void _onCheckedProject(
