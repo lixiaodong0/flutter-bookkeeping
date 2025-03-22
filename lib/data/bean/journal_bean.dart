@@ -2,6 +2,7 @@ import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/db/model/journal_project_entry.dart';
 
 import '../../db/model/journal_entry.dart';
+import 'daily_date_amount.dart';
 
 final class JournalBean {
   int id;
@@ -12,6 +13,8 @@ final class JournalBean {
 
   final int journalProjectId;
   final String journalProjectName;
+
+  DailyDateAmount? dailyAmount;
 
   JournalBean({
     required this.id,

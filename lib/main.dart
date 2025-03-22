@@ -13,6 +13,7 @@ import 'data/repository/journal_repository.dart';
 import 'db/journal_dao.dart';
 
 void main() async {
+  // initializeDateFormatting("pt_BR", "");
   await DatabaseHelper().init();
   runApp(const MyApp());
 }
@@ -33,7 +34,7 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: "/transaction",
           builder: (BuildContext context, GoRouterState state) {
-            return const TransactionScreen();
+            return TransactionScreen();
           },
         ),
       ],

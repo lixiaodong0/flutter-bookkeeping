@@ -1,5 +1,5 @@
-
 import 'package:bookkeeping/data/bean/journal_bean.dart';
+import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/db/journal_dao.dart';
 
 import '../../../db/model/journal_entry.dart';
@@ -19,5 +19,19 @@ class JournalLocalDataSource implements JournalDataSource {
   Future<List<JournalBean>> getAllJournal() async {
     var results = await dao.queryAll();
     return results;
+  }
+
+  @override
+  Future<List<JournalBean>> getPageJournal({
+    int pageSize = 20,
+    int page = 1,
+  }) async {
+    var results = await dao.queryPager(pageSize: pageSize, page: page);
+    return results;
+  }
+
+  @override
+  Future<String> getTodayTotalAmount(DateTime date, JournalType type) {
+    return dao.queryTodayTotalAmount(date, type);
   }
 }

@@ -217,7 +217,7 @@ final class KeyboardWidget extends StatelessWidget {
     if (!enabled) {
       backgroundColor = backgroundColor.withAlpha(150);
     }
-    return OutlinedButton(
+    return TextButton(
       onPressed: onClick,
       style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
