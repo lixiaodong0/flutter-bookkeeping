@@ -20,6 +20,10 @@ void showRecordDialog(
   var rootContext = Navigator.of(context, rootNavigator: true).context;
   showModalBottomSheet(
     context: rootContext,
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+    ),
     scrollControlDisabledMaxHeightRatio: 0.7,
     builder: (BuildContext context) {
       return BlocProvider(
@@ -60,7 +64,7 @@ class _RecordDialog extends StatelessWidget {
         }
       },
       child: Container(
-        color: Colors.white,
+        padding: EdgeInsets.only(top: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -75,7 +79,6 @@ class _RecordDialog extends StatelessWidget {
                 return _journalTypeContainer(context, state);
               },
             ),
-            Padding(padding: EdgeInsets.only(top: 8)),
             BlocBuilder<RecordBloc, RecordState>(
               builder: (context, state) {
                 return _inputContainer(state.inputAmount);
@@ -87,7 +90,7 @@ class _RecordDialog extends StatelessWidget {
               onPressed: () {},
               child: Text(
                 "添加备注",
-                style: TextStyle(fontSize: 16, color: Colors.blue),
+                style: TextStyle(fontSize: 14, color: Color(0xFF63728c)),
               ),
             ),
             BlocBuilder<RecordBloc, RecordState>(
@@ -127,18 +130,28 @@ class _RecordDialog extends StatelessWidget {
           _journalTypeButton(
             "支出",
             state.journalType == JournalType.expense,
+            state.journalType == JournalType.expense
+                ? Colors.green
+                : Colors.grey,
             () {
               context.read<RecordBloc>().add(
                 RecordOnClickJournalType(type: JournalType.expense),
               );
             },
           ),
-          Padding(padding: EdgeInsets.only(left: 8)),
-          _journalTypeButton("入账", state.journalType == JournalType.income, () {
-            context.read<RecordBloc>().add(
-              RecordOnClickJournalType(type: JournalType.income),
-            );
-          }),
+          Padding(padding: EdgeInsets.only(left: 10)),
+          _journalTypeButton(
+            "入账",
+            state.journalType == JournalType.income,
+            state.journalType == JournalType.income
+                ? Colors.orange
+                : Colors.grey,
+            () {
+              context.read<RecordBloc>().add(
+                RecordOnClickJournalType(type: JournalType.income),
+              );
+            },
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -172,29 +185,35 @@ class _RecordDialog extends StatelessWidget {
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.grey[100],
-        padding: EdgeInsets.all(0),
-        minimumSize: const Size(48, 26),
-        fixedSize: const Size(48, 26),
+        padding: EdgeInsets.only(left: 5),
+        minimumSize: const Size(80, 26),
+        fixedSize: const Size(80, 26),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
-      child: Text(
-        "${current.month}月${current.day}日",
-        style: TextStyle(color: Colors.black, fontSize: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "${current.month}月${current.day}日",
+            style: TextStyle(color: Colors.black, fontSize: 12),
+          ),
+          Icon(Icons.arrow_drop_down, color: Colors.grey),
+        ],
       ),
     );
-    ;
   }
 
   Widget _journalTypeButton(
     String title,
     bool selected,
+    Color selectColor,
     VoidCallback onPressed,
   ) {
     Color textColor = Colors.grey;
-    Color? backgroundColor = Colors.grey[100];
+    Color? backgroundColor = Colors.grey.withAlpha(50);
     if (selected) {
-      textColor = Colors.white;
-      backgroundColor = Colors.blue;
+      textColor = selectColor;
+      backgroundColor = selectColor.withAlpha(50);
     }
     return TextButton(
       onPressed: onPressed,
@@ -211,20 +230,31 @@ class _RecordDialog extends StatelessWidget {
 
   Widget _inputContainer(String inputAmount) {
     return Container(
-      decoration: BoxDecoration(),
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
             children: [
-              Text("¥", style: TextStyle(fontSize: 30, color: Colors.black)),
-              Padding(padding: EdgeInsets.symmetric(horizontal: 8)),
+              Text(
+                "¥",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 6)),
               Text(
                 inputAmount,
-                style: TextStyle(fontSize: 30, color: Colors.black),
+                style: TextStyle(
+                  fontSize: 34,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
+          Padding(padding: EdgeInsets.only(top: 8)),
           Divider(height: 1, color: Colors.grey[400]),
         ],
       ),
@@ -270,7 +300,7 @@ class _RecordDialog extends StatelessWidget {
     JournalType type,
     VoidCallback onClickItem,
   ) {
-    Color backgroundColor = Colors.grey;
+    Color backgroundColor = Colors.grey.withAlpha(200);
     if (selected) {
       if (type == JournalType.expense) {
         backgroundColor = Colors.green;
