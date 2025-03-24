@@ -84,6 +84,7 @@ class _ScaffoldWithNavBar extends StatelessWidget {
       key: toastGlobalContext,
       body: child,
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
         selectedItemColor: Colors.green,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "明细",),
