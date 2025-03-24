@@ -34,4 +34,9 @@ class JournalLocalDataSource implements JournalDataSource {
   Future<String> getTodayTotalAmount(DateTime date, JournalType type) {
     return dao.queryTodayTotalAmount(date, type);
   }
+
+  @override
+  Future<String> getMonthTotalAmount(DateTime date, JournalType type) {
+    return dao.queryMonthTotalAmount(date, type);
+  }
 }

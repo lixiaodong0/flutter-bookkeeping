@@ -13,4 +13,36 @@ class DateUtil {
     }
     return false;
   }
+
+  static bool isSameMonth(DateTime date1, DateTime? date2) {
+    if (date1.year == date2?.year && date1.month == date2?.month) {
+      return true;
+    }
+    return false;
+  }
+
+  //根据年月计算每月的天数
+  static int calculateMonthDays(int year, int month) {
+    var days = 0;
+    if (month == 2) {
+      if (year % 4 == 0) {
+        days = 29;
+      } else {
+        days = 28;
+      }
+    } else {
+      if (month == 1 ||
+          month == 3 ||
+          month == 5 ||
+          month == 7 ||
+          month == 8 ||
+          month == 10 ||
+          month == 12) {
+        days = 31;
+      } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+        days = 30;
+      }
+    }
+    return days;
+  }
 }

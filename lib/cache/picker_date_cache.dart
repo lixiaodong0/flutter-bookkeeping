@@ -1,3 +1,5 @@
+import 'package:bookkeeping/util/date_util.dart';
+
 import '../widget/date_piacker_widget.dart';
 
 class PickerDateCache {
@@ -47,31 +49,7 @@ class PickerDateCache {
   }
 
   List<DaysBean> _getDays(DateTime date, DateTime now, bool isAlignWeek) {
-    var daysCount = 0;
-
-    if (date.month == 2) {
-      if (date.year % 4 == 0) {
-        daysCount = 29;
-      } else {
-        daysCount = 28;
-      }
-    } else {
-      if (date.month == 1 ||
-          date.month == 3 ||
-          date.month == 5 ||
-          date.month == 7 ||
-          date.month == 8 ||
-          date.month == 10 ||
-          date.month == 12) {
-        daysCount = 31;
-      } else if (date.month == 4 ||
-          date.month == 6 ||
-          date.month == 9 ||
-          date.month == 11) {
-        daysCount = 30;
-      }
-    }
-
+    var daysCount = DateUtil.calculateMonthDays(date.year, date.month);
     List<DaysBean> list = [];
     for (int i = 1; i <= daysCount; i++) {
       date.copyWith(day: i);

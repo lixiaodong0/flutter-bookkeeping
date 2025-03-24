@@ -10,5 +10,7 @@ abstract class JournalDataSource {
 
   Future<String> getTodayTotalAmount(DateTime date,JournalType type);
 
+  Future<String> getMonthTotalAmount(DateTime date,JournalType type);
+
   Future<int> addJournal(JournalEntry entry);
 }

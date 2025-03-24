@@ -1,5 +1,6 @@
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/db/model/journal_project_entry.dart';
+import 'package:bookkeeping/util/date_util.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../data/bean/journal_type.dart';
@@ -53,7 +54,10 @@ class JournalDao {
   }
 
   //查询分页数据 按照日期倒序
-  Future<List<JournalBean>> queryPager({int pageSize = 20, int page = 1}) async {
+  Future<List<JournalBean>> queryPager({
+    int pageSize = 20,
+    int page = 1,
+  }) async {
     final String tableName = JournalEntry.table;
     final String projectTableName = JournalProjectEntry.table;
 
@@ -109,6 +113,49 @@ class JournalDao {
         DateTime(date.year, date.month, date.day).toIso8601String();
     String endTime =
         DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
+
+    // 获取数据库实例
+    Database db = DatabaseHelper().db;
+    final List<Map<String, dynamic>> results = await db.rawQuery(sql, [
+      type.name,
+      startTime,
+      endTime,
+    ]);
+
+    print(results);
+
+    // 检查查询结果并返回总金额
+    if (results.isNotEmpty && results[0]['total_amount'] != null) {
+      return results[0]['total_amount'].toString();
+    } else {
+      // 如果没有记录，返回 "0"
+      return "0";
+    }
+  }
+
+  //查询当月总的金额
+  Future<String> queryMonthTotalAmount(DateTime date, JournalType type) async {
+    final String tableName = JournalEntry.table;
+    final String columnAmount = JournalEntry.tableColumnAmount;
+    final String columnType = JournalEntry.tableColumnType;
+    final String columnDate = JournalEntry.tableColumnDate;
+
+    String sql = '''
+      SELECT SUM($tableName.$columnAmount) AS total_amount
+      FROM $tableName WHERE $tableName.$columnType = ?
+      AND $tableName.$columnDate BETWEEN ? AND ?
+    ''';
+
+    String startTime = DateTime(date.year, date.month, 1).toIso8601String();
+    String endTime =
+        DateTime(
+          date.year,
+          date.month,
+          DateUtil.calculateMonthDays(date.year, date.month),
+          23,
+          59,
+          59,
+        ).toIso8601String();
 
     // 获取数据库实例
     Database db = DatabaseHelper().db;

@@ -1,6 +1,8 @@
+import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
+import 'package:bookkeeping/util/date_util.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/bean/journal_bean.dart';
@@ -22,7 +24,30 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionOnScrollChange event,
     Emitter<TransactionState> emit,
   ) async {
-
+    var firstIndex = event.firstIndex = event.firstIndex;
+    var findItem = state.lists[firstIndex];
+    var date = findItem.date;
+    // print(
+    //   "[_onScrollChange]firstIndex:${firstIndex},findItem:${findItem},date:${date}",
+    // );
+    if (!DateUtil.isSameMonth(date, state.currentDate)) {
+      //重新计算
+      var totalIncome = await repository.getMonthTotalAmount(
+        date,
+        JournalType.income,
+      );
+      var totalExpense = await repository.getMonthTotalAmount(
+        date,
+        JournalType.expense,
+      );
+      emit(
+        state.copyWith(
+          currentDate: date,
+          dateMonthIncome: totalIncome,
+          dateMonthExpense: totalExpense,
+        ),
+      );
+    }
   }
 
   void _onInitLoad(

@@ -74,4 +74,9 @@ class JournalRepository implements JournalDataSource {
   Future<String> getTodayTotalAmount(DateTime date, JournalType type) {
     return _localDataSource.getTodayTotalAmount(date, type);
   }
+
+  @override
+  Future<String> getMonthTotalAmount(DateTime date, JournalType type) {
+    return _localDataSource.getMonthTotalAmount(date, type);
+  }
 }
