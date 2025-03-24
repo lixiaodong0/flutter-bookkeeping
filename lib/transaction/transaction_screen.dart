@@ -8,15 +8,44 @@ import 'package:bookkeeping/widget/date_piacker_widget.dart';
 import 'package:bookkeeping/widget/keyboard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../data/bean/journal_bean.dart';
 import '../data/repository/journal_repository.dart';
 import '../record/record_dialog.dart';
 
-class TransactionScreen extends StatelessWidget {
-  TransactionScreen({super.key});
+class TransactionScreen extends StatefulWidget {
+  const TransactionScreen({super.key});
 
-  final ScrollController _scrollController = ScrollController();
+  @override
+  State<StatefulWidget> createState() => _TransactionScreenState();
+}
+
+class _TransactionScreenState extends State<TransactionScreen> {
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+  final GlobalKey _blocContext = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    itemPositionsListener.itemPositions.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    var firstIndex = itemPositionsListener.itemPositions.value.first.index;
+    var lastIndex = itemPositionsListener.itemPositions.value.last.index;
+    if (_blocContext.currentContext != null) {
+      _blocContext.currentContext!.read<TransactionBloc>().add(
+        TransactionOnScrollChange(firstIndex: firstIndex, lastIndex: lastIndex),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +57,7 @@ class TransactionScreen extends StatelessWidget {
       child: BlocBuilder<TransactionBloc, TransactionState>(
         builder: (context, state) {
           return Scaffold(
+            key: _blocContext,
             body: Column(
               children: [
                 _buildHeader(context, state),
@@ -49,7 +79,7 @@ class TransactionScreen extends StatelessWidget {
                 ],
               ),
               child: sizedButtonWidget(
-                onPressed: (){
+                onPressed: () {
                   RecordDialog.showRecordDialog(
                     context,
                     onSuccess: () {
@@ -87,9 +117,9 @@ class TransactionScreen extends StatelessWidget {
   }
 
   Widget _buildTransactionList(BuildContext context, TransactionState state) {
-    return ListView.builder(
+    return ScrollablePositionedList.builder(
       padding: EdgeInsets.symmetric(horizontal: 16),
-      controller: _scrollController,
+      itemPositionsListener: itemPositionsListener,
       itemCount: state.lists.length,
       itemBuilder: (context, index) {
         var item = state.lists[index];

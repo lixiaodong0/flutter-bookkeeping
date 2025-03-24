@@ -13,8 +13,16 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   TransactionBloc({required this.repository})
     : super(TransactionState(currentDate: DateTime.now())) {
     on<TransactionInitLoad>(_onInitLoad);
+    on<TransactionOnScrollChange>(_onScrollChange);
     on<TransactionReload>(_onReload);
     on<TransactionLoadMore>(_onLoadMore);
+  }
+
+  void _onScrollChange(
+    TransactionOnScrollChange event,
+    Emitter<TransactionState> emit,
+  ) async {
+
   }
 
   void _onInitLoad(
