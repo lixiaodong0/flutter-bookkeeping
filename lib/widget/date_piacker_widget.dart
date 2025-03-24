@@ -1,3 +1,4 @@
+import 'package:bookkeeping/cache/picker_date_cache.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -81,9 +82,10 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
   void initState() {
     super.initState();
     // 确保在布局完成后滚动到底部
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    });
+    // fix: 使用reverse: true 方式 解决_scrollController.jumpTo 数据量大有延迟卡顿问题
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // _scrollController.jumpTo(_list.length-1);
+    // });
     _initData();
   }
 
@@ -94,85 +96,10 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
   }
 
   void _initData() async {
-    List<DateBean> list = [];
-
-    //最多可选一年内
-    var now = DateTime.now();
-    var lastYear = now.copyWith(year: now.year - 1);
-
-    for (int i = lastYear.month; i <= 12; i++) {
-      var next = lastYear.copyWith(month: i);
-      list.add(
-        DateBean(year: next.year, month: next.month, days: getDays(next, now)),
-      );
-    }
-
-    for (int i = 1; i <= now.month; i++) {
-      var next = now.copyWith(month: i);
-      list.add(
-        DateBean(year: next.year, month: next.month, days: getDays(next, now)),
-      );
-    }
-
+    List<DateBean> list = PickerDateCache().list;
     setState(() {
       _list = list;
     });
-  }
-
-  List<DaysBean> getDays(DateTime date, DateTime now) {
-    var daysCount = 0;
-
-    if (date.month == 2) {
-      if (date.year % 4 == 0) {
-        daysCount = 29;
-      } else {
-        daysCount = 28;
-      }
-    } else {
-      if (date.month == 1 ||
-          date.month == 3 ||
-          date.month == 5 ||
-          date.month == 7 ||
-          date.month == 8 ||
-          date.month == 10 ||
-          date.month == 12) {
-        daysCount = 31;
-      } else if (date.month == 4 ||
-          date.month == 6 ||
-          date.month == 9 ||
-          date.month == 11) {
-        daysCount = 30;
-      }
-    }
-
-    List<DaysBean> list = [];
-    for (int i = 1; i <= daysCount; i++) {
-      date.copyWith(day: i);
-
-      var isEnabled = true;
-      if (date.year == now.year && date.month == now.month) {
-        if (i > now.day) {
-          isEnabled = false;
-        }
-      }
-      list.add(
-        DaysBean(
-          year: date.year,
-          month: date.month,
-          day: i,
-          isEnabled: isEnabled,
-        ),
-      );
-    }
-
-    //美观 排序对其作用
-    var firstDay = date.copyWith(day: 1);
-    if (firstDay.weekday != DateTime.sunday) {
-      for (int i = 0; i < firstDay.weekday; i++) {
-        list.insert(0, DaysBean.placeholder());
-      }
-    }
-    return list;
   }
 
   @override
@@ -270,7 +197,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
   Widget _dateContainer() {
     return ListView.builder(
       controller: _scrollController,
-
+      reverse: true,
       itemCount: _list.length,
       shrinkWrap: true,
       itemBuilder: (context, index) {

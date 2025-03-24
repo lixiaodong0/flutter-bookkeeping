@@ -33,10 +33,10 @@ class TransactionScreen extends StatelessWidget {
             backgroundColor: Color.fromRGBO(237, 237, 237, 1.0),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                showRecordDialog(
+                RecordDialog.showRecordDialog(
                   context,
                   onSuccess: () {
-                    context.read<TransactionBloc>().add(TransactionInitLoad());
+                    context.read<TransactionBloc>().add(TransactionReload());
                   },
                 );
               },

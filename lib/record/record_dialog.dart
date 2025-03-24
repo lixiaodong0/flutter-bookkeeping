@@ -13,36 +13,36 @@ import '../widget/keyboard_widget.dart';
 
 typedef OnRecordSuccessFunction = void Function();
 
-void showRecordDialog(
-  BuildContext context, {
-  OnRecordSuccessFunction? onSuccess,
-}) {
-  var rootContext = Navigator.of(context, rootNavigator: true).context;
-  showModalBottomSheet(
-    context: rootContext,
-    backgroundColor: Colors.white,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-    ),
-    scrollControlDisabledMaxHeightRatio: 0.7,
-    builder: (BuildContext context) {
-      return BlocProvider(
-        create:
-            (context) => RecordBloc(
-              repository: context.read<JournalRepository>(),
-              projectRepository: context.read<JournalProjectRepository>(),
-            )..add(RecordOnInitial()),
-
-        child: _RecordDialog(onRecordSuccess: onSuccess),
-      );
-    },
-  );
-}
-
-class _RecordDialog extends StatelessWidget {
+class RecordDialog extends StatelessWidget {
   final OnRecordSuccessFunction? onRecordSuccess;
 
-  const _RecordDialog({required this.onRecordSuccess}) : super();
+  const RecordDialog({super.key, required this.onRecordSuccess});
+
+  static showRecordDialog(
+    BuildContext context, {
+    OnRecordSuccessFunction? onSuccess,
+  }) {
+    var rootContext = Navigator.of(context, rootNavigator: true).context;
+    showModalBottomSheet(
+      context: rootContext,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      scrollControlDisabledMaxHeightRatio: 0.6,
+      builder: (BuildContext context) {
+        return BlocProvider(
+          create:
+              (context) => RecordBloc(
+            repository: context.read<JournalRepository>(),
+            projectRepository: context.read<JournalProjectRepository>(),
+          )..add(RecordOnInitial()),
+
+          child: RecordDialog(onRecordSuccess: onSuccess),
+        );
+      },
+    );
+  }
 
   //关闭弹窗
   void _closeDialog(BuildContext context) {

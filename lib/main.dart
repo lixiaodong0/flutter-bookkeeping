@@ -1,3 +1,4 @@
+import 'package:bookkeeping/cache/picker_date_cache.dart';
 import 'package:bookkeeping/data/repository/datasource/journal_project_local_datasource.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/db/database.dart';
@@ -13,9 +14,9 @@ import 'data/repository/journal_repository.dart';
 import 'db/journal_dao.dart';
 
 void main() async {
-  // initializeDateFormatting("pt_BR", "");
   await DatabaseHelper().init();
   runApp(const MyApp());
+  PickerDateCache().create();
 }
 
 final GlobalKey toastGlobalContext = GlobalKey();

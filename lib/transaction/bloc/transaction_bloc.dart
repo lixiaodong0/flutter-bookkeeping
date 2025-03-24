@@ -11,34 +11,40 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   int page = 1;
 
   TransactionBloc({required this.repository}) : super(TransactionState()) {
-    on<TransactionInitLoad>(_onTransactionInitLoad);
-    on<TransactionLoadMore>(_onTransactionLoadMore);
+    on<TransactionInitLoad>(_onInitLoad);
+    on<TransactionReload>(_onReload);
+    on<TransactionLoadMore>(_onLoadMore);
   }
 
-  void _onTransactionInitLoad(
+  void _onInitLoad(
     TransactionInitLoad event,
     Emitter<TransactionState> emit,
   ) async {
-    print("[_onTransactionInitLoad]start");
-    var result = await repository.getPageJournal(
-      pageSize: pageSize,
-      page: page,
-    );
-    print("[_onTransactionInitLoad]result:$result");
+    page = 1;
+    var result = await _loadData();
     emit(state.copyWith(lists: result));
   }
 
-  void _onTransactionLoadMore(
+  void _onReload(
+    TransactionReload event,
+    Emitter<TransactionState> emit,
+  ) async {
+    page = 1;
+    var result = await _loadData();
+    emit(state.copyWith(lists: result));
+  }
+
+  //加载数据
+  Future<List<JournalBean>> _loadData() {
+    return repository.getPageJournal(pageSize: pageSize, page: page);
+  }
+
+  void _onLoadMore(
     TransactionLoadMore event,
     Emitter<TransactionState> emit,
   ) async {
     page++;
-    print("[_onTransactionLoadMore]start");
-    var result = await repository.getPageJournal(
-      pageSize: pageSize,
-      page: page,
-    );
-    print("[_onTransactionLoadMore]result:$result");
+    var result = await _loadData();
     List<JournalBean> newLists = [];
     newLists.addAll(state.lists);
     newLists.addAll(result);

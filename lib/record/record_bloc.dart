@@ -173,11 +173,10 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       showToast("请选择服务分类");
       return;
     }
-    var now = DateTime.now();
+    var now = state.currentDate ?? DateTime.now();
     var entry = JournalEntry(
       amount: amount.toString(),
       type: state.journalType.name,
-      // date: DateTime(now.year, now.month, now.day - 2),
       date: now,
       journalProjectId: currentProject.id,
     );

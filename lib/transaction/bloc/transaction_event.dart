@@ -3,5 +3,5 @@ sealed class TransactionEvent {
 }
 
 final class TransactionInitLoad extends TransactionEvent {}
-
+final class TransactionReload extends TransactionEvent {}
 final class TransactionLoadMore extends TransactionEvent {}
