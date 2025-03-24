@@ -84,9 +84,10 @@ class _ScaffoldWithNavBar extends StatelessWidget {
       key: toastGlobalContext,
       body: child,
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.green,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "明细"),
-          BottomNavigationBarItem(icon: Icon(Icons.business), label: "统计"),
+          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "明细",),
+          BottomNavigationBarItem(icon: Icon(Icons.pie_chart_rounded), label: "统计"),
         ],
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int index) {

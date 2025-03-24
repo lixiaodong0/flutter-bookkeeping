@@ -10,7 +10,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final int pageSize = 20;
   int page = 1;
 
-  TransactionBloc({required this.repository}) : super(TransactionState()) {
+  TransactionBloc({required this.repository})
+    : super(TransactionState(currentDate: DateTime.now())) {
     on<TransactionInitLoad>(_onInitLoad);
     on<TransactionReload>(_onReload);
     on<TransactionLoadMore>(_onLoadMore);

@@ -2,6 +2,8 @@ import 'package:bookkeeping/transaction/bloc/transaction_bloc.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
 import 'package:bookkeeping/transaction/transaction_item.dart';
+import 'package:bookkeeping/transaction/transaction_topbar.dart';
+import 'package:bookkeeping/widget/clickable_widget.dart';
 import 'package:bookkeeping/widget/date_piacker_widget.dart';
 import 'package:bookkeeping/widget/keyboard_widget.dart';
 import 'package:flutter/material.dart';
@@ -26,25 +28,49 @@ class TransactionScreen extends StatelessWidget {
       child: BlocBuilder<TransactionBloc, TransactionState>(
         builder: (context, state) {
           return Scaffold(
-            body: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              child: _buildTransactionList(context, state),
+            body: Column(
+              children: [
+                _buildHeader(context, state),
+                Expanded(child: _buildTransactionList(context, state)),
+              ],
             ),
             backgroundColor: Color.fromRGBO(237, 237, 237, 1.0),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                RecordDialog.showRecordDialog(
-                  context,
-                  onSuccess: () {
-                    context.read<TransactionBloc>().add(TransactionReload());
-                  },
-                );
-              },
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
+            floatingActionButton: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withAlpha(50), // 阴影颜色
+                    offset: Offset(0, 4), // 阴影偏移量
+                    blurRadius: 6, // 模糊半径
+                    spreadRadius: 2, // 扩散半径
+                  ),
+                ],
               ),
-              child: Text("记一笔"),
+              child: sizedButtonWidget(
+                onPressed: (){
+                  RecordDialog.showRecordDialog(
+                    context,
+                    onSuccess: () {
+                      context.read<TransactionBloc>().add(TransactionReload());
+                    },
+                  );
+                },
+                width: 90,
+                height: 40,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.post_add_outlined, color: Colors.green),
+                    Text(
+                      "记一笔",
+                      style: TextStyle(color: Colors.green, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -52,8 +78,17 @@ class TransactionScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildHeader(BuildContext context, TransactionState state) {
+    return Container(
+      height: 150,
+      color: Colors.green,
+      child: buildTopBarContent(context, state),
+    );
+  }
+
   Widget _buildTransactionList(BuildContext context, TransactionState state) {
     return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 16),
       controller: _scrollController,
       itemCount: state.lists.length,
       itemBuilder: (context, index) {
