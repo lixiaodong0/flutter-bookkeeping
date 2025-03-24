@@ -1,4 +1,6 @@
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/data/repository/journal_month_repository.dart';
+import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
@@ -9,11 +11,16 @@ import '../../data/bean/journal_bean.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final JournalRepository repository;
+  final JournalProjectRepository projectRepository;
+  final JournalMonthRepository monthRepository;
   final int pageSize = 20;
   int page = 1;
 
-  TransactionBloc({required this.repository})
-    : super(TransactionState(currentDate: DateTime.now())) {
+  TransactionBloc({
+    required this.repository,
+    required this.projectRepository,
+    required this.monthRepository,
+  }) : super(TransactionState(currentDate: DateTime.now())) {
     on<TransactionInitLoad>(_onInitLoad);
     on<TransactionOnScrollChange>(_onScrollChange);
     on<TransactionReload>(_onReload);

@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_repository.dart';
 import '../widget/date_piacker_widget.dart';
 import '../widget/keyboard_widget.dart';
@@ -34,9 +35,10 @@ class RecordDialog extends StatelessWidget {
         return BlocProvider(
           create:
               (context) => RecordBloc(
-            repository: context.read<JournalRepository>(),
-            projectRepository: context.read<JournalProjectRepository>(),
-          )..add(RecordOnInitial()),
+                repository: context.read<JournalRepository>(),
+                projectRepository: context.read<JournalProjectRepository>(),
+                monthRepository: context.read<JournalMonthRepository>(),
+              )..add(RecordOnInitial()),
 
           child: RecordDialog(onRecordSuccess: onSuccess),
         );

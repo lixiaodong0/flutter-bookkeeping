@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bookkeeping/db/journal_dao.dart';
 import 'package:bookkeeping/db/model/journal_entry.dart';
+import 'package:bookkeeping/db/model/journal_month_entry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -32,6 +33,7 @@ class DatabaseHelper {
         log("database onCreate");
         db.execute(JournalEntry.createTableSql());
         db.execute(JournalProjectEntry.createTableSql());
+        db.execute(JournalMonthEntry.createTableSql());
         JournalProjectGenerate.generate(db);
         var end = DateTime.now().millisecondsSinceEpoch - start;
         log("database onCreate finish ${end / 1000}ms");

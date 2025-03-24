@@ -1,7 +1,10 @@
 import 'package:bookkeeping/cache/picker_date_cache.dart';
+import 'package:bookkeeping/data/repository/datasource/journal_month_local_datasource.dart';
 import 'package:bookkeeping/data/repository/datasource/journal_project_local_datasource.dart';
+import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/db/database.dart';
+import 'package:bookkeeping/db/journal_month_dao.dart';
 import 'package:bookkeeping/db/journal_project_dao.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
@@ -67,6 +70,14 @@ class MyApp extends StatelessWidget {
                 ),
               ),
         ),
+        RepositoryProvider(
+          create:
+              (context) => JournalMonthRepository(
+                localDataSource: JournalMonthLocalDataSource(
+                  dao: JournalMonthDao(),
+                ),
+              ),
+        ),
       ],
       child: MaterialApp.router(routerConfig: _router),
     );
@@ -87,8 +98,11 @@ class _ScaffoldWithNavBar extends StatelessWidget {
         backgroundColor: Colors.white,
         selectedItemColor: Colors.green,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "明细",),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart_rounded), label: "统计"),
+          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "明细"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pie_chart_rounded),
+            label: "统计",
+          ),
         ],
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int index) {

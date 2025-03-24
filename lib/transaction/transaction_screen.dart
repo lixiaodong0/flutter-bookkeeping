@@ -4,13 +4,12 @@ import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
 import 'package:bookkeeping/transaction/transaction_item.dart';
 import 'package:bookkeeping/transaction/transaction_topbar.dart';
 import 'package:bookkeeping/widget/clickable_widget.dart';
-import 'package:bookkeeping/widget/date_piacker_widget.dart';
-import 'package:bookkeeping/widget/keyboard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../data/bean/journal_bean.dart';
+import '../data/repository/journal_month_repository.dart';
+import '../data/repository/journal_project_repository.dart';
 import '../data/repository/journal_repository.dart';
 import '../record/record_dialog.dart';
 
@@ -51,9 +50,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create:
-          (context) =>
-              TransactionBloc(repository: context.read<JournalRepository>())
-                ..add(TransactionInitLoad()),
+          (context) => TransactionBloc(
+            repository: context.read<JournalRepository>(),
+            projectRepository: context.read<JournalProjectRepository>(),
+            monthRepository: context.read<JournalMonthRepository>(),
+          )..add(TransactionInitLoad()),
       child: BlocBuilder<TransactionBloc, TransactionState>(
         builder: (context, state) {
           return Scaffold(

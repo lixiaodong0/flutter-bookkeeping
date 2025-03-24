@@ -1,7 +1,9 @@
 import 'dart:ffi';
 
 import 'package:bloc/bloc.dart';
+import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
+import 'package:bookkeeping/db/model/journal_month_entry.dart';
 import 'package:bookkeeping/record/record_event.dart';
 import 'package:bookkeeping/record/record_state.dart';
 import 'package:bookkeeping/util/toast_util.dart';
@@ -16,9 +18,13 @@ import '../widget/keyboard_widget.dart';
 class RecordBloc extends Bloc<RecordEvent, RecordState> {
   final JournalRepository repository;
   final JournalProjectRepository projectRepository;
+  final JournalMonthRepository monthRepository;
 
-  RecordBloc({required this.repository, required this.projectRepository})
-    : super(RecordState(currentDate: DateTime.now())) {
+  RecordBloc({
+    required this.repository,
+    required this.projectRepository,
+    required this.monthRepository,
+  }) : super(RecordState(currentDate: DateTime.now())) {
     on<RecordOnInitial>(_onInitial);
     on<RecordOnCheckedProject>(_onCheckedProject);
     on<RecordOnClickJournalType>(_onClickJournalType);
@@ -181,6 +187,9 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       journalProjectId: currentProject.id,
     );
     await repository.addJournal(entry);
+    await monthRepository.addJournalMonth(
+      JournalMonthEntry(year: now.year, month: now.month),
+    );
     emit(state.copyWith(confirmStatus: RecordFinishStatus.success));
   }
 }
