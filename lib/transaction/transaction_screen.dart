@@ -13,6 +13,7 @@ import '../data/repository/journal_project_repository.dart';
 import '../data/repository/journal_repository.dart';
 import '../record/record_dialog.dart';
 import '../widget/month_picker_widget.dart';
+import '../widget/project_picker_widget.dart';
 
 class TransactionScreen extends StatefulWidget {
   const TransactionScreen({super.key});
@@ -70,6 +71,25 @@ class _TransactionScreenState extends State<TransactionScreen> {
               onClose: () {
                 context.read<TransactionBloc>().add(
                   TransactionCloseMonthPicker(),
+                );
+              },
+            );
+          }
+
+          if (state.projectPickerDialogState is ProjectPickerDialogOpenState) {
+            var open =
+            state.projectPickerDialogState as ProjectPickerDialogOpenState;
+            ProjectPickerWidget.showDatePicker(
+              context,
+              currentProject: open.currentProject,
+              allIncomeProject: open.allIncomeProject,
+              allExpenseProject: open.allExpenseProject,
+              onChanged: (newProject) {
+
+              },
+              onClose: () {
+                context.read<TransactionBloc>().add(
+                  TransactionCloseProjectPicker(),
                 );
               },
             );
