@@ -32,6 +32,32 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<TransactionCloseMonthPicker>(_onCloseMonthPicker);
     on<TransactionShowProjectPicker>(_onShowProjectPicker);
     on<TransactionCloseProjectPicker>(_onCloseProjectPicker);
+    on<TransactionSelectedProject>(_onSelectedProject);
+    on<TransactionSelectedMonth>(_onSelectedMonth);
+  }
+
+  void _onSelectedProject(
+    TransactionSelectedProject event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        currentProject: event.selectedProject,
+        projectPickerDialogState: ProjectPickerDialogCloseState(),
+      ),
+    );
+  }
+
+  void _onSelectedMonth(
+    TransactionSelectedMonth event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        currentDate: event.selectedDate,
+        monthPickerDialogState: MonthPickerDialogCloseState(),
+      ),
+    );
   }
 
   void _onShowMonthPicker(

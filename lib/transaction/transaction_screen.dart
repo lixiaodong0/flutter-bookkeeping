@@ -67,7 +67,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
               context,
               currentDate: open.currentDate,
               allDate: open.allDate,
-              onChanged: (newDate) {},
+              onChanged: (newDate) {
+                context.read<TransactionBloc>().add(
+                  TransactionSelectedMonth(selectedDate: newDate),
+                );
+              },
               onClose: () {
                 context.read<TransactionBloc>().add(
                   TransactionCloseMonthPicker(),
@@ -78,14 +82,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
           if (state.projectPickerDialogState is ProjectPickerDialogOpenState) {
             var open =
-            state.projectPickerDialogState as ProjectPickerDialogOpenState;
+                state.projectPickerDialogState as ProjectPickerDialogOpenState;
             ProjectPickerWidget.showDatePicker(
               context,
               currentProject: open.currentProject,
               allIncomeProject: open.allIncomeProject,
               allExpenseProject: open.allExpenseProject,
               onChanged: (newProject) {
-
+                context.read<TransactionBloc>().add(
+                  TransactionSelectedProject(selectedProject: newProject),
+                );
               },
               onClose: () {
                 context.read<TransactionBloc>().add(

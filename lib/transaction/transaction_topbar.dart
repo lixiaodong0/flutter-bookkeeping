@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../data/bean/journal_project_bean.dart';
 import '../widget/month_picker_widget.dart';
 import 'bloc/transaction_bloc.dart';
 import 'bloc/transaction_state.dart';
@@ -17,7 +18,7 @@ Widget buildTopBarContent(BuildContext context, TransactionState state) {
       Spacer(),
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
-        child: _currentTypeContainer(context),
+        child: _currentTypeContainer(context, state.currentProject),
       ),
       Padding(
         padding: EdgeInsets.only(bottom: 4, left: 24, top: 4),
@@ -32,7 +33,8 @@ Widget buildTopBarContent(BuildContext context, TransactionState state) {
   );
 }
 
-Widget _currentTypeContainer(BuildContext context) {
+Widget _currentTypeContainer(BuildContext context, JournalProjectBean? data) {
+  var title = data?.name ?? "全部类型";
   return sizedButtonWidget(
     width: 100,
     height: 26,
@@ -48,7 +50,7 @@ Widget _currentTypeContainer(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text("全部类型", style: TextStyle(color: Colors.white, fontSize: 12)),
+          Text(title, style: TextStyle(color: Colors.white, fontSize: 12)),
           Padding(padding: EdgeInsets.only(left: 8)),
           SizedBox(
             height: 10,

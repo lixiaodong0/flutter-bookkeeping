@@ -160,7 +160,9 @@ class ProjectPickerWidget extends StatelessWidget {
   }
 
   Widget _projectItem(BuildContext context, JournalProjectBean data) {
-    var isSelected = data.name == currentProject?.name;
+    var isSelected =
+        data.name == currentProject?.name &&
+        data.journalType == currentProject?.journalType;
     Color textColor = isSelected ? Colors.white : Colors.black;
     Color backgroundColor = isSelected ? Colors.green : Colors.white;
     return TextButton(

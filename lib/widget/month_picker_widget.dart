@@ -114,8 +114,8 @@ class MonthPickerWidget extends StatelessWidget {
       children.add(_monthItem(context, value));
     }
     return GridView.count(
-      crossAxisCount: 6,
-      childAspectRatio: 1,
+      crossAxisCount: 4,
+      childAspectRatio: 1/0.5,
       padding: EdgeInsets.symmetric(horizontal: 16),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
