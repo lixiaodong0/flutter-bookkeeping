@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_repository.dart';
-import '../widget/date_piacker_widget.dart';
+import '../widget/calendar_picker_widget.dart';
 import '../widget/keyboard_widget.dart';
 
 typedef OnRecordSuccessFunction = void Function();
@@ -175,7 +175,7 @@ class RecordDialog extends StatelessWidget {
   Widget _currentDateButton(BuildContext context, DateTime current) {
     return TextButton(
       onPressed: () {
-        DatePickerWidget.showDatePicker(
+        CalendarPickerWidget.showDatePicker(
           context,
           defaultDate: DateTime.now(),
           onChanged: (date) {

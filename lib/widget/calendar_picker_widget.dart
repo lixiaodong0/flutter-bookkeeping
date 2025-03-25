@@ -32,11 +32,11 @@ class DaysBean {
   }
 }
 
-class DatePickerWidget extends StatefulWidget {
+class CalendarPickerWidget extends StatefulWidget {
   final DateTime defaultDate;
   final ValueChanged<DateTime> onChanged;
 
-  const DatePickerWidget({
+  const CalendarPickerWidget({
     super.key,
     required this.defaultDate,
     required this.onChanged,
@@ -52,7 +52,7 @@ class DatePickerWidget extends StatefulWidget {
   }
 
   @override
-  State<DatePickerWidget> createState() => _DatePickerWidgetState();
+  State<CalendarPickerWidget> createState() => _CalendarPickerWidgetState();
 
   static showDatePicker(
     BuildContext context, {
@@ -68,13 +68,13 @@ class DatePickerWidget extends StatefulWidget {
       ),
       scrollControlDisabledMaxHeightRatio: 0.6,
       builder: (BuildContext context) {
-        return DatePickerWidget(defaultDate: defaultDate, onChanged: onChanged);
+        return CalendarPickerWidget(defaultDate: defaultDate, onChanged: onChanged);
       },
     );
   }
 }
 
-class _DatePickerWidgetState extends State<DatePickerWidget> {
+class _CalendarPickerWidgetState extends State<CalendarPickerWidget> {
   final ScrollController _scrollController = ScrollController();
   List<DateBean> _list = [];
 

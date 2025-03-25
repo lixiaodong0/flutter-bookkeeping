@@ -25,6 +25,60 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<TransactionOnScrollChange>(_onScrollChange);
     on<TransactionReload>(_onReload);
     on<TransactionLoadMore>(_onLoadMore);
+    on<TransactionShowMonthPicker>(_onShowMonthPicker);
+    on<TransactionCloseMonthPicker>(_onCloseMonthPicker);
+    on<TransactionShowProjectPicker>(_onShowProjectPicker);
+    on<TransactionCloseProjectPicker>(_onCloseProjectPicker);
+  }
+
+  void _onShowMonthPicker(
+    TransactionShowMonthPicker event,
+    Emitter<TransactionState> emit,
+  ) async {
+    var result = await monthRepository.getAllJournalMonth();
+    emit(
+      state.copyWith(
+        monthPickerDialogState: MonthPickerDialogOpenState(
+          currentDate: state.currentDate ?? DateTime.now(),
+          allDate: result,
+        ),
+      ),
+    );
+  }
+
+  void _onCloseMonthPicker(
+    TransactionCloseMonthPicker event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(state.copyWith(monthPickerDialogState: MonthPickerDialogCloseState()));
+  }
+
+  void _onShowProjectPicker(
+    TransactionShowProjectPicker event,
+    Emitter<TransactionState> emit,
+  ) async {
+    var allIncomeProject =
+        await projectRepository.getAllIncomeJournalProjects();
+    var allExpenseProject =
+        await projectRepository.getAllExpenseJournalProjects();
+    emit(
+      state.copyWith(
+        projectPickerDialogState: ProjectPickerDialogOpenState(
+          currentProject: state.currentProject,
+          allIncomeProject: allIncomeProject,
+          allExpenseProject: allExpenseProject,
+        ),
+      ),
+    );
+  }
+
+  void _onCloseProjectPicker(
+    TransactionCloseProjectPicker event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(
+      state.copyWith(projectPickerDialogState: ProjectPickerDialogCloseState()),
+    );
   }
 
   void _onScrollChange(

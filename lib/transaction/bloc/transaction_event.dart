@@ -14,6 +14,20 @@ final class TransactionOnScrollChange extends TransactionEvent {
   });
 }
 
+final class TransactionShowMonthPicker extends TransactionEvent {
+  TransactionShowMonthPicker();
+}
+final class TransactionCloseMonthPicker extends TransactionEvent {
+  TransactionCloseMonthPicker();
+}
+
+final class TransactionShowProjectPicker extends TransactionEvent {
+  TransactionShowProjectPicker();
+}
+final class TransactionCloseProjectPicker extends TransactionEvent {
+  TransactionCloseProjectPicker();
+}
+
 final class TransactionReload extends TransactionEvent {}
 
 final class TransactionLoadMore extends TransactionEvent {}

@@ -12,6 +12,7 @@ import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_project_repository.dart';
 import '../data/repository/journal_repository.dart';
 import '../record/record_dialog.dart';
+import '../widget/month_picker_widget.dart';
 
 class TransactionScreen extends StatefulWidget {
   const TransactionScreen({super.key});
@@ -55,56 +56,78 @@ class _TransactionScreenState extends State<TransactionScreen> {
             projectRepository: context.read<JournalProjectRepository>(),
             monthRepository: context.read<JournalMonthRepository>(),
           )..add(TransactionInitLoad()),
-      child: BlocBuilder<TransactionBloc, TransactionState>(
-        builder: (context, state) {
-          return Scaffold(
-            key: _blocContext,
-            body: Column(
-              children: [
-                _buildHeader(context, state),
-                Expanded(child: _buildTransactionList(context, state)),
-              ],
-            ),
-            backgroundColor: Color.fromRGBO(237, 237, 237, 1.0),
-            floatingActionButton: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha(50), // 阴影颜色
-                    offset: Offset(0, 4), // 阴影偏移量
-                    blurRadius: 6, // 模糊半径
-                    spreadRadius: 2, // 扩散半径
-                  ),
+
+      child: BlocListener<TransactionBloc, TransactionState>(
+        listener: (context, state) {
+          if (state.monthPickerDialogState is MonthPickerDialogOpenState) {
+            var open =
+                state.monthPickerDialogState as MonthPickerDialogOpenState;
+            MonthPickerWidget.showDatePicker(
+              context,
+              currentDate: open.currentDate,
+              allDate: open.allDate,
+              onChanged: (newDate) {},
+              onClose: () {
+                context.read<TransactionBloc>().add(
+                  TransactionCloseMonthPicker(),
+                );
+              },
+            );
+          }
+        },
+        child: BlocBuilder<TransactionBloc, TransactionState>(
+          builder: (context, state) {
+            return Scaffold(
+              key: _blocContext,
+              body: Column(
+                children: [
+                  _buildHeader(context, state),
+                  Expanded(child: _buildTransactionList(context, state)),
                 ],
               ),
-              child: sizedButtonWidget(
-                onPressed: () {
-                  RecordDialog.showRecordDialog(
-                    context,
-                    onSuccess: () {
-                      context.read<TransactionBloc>().add(TransactionReload());
-                    },
-                  );
-                },
-                width: 90,
-                height: 40,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(Icons.post_add_outlined, color: Colors.green),
-                    Text(
-                      "记一笔",
-                      style: TextStyle(color: Colors.green, fontSize: 14),
+              backgroundColor: Color.fromRGBO(237, 237, 237, 1.0),
+              floatingActionButton: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withAlpha(50), // 阴影颜色
+                      offset: Offset(0, 4), // 阴影偏移量
+                      blurRadius: 6, // 模糊半径
+                      spreadRadius: 2, // 扩散半径
                     ),
                   ],
                 ),
+                child: sizedButtonWidget(
+                  onPressed: () {
+                    RecordDialog.showRecordDialog(
+                      context,
+                      onSuccess: () {
+                        context.read<TransactionBloc>().add(
+                          TransactionReload(),
+                        );
+                      },
+                    );
+                  },
+                  width: 90,
+                  height: 40,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.post_add_outlined, color: Colors.green),
+                      Text(
+                        "记一笔",
+                        style: TextStyle(color: Colors.green, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
