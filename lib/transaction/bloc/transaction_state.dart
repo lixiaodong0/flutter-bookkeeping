@@ -71,7 +71,7 @@ final class MonthPickerDialogState {
 
 final class MonthPickerDialogOpenState extends MonthPickerDialogState {
   final DateTime currentDate;
-  final List<JournalMonthBean> allDate;
+  final List<JournalMonthGroupBean> allDate;
 
   const MonthPickerDialogOpenState({
     required this.currentDate,

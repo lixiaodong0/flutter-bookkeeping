@@ -14,3 +14,13 @@ class JournalMonthBean {
         month: json[JournalMonthEntry.tableColumnMonth],
       );
 }
+
+class JournalMonthGroupBean {
+  final int year;
+  final List<JournalMonthBean> list;
+
+  JournalMonthGroupBean({
+    required this.year,
+    required this.list,
+  });
+}

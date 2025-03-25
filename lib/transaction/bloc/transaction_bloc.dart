@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
@@ -36,11 +39,27 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     var result = await monthRepository.getAllJournalMonth();
+
+    Map<int, List<JournalMonthBean>> map = {};
+    for (var item in result) {
+      var valueList = map[item.year];
+      valueList ??= [];
+      valueList.add(item);
+      map[item.year] = valueList;
+    }
+
+    List<JournalMonthGroupBean> group = [];
+    for (var item in map.entries) {
+      var list = item.value;
+      list.sort((a, b) => a.month.compareTo(b.month));
+      group.add(JournalMonthGroupBean(year: item.key, list: list));
+    }
+
     emit(
       state.copyWith(
         monthPickerDialogState: MonthPickerDialogOpenState(
           currentDate: state.currentDate ?? DateTime.now(),
-          allDate: result,
+          allDate: group,
         ),
       ),
     );

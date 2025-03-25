@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class MonthPickerWidget extends StatelessWidget {
   final DateTime currentDate;
-  final List<JournalMonthBean> allDate;
+  final List<JournalMonthGroupBean> allDate;
   final ValueChanged<DateTime> onChanged;
 
   const MonthPickerWidget({
@@ -16,7 +16,7 @@ class MonthPickerWidget extends StatelessWidget {
   static showDatePicker(
     BuildContext context, {
     required DateTime currentDate,
-    required List<JournalMonthBean> allDate,
+    required List<JournalMonthGroupBean> allDate,
     required ValueChanged<DateTime> onChanged,
     required VoidCallback onClose,
   }) {
@@ -35,7 +35,7 @@ class MonthPickerWidget extends StatelessWidget {
           onChanged: onChanged,
         );
       },
-    ).then((value){
+    ).then((value) {
       onClose();
     });
   }
@@ -51,14 +51,26 @@ class MonthPickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> children = [];
+    for (var group in allDate) {
+      children.add(
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Text(
+            "${group.year}年",
+            style: TextStyle(color: Colors.black, fontSize: 16),
+          ),
+        ),
+      );
+      children.add(_monthGridContainer(context, group.list));
+    }
     return Column(
       children: [
         _topToolbarContainer(context),
-        Padding(padding: EdgeInsets.symmetric(vertical: 4)),
         Divider(height: 1),
         Expanded(
           child: SingleChildScrollView(
-            child: Column(children: [_monthGridContainer(context, allDate)]),
+            child: Column(children: children),
           ),
         ),
       ],
@@ -85,7 +97,7 @@ class MonthPickerWidget extends StatelessWidget {
         Align(
           alignment: Alignment.topCenter,
           child: Text(
-            "请选择时间",
+            "请选择月份",
             style: TextStyle(color: Colors.black, fontSize: 14),
           ),
         ),
@@ -102,7 +114,7 @@ class MonthPickerWidget extends StatelessWidget {
       children.add(_monthItem(context, value));
     }
     return GridView.count(
-      crossAxisCount: 4,
+      crossAxisCount: 6,
       childAspectRatio: 1,
       padding: EdgeInsets.symmetric(horizontal: 16),
       crossAxisSpacing: 10,
@@ -131,7 +143,7 @@ class MonthPickerWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
       child: Text(
-        "${data.month}",
+        "${data.month}月",
         style: TextStyle(color: textColor, fontSize: 14),
       ),
     );
