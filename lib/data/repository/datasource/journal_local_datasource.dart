@@ -3,6 +3,7 @@ import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/db/journal_dao.dart';
 
 import '../../../db/model/journal_entry.dart';
+import '../../bean/journal_project_bean.dart';
 import 'journal_datasource.dart';
 
 class JournalLocalDataSource implements JournalDataSource {
@@ -25,8 +26,16 @@ class JournalLocalDataSource implements JournalDataSource {
   Future<List<JournalBean>> getPageJournal({
     int pageSize = 20,
     int page = 1,
+
+    DateTime? limitDate,
+    JournalProjectBean? limitProject,
   }) async {
-    var results = await dao.queryPager(pageSize: pageSize, page: page);
+    var results = await dao.queryPager(
+      pageSize: pageSize,
+      page: page,
+      limitDate: limitDate,
+      limitProject: limitProject,
+    );
     return results;
   }
 

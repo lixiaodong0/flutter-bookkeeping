@@ -25,6 +25,7 @@ class TransactionScreen extends StatefulWidget {
 class _TransactionScreenState extends State<TransactionScreen> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
+  final ItemScrollController itemScrollController = ItemScrollController();
   final GlobalKey _blocContext = GlobalKey();
 
   @override
@@ -204,6 +205,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
         );
 
         if (state.lists.length - 1 == index) {
+          print("index:${index},size:${state.lists.length - 1}");
           context.read<TransactionBloc>().add(TransactionLoadMore());
         }
         return Column(children: children);

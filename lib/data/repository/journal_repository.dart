@@ -5,6 +5,7 @@ import 'package:bookkeeping/data/repository/datasource/journal_datasource.dart';
 import 'package:bookkeeping/util/date_util.dart';
 
 import '../../db/model/journal_entry.dart';
+import '../bean/journal_project_bean.dart';
 
 class JournalRepository implements JournalDataSource {
   final JournalDataSource _localDataSource;
@@ -26,11 +27,16 @@ class JournalRepository implements JournalDataSource {
   Future<List<JournalBean>> getPageJournal({
     int pageSize = 20,
     int page = 0,
+
+    DateTime? limitDate,
+    JournalProjectBean? limitProject,
   }) async {
     //分页数据
     List<JournalBean> result = await _localDataSource.getPageJournal(
       pageSize: pageSize,
       page: page,
+      limitDate: limitDate,
+      limitProject: limitProject,
     );
     print("[getPageJournal]totalSize:${result.length}");
 

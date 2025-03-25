@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/journal_bean.dart';
+import 'package:bookkeeping/data/bean/journal_project_bean.dart';
 import 'package:bookkeeping/db/model/journal_project_entry.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:sqflite/sqflite.dart';
@@ -53,10 +54,17 @@ class JournalDao {
     return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 
-  //查询分页数据 按照日期倒序
+  ///查询分页数据 按照日期倒序
+  /// pageSize: 分页每页大小
+  /// page: 分页
+  /// limitDate: 限制日期
+  /// limitProject: 限制分类
   Future<List<JournalBean>> queryPager({
     int pageSize = 20,
     int page = 1,
+
+    DateTime? limitDate,
+    JournalProjectBean? limitProject,
   }) async {
     final String tableName = JournalEntry.table;
     final String projectTableName = JournalProjectEntry.table;
@@ -80,19 +88,36 @@ class JournalDao {
             )
             .toList();
 
+    // 动态构建 WHERE 子句
+    List<String> whereClauses = [];
+    List<Object?> arguments = [];
+
+    if(limitProject != null){
+      whereClauses.add('${JournalEntry.tableColumnType} = ?');
+      arguments.add(limitProject.journalType.name);
+
+      whereClauses.add('${JournalEntry.tableColumnJournalProjectId} = ?');
+      arguments.add(limitProject.id);
+    }
+    String whereClause = whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+
     String sql = '''
       SELECT 
       ${selectFields.join(', ')}
-      FROM $tableName
+      FROM $tableName 
       JOIN
-      $projectTableName ON $tableName.${JournalEntry.tableColumnJournalProjectId} = $projectTableName.${JournalProjectEntry.tableColumnId}
+      $projectTableName ON $tableName.${JournalEntry.tableColumnJournalProjectId} = $projectTableName.${JournalProjectEntry.tableColumnId} 
+      $whereClause
       ORDER BY $tableName.${JournalEntry.tableColumnDate} DESC
       LIMIT $pageSize OFFSET $offset
     ''';
+
     // 获取数据库实例
     Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.rawQuery(sql);
-    print(results);
+    final List<Map<String, dynamic>> results = await db.rawQuery(sql,arguments);
+    print("[queryPager]pageSize:$pageSize,page:$page");
+    print("[queryPager]$sql");
+    print("[queryPager]$results");
     return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 
@@ -122,7 +147,7 @@ class JournalDao {
       endTime,
     ]);
 
-    print(results);
+    // print(results);
 
     // 检查查询结果并返回总金额
     if (results.isNotEmpty && results[0]['total_amount'] != null) {
@@ -165,7 +190,7 @@ class JournalDao {
       endTime,
     ]);
 
-    print(results);
+    // print(results);
 
     // 检查查询结果并返回总金额
     if (results.isNotEmpty && results[0]['total_amount'] != null) {

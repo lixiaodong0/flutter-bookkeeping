@@ -11,6 +11,7 @@ import 'package:bookkeeping/util/date_util.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/bean/journal_bean.dart';
+import '../../data/bean/journal_project_bean.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final JournalRepository repository;
@@ -40,10 +41,14 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedProject event,
     Emitter<TransactionState> emit,
   ) async {
+    var selectedProject = event.selectedProject;
+    page = 1;
+    var result = await _loadData(limitProject: selectedProject);
     emit(
       state.copyWith(
-        currentProject: event.selectedProject,
+        currentProject: selectedProject,
         projectPickerDialogState: ProjectPickerDialogCloseState(),
+        lists: result,
       ),
     );
   }
@@ -160,6 +165,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionInitLoad event,
     Emitter<TransactionState> emit,
   ) async {
+    print("_onInitLoad");
     page = 1;
     var result = await _loadData();
     emit(state.copyWith(lists: result));
@@ -169,20 +175,26 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionReload event,
     Emitter<TransactionState> emit,
   ) async {
+    print("_onReload");
     page = 1;
     var result = await _loadData();
     emit(state.copyWith(lists: result));
   }
 
   //加载数据
-  Future<List<JournalBean>> _loadData() {
-    return repository.getPageJournal(pageSize: pageSize, page: page);
+  Future<List<JournalBean>> _loadData({JournalProjectBean? limitProject}) {
+    return repository.getPageJournal(
+      pageSize: pageSize,
+      page: page,
+      limitProject: limitProject,
+    );
   }
 
   void _onLoadMore(
     TransactionLoadMore event,
     Emitter<TransactionState> emit,
   ) async {
+    print("_onLoadMore");
     page++;
     var result = await _loadData();
     List<JournalBean> newLists = [];
