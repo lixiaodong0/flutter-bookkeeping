@@ -27,7 +27,6 @@ class JournalRepository implements JournalDataSource {
   Future<List<JournalBean>> getPageJournal({
     int pageSize = 20,
     int page = 0,
-
     DateTime? limitDate,
     JournalProjectBean? limitProject,
   }) async {

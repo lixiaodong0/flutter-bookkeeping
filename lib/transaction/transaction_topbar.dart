@@ -81,7 +81,7 @@ Widget _currentDateContainer(
         child: Row(
           children: [
             Text(
-              "${current.year}月${current.month}月",
+              "${current.year}年${current.month}月",
               style: TextStyle(color: Colors.white, fontSize: 12),
             ),
             Icon(

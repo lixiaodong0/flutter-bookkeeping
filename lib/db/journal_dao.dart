@@ -92,14 +92,32 @@ class JournalDao {
     List<String> whereClauses = [];
     List<Object?> arguments = [];
 
-    if(limitProject != null){
+    //类型筛选条件
+    if (limitProject != null) {
       whereClauses.add('${JournalEntry.tableColumnType} = ?');
       arguments.add(limitProject.journalType.name);
 
       whereClauses.add('${JournalEntry.tableColumnJournalProjectId} = ?');
       arguments.add(limitProject.id);
     }
-    String whereClause = whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+
+    //时间筛选条件
+    if (limitDate != null) {
+      whereClauses.add('${JournalEntry.tableColumnDate} < ?');
+      arguments.add(
+        DateTime(
+          limitDate.year,
+          limitDate.month,
+          DateUtil.calculateMonthDays(limitDate.year, limitDate.month),
+          23,
+          59,
+          59,
+        ).toIso8601String(),
+      );
+    }
+
+    String whereClause =
+        whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
 
     String sql = '''
       SELECT 
@@ -114,7 +132,10 @@ class JournalDao {
 
     // 获取数据库实例
     Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.rawQuery(sql,arguments);
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      sql,
+      arguments,
+    );
     print("[queryPager]pageSize:$pageSize,page:$page");
     print("[queryPager]$sql");
     print("[queryPager]$results");

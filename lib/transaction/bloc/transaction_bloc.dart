@@ -43,7 +43,10 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   ) async {
     var selectedProject = event.selectedProject;
     page = 1;
-    var result = await _loadData(limitProject: selectedProject);
+    var result = await _loadData(
+      limitProject: selectedProject,
+      limitDate: state.currentDate,
+    );
     emit(
       state.copyWith(
         currentProject: selectedProject,
@@ -57,10 +60,17 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedMonth event,
     Emitter<TransactionState> emit,
   ) async {
+    var selectedDate = event.selectedDate;
+    page = 1;
+    var result = await _loadData(
+      limitProject: state.currentProject,
+      limitDate: selectedDate,
+    );
     emit(
       state.copyWith(
-        currentDate: event.selectedDate,
+        currentDate: selectedDate,
         monthPickerDialogState: MonthPickerDialogCloseState(),
+        lists: result,
       ),
     );
   }
@@ -182,11 +192,15 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   }
 
   //加载数据
-  Future<List<JournalBean>> _loadData({JournalProjectBean? limitProject}) {
+  Future<List<JournalBean>> _loadData({
+    JournalProjectBean? limitProject,
+    DateTime? limitDate,
+  }) {
     return repository.getPageJournal(
       pageSize: pageSize,
       page: page,
       limitProject: limitProject,
+      limitDate: limitDate,
     );
   }
 

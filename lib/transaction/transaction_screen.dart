@@ -35,6 +35,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   void _onScroll() {
+    if (itemPositionsListener.itemPositions.value.isEmpty) {
+      return;
+    }
     var firstIndex = itemPositionsListener.itemPositions.value.first.index;
     var lastIndex = itemPositionsListener.itemPositions.value.last.index;
     if (_blocContext.currentContext != null) {
