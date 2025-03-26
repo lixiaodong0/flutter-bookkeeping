@@ -7,7 +7,10 @@ import '../data/bean/journal_type.dart';
 import 'bloc/statistics_state.dart';
 
 //圆形图表
-Widget buildStatisticsCircularChart(BuildContext context, StatisticsState state) {
+Widget buildStatisticsCircularChart(
+  BuildContext context,
+  StatisticsState state,
+) {
   return Stack(
     children: [
       Padding(
@@ -20,6 +23,8 @@ Widget buildStatisticsCircularChart(BuildContext context, StatisticsState state)
       //配置参考示例
       //https://help.syncfusion.com/flutter/circular-charts/datalabel
       SfCircularChart(
+        centerY: '55%',
+        centerX: '55%',
         series: <CircularSeries<DoughnutChartData, String>>[
           DoughnutSeries<DoughnutChartData, String>(
             dataSource: state.dougnutChartData,
@@ -27,7 +32,7 @@ Widget buildStatisticsCircularChart(BuildContext context, StatisticsState state)
             yValueMapper: (DoughnutChartData data, _) => data.value,
             animationDuration: 600,
             //外圆大小
-            radius: '55%',
+            radius: '50%',
             //按照百分百倒序排序
             sortingOrder: SortingOrder.descending,
             sortFieldValueMapper: (DoughnutChartData data, _) => data.value,
