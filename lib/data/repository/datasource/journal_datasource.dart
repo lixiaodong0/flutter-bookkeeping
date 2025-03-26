@@ -7,6 +7,11 @@ import '../../bean/journal_project_bean.dart';
 abstract class JournalDataSource {
   Future<List<JournalBean>> getAllJournal();
 
+  Future<List<JournalBean>> getMonthJournal(
+    DateTime limitDate,
+    JournalType journalType,
+  );
+
   Future<List<JournalBean>> getPageJournal({
     int pageSize = 20,
     int page = 0,

@@ -48,4 +48,9 @@ class JournalLocalDataSource implements JournalDataSource {
   Future<String> getMonthTotalAmount(DateTime date, JournalType type) {
     return dao.queryMonthTotalAmount(date, type);
   }
+
+  @override
+  Future<List<JournalBean>> getMonthJournal(DateTime limitDate, JournalType journalType) {
+    return dao.queryAllByMonth(limitDate, journalType);
+  }
 }
