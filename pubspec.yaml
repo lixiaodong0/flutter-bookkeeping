@@ -44,6 +44,7 @@ dependencies:
   #toast
   fluttertoast: ^8.2.12
   scrollable_positioned_list: ^0.3.8
+  fl_chart: ^0.70.2
 
 
 dev_dependencies:
