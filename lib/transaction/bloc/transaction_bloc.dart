@@ -24,7 +24,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     required this.repository,
     required this.projectRepository,
     required this.monthRepository,
-  }) : super(TransactionState(currentDate: DateTime.now())) {
+  }) : super(
+         TransactionState(
+           currentDate: DateTime.now(),
+           currentProject: JournalProjectBean.allItemBean(),
+         ),
+       ) {
     on<TransactionInitLoad>(_onInitLoad);
     on<TransactionOnScrollChange>(_onScrollChange);
     on<TransactionReload>(_onReload);
@@ -145,7 +150,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionOnScrollChange event,
     Emitter<TransactionState> emit,
   ) async {
-    var firstIndex = event.firstIndex = event.firstIndex;
+    var firstIndex = event.firstIndex;
+    var lastIndex = event.lastIndex;
     var findItem = state.lists[firstIndex];
     var date = findItem.date;
     // print(
@@ -168,6 +174,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
           dateMonthExpense: totalExpense,
         ),
       );
+      _onScrollToBottom(emit, lastIndex);
+    }
+  }
+
+  void _onScrollToBottom(Emitter<TransactionState> emit, int lastIndex) {
+    if (state.lists.length - 1 == lastIndex) {
+      add(TransactionLoadMore());
     }
   }
 
@@ -196,6 +209,10 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     JournalProjectBean? limitProject,
     DateTime? limitDate,
   }) {
+    //特殊处理
+    if (limitProject?.isAllItemBean() == true) {
+      limitProject = null;
+    }
     return repository.getPageJournal(
       pageSize: pageSize,
       page: page,

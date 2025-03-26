@@ -3,6 +3,8 @@ import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:bookkeeping/data/bean/journal_project_bean.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../data/bean/journal_type.dart';
+
 final class TransactionState extends Equatable {
   final List<JournalBean> lists;
   final RecordDialogState recordDialogState;
@@ -10,7 +12,6 @@ final class TransactionState extends Equatable {
   final ProjectPickerDialogState projectPickerDialogState;
 
   final JournalProjectBean? currentProject;
-
   final DateTime? currentDate;
   final String dateMonthIncome;
   final String dateMonthExpense;

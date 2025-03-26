@@ -24,7 +24,7 @@ Widget buildTopBarContent(BuildContext context, TransactionState state) {
         padding: EdgeInsets.only(bottom: 4, left: 24, top: 4),
         child: _currentDateContainer(
           context,
-          state.currentDate!,
+          state.currentDate,
           state.dateMonthIncome,
           state.dateMonthExpense,
         ),
@@ -66,7 +66,7 @@ Widget _currentTypeContainer(BuildContext context, JournalProjectBean? data) {
 
 Widget _currentDateContainer(
   BuildContext context,
-  DateTime current,
+  DateTime? current,
   String monthIncome,
   String monthExpense,
 ) {
@@ -81,7 +81,7 @@ Widget _currentDateContainer(
         child: Row(
           children: [
             Text(
-              "${current.year}年${current.month}月",
+              "${current?.year}年${current?.month}月",
               style: TextStyle(color: Colors.white, fontSize: 12),
             ),
             Icon(

@@ -206,11 +206,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
             isLastItem: nextDate != currentDate,
           ),
         );
-
-        if (state.lists.length - 1 == index) {
-          print("index:${index},size:${state.lists.length - 1}");
-          context.read<TransactionBloc>().add(TransactionLoadMore());
-        }
         return Column(children: children);
       },
     );

@@ -101,8 +101,6 @@ class ProjectPickerWidget extends StatelessWidget {
   Widget _allItemContainer(BuildContext context) {
     List<Widget> children = [];
     children.add(_allItem(context));
-    children.add(Spacer());
-    children.add(Spacer());
     return _styleGridView(children);
   }
 
@@ -179,12 +177,12 @@ class ProjectPickerWidget extends StatelessWidget {
   }
 
   Widget _allItem(BuildContext context) {
-    var isSelected = currentProject == null;
+    var isSelected = currentProject?.isAllItemBean() == true;
     Color textColor = isSelected ? Colors.white : Colors.black;
     Color backgroundColor = isSelected ? Colors.green : Colors.white;
     return TextButton(
       onPressed: () {
-        _onSelectedProject(context, null);
+        _onSelectedProject(context, JournalProjectBean.allItemBean());
       },
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,

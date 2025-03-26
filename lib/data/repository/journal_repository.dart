@@ -37,7 +37,6 @@ class JournalRepository implements JournalDataSource {
       limitDate: limitDate,
       limitProject: limitProject,
     );
-    print("[getPageJournal]totalSize:${result.length}");
 
     if (result.isNotEmpty) {
       //根据分页数据 获取每天的日期
@@ -45,8 +44,6 @@ class JournalRepository implements JournalDataSource {
       for (var element in result) {
         allDate.add(DateUtil.format(element.date));
       }
-
-      print("[getPageJournal]allDate:$allDate");
 
       //获取每天的日期总金额
       Map<String, DailyDateAmount> allDailyDateAmounts = {};
@@ -63,8 +60,6 @@ class JournalRepository implements JournalDataSource {
 
         allDailyDateAmounts[element] = dailyDateAmount;
       }
-
-      print("[getPageJournal]allDailyDateAmounts:$allDailyDateAmounts");
 
       //重新组合数据源
       for (var element in result) {
