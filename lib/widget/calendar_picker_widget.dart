@@ -240,7 +240,7 @@ class _CalendarPickerWidgetState extends State<CalendarPickerWidget> {
   }
 
   Widget _dayPlaceholderItem() {
-    return Spacer();
+    return SizedBox();
   }
 
   Widget _dayItem(DaysBean data) {

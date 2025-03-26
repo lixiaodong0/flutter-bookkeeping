@@ -17,8 +17,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final JournalRepository repository;
   final JournalProjectRepository projectRepository;
   final JournalMonthRepository monthRepository;
+
   final int pageSize = 20;
   int page = 1;
+
+  //筛选条件
+  DateTime currentLimitDate = DateTime.now();
+  JournalProjectBean? currentLimitProject = JournalProjectBean.allItemBean();
 
   TransactionBloc({
     required this.repository,
@@ -46,15 +51,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedProject event,
     Emitter<TransactionState> emit,
   ) async {
-    var selectedProject = event.selectedProject;
+    currentLimitProject = event.selectedProject;
     page = 1;
-    var result = await _loadData(
-      limitProject: selectedProject,
-      limitDate: state.currentDate,
-    );
+    var result = await _loadData();
     emit(
       state.copyWith(
-        currentProject: selectedProject,
+        currentProject: currentLimitProject,
         projectPickerDialogState: ProjectPickerDialogCloseState(),
         lists: result,
       ),
@@ -65,15 +67,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedMonth event,
     Emitter<TransactionState> emit,
   ) async {
-    var selectedDate = event.selectedDate;
+    currentLimitDate = event.selectedDate;
     page = 1;
-    var result = await _loadData(
-      limitProject: state.currentProject,
-      limitDate: selectedDate,
-    );
+    var result = await _loadData();
     emit(
       state.copyWith(
-        currentDate: selectedDate,
+        currentDate: currentLimitDate,
         monthPickerDialogState: MonthPickerDialogCloseState(),
         lists: result,
       ),
@@ -104,7 +103,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     emit(
       state.copyWith(
         monthPickerDialogState: MonthPickerDialogOpenState(
-          currentDate: state.currentDate ?? DateTime.now(),
+          currentDate: currentLimitDate,
           allDate: group,
         ),
       ),
@@ -129,7 +128,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     emit(
       state.copyWith(
         projectPickerDialogState: ProjectPickerDialogOpenState(
-          currentProject: state.currentProject,
+          currentProject: currentLimitProject,
           allIncomeProject: allIncomeProject,
           allExpenseProject: allExpenseProject,
         ),
@@ -205,14 +204,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   }
 
   //加载数据
-  Future<List<JournalBean>> _loadData({
-    JournalProjectBean? limitProject,
-    DateTime? limitDate,
-  }) {
-    //特殊处理
-    if (limitProject?.isAllItemBean() == true) {
-      limitProject = null;
-    }
+  Future<List<JournalBean>> _loadData() {
+    //特殊处理 全部类型的情况
+    var limitProject =
+        currentLimitProject?.isAllItemBean() == true
+            ? null
+            : currentLimitProject;
+    var limitDate = currentLimitDate;
     return repository.getPageJournal(
       pageSize: pageSize,
       page: page,

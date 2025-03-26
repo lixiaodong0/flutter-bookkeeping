@@ -30,7 +30,7 @@ class RecordDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
-      scrollControlDisabledMaxHeightRatio: 0.6,
+      scrollControlDisabledMaxHeightRatio: 0.7,
       builder: (BuildContext context) {
         return BlocProvider(
           create:
