@@ -23,14 +23,31 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
+  late SelectionBehavior _selectionBehavior;
+  late TooltipBehavior  _tooltipBehavior ;
+
+  @override
+  void initState() {
+    _selectionBehavior = SelectionBehavior(
+      enable: true,
+      selectedColor: Colors.green,
+      unselectedColor: Colors.green,
+      unselectedOpacity: 0.2,
+      toggleSelection: false,
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create:
-          (context) => StatisticsBloc(
-            repository: context.read<JournalRepository>(),
-            monthRepository: context.read<JournalMonthRepository>(),
-          )..add(StatisticsInitLoad()),
+          (context) =>
+      StatisticsBloc(
+        repository: context.read<JournalRepository>(),
+        monthRepository: context.read<JournalMonthRepository>(),
+      )
+        ..add(StatisticsInitLoad()),
       child: BlocListener<StatisticsBloc, StatisticsState>(
         listener: (context, state) {
           if (state.datePickerDialogState is DatePickerDialogOpenState) {
@@ -64,6 +81,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       buildStatisticsCircularChart(context, state),
                       buildStatisticsProjectRankingList(context, state),
                       buildStatisticsJournalRankingList(context, state),
+                      buildStatisticsEveryDayChart(context, state),
+                      buildStatisticsEveryMonthChart(
+                        context,
+                        state,
+                        _selectionBehavior,
+                      ),
                     ],
                   ),
                 ),
