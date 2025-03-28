@@ -48,3 +48,10 @@ class StatisticsOnChangeJournalRankingList extends StatisticsEvent {
     required this.selectIndex,
   });
 }
+class StatisticsOnChangeDayChartData extends StatisticsEvent {
+  final int selectIndex;
+
+  const StatisticsOnChangeDayChartData({
+    required this.selectIndex,
+  });
+}

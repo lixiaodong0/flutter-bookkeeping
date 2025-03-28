@@ -53,4 +53,9 @@ class JournalLocalDataSource implements JournalDataSource {
   Future<List<JournalBean>> getMonthJournal(DateTime limitDate, JournalType journalType) {
     return dao.queryAllByMonth(limitDate, journalType);
   }
+
+  @override
+  Future<List<JournalBean>> getDayJournal(DateTime limitDate, JournalType journalType) {
+    return dao.queryAllByDay(limitDate, journalType);
+  }
 }

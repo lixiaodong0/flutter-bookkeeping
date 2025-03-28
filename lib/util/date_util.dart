@@ -7,6 +7,10 @@ class DateUtil {
     return "${date.month}月${date.day}日 ${date.hour.toString().padLeft(2,'0')}:${date.minute.toString().padLeft(2,'0')}";
   }
 
+  static String formatMonthDay(DateTime date) {
+    return "${date.month}月${date.day}号";
+  }
+
   static DateTime parse(String dateStr) {
     return DateTime.parse(dateStr);
   }

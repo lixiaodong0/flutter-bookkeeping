@@ -14,16 +14,17 @@ Widget buildStatisticsHeader(BuildContext context, StatisticsState state) {
       state.currentType == JournalType.expense
           ? state.currentMonthExpense
           : state.currentMonthIncome;
-
+  var color =
+      state.currentType == JournalType.expense ? Colors.green : Colors.orange;
   return Container(
-    color: Colors.green,
+    color: color,
     padding: EdgeInsets.only(top: 80, bottom: 30),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 4,right: 16),
+          padding: EdgeInsets.only(left: 4, right: 16),
           child: Row(
             children: [
               _buildDateSwitchContainer(context, state.currentDate),

@@ -127,6 +127,83 @@ class JournalDao {
     return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 
+  ///查询每天账单
+  Future<List<JournalBean>> queryAllByDay(
+    DateTime limitDate,
+    JournalType journalType,
+  ) async {
+    final String tableName = JournalEntry.table;
+    final String projectTableName = JournalProjectEntry.table;
+
+    final List<String> columns = [
+      JournalEntry.tableColumnId,
+      JournalEntry.tableColumnType,
+      JournalEntry.tableColumnAmount,
+      JournalEntry.tableColumnDate,
+      JournalEntry.tableColumnDescription,
+      JournalEntry.tableColumnJournalProjectId,
+
+      '$projectTableName.${JournalProjectEntry.tableColumnName}',
+    ];
+
+    // 动态构建 WHERE 子句
+    List<String> whereClauses = [];
+    List<Object?> arguments = [];
+
+    //类型筛选条件
+    whereClauses.add('${JournalEntry.tableColumnType} = ?');
+    arguments.add(journalType.name);
+    //时间筛选条件
+    whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
+    String startTime =
+        DateTime(
+          limitDate.year,
+          limitDate.month,
+          limitDate.day,
+        ).toIso8601String();
+    String endTime =
+        DateTime(
+          limitDate.year,
+          limitDate.month,
+          DateUtil.calculateMonthDays(limitDate.year, limitDate.month),
+          23,
+          59,
+          59,
+        ).toIso8601String();
+    arguments.add(startTime);
+    arguments.add(endTime);
+
+    String whereClause =
+        whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+
+    final List<String> selectFields =
+        columns
+            .map(
+              (column) => column.contains('.') ? column : '$tableName.$column',
+            )
+            .toList();
+
+    String sql = '''
+      SELECT 
+      ${selectFields.join(', ')}
+      FROM $tableName 
+      JOIN
+      $projectTableName ON $tableName.${JournalEntry.tableColumnJournalProjectId} = $projectTableName.${JournalProjectEntry.tableColumnId} 
+      $whereClause
+      ORDER BY $tableName.${JournalEntry.tableColumnDate} DESC
+    ''';
+
+    // 获取数据库实例
+    Database db = DatabaseHelper().db;
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      sql,
+      arguments,
+    );
+    print("[queryAllByDay]$sql");
+    print("[queryAllByDay]$results");
+    return results.map((e) => JournalBean.fromJson(e)).toList();
+  }
+
   ///查询分页数据 按照日期倒序
   /// pageSize: 分页每页大小
   /// page: 分页

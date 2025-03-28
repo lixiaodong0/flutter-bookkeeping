@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/day_chart_data.dart';
 import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../data/bean/doughnut_chart_data.dart';
 import '../data/bean/journal_type.dart';
 import '../data/bean/month_chart_data.dart';
+import '../util/date_util.dart';
+import '../util/format_util.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 
@@ -17,68 +20,130 @@ class ChartData {
   final double y;
 }
 
+SelectionBehavior _selectionBehavior(Color color) {
+  return SelectionBehavior(
+    enable: true,
+    selectedColor: color,
+    unselectedColor: color,
+    unselectedOpacity: 0.2,
+    toggleSelection: false,
+  );
+}
+
+TooltipBehavior _tooltipBehavior(Color color, String title) {
+  return TooltipBehavior(
+    enable: true,
+    color: Colors.black87,
+    shouldAlwaysShow: true,
+    builder: (
+      dynamic data,
+      dynamic point,
+      dynamic series,
+      int pointIndex,
+      int seriesIndex,
+    ) {
+      var chartData = data as DayChartData;
+      return Container(
+        width: 100,
+        height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: Colors.black87,
+        ),
+        padding: EdgeInsets.only(left: 4, top: 4, bottom: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${DateUtil.formatMonthDay(chartData.date)}共$title",
+                  style: TextStyle(color: Colors.white, fontSize: 10),
+                ),
+                Text(
+                  "¥${FormatUtil.formatAmount(chartData.amount.toString())}",
+                  style: TextStyle(color: color, fontSize: 12),
+                ),
+              ],
+            ),
+            Icon(Icons.navigate_next_rounded, size: 12, color: Colors.grey),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 //每日图表
 Widget buildStatisticsEveryDayChart(
   BuildContext context,
   StatisticsState state,
 ) {
-  final List<ChartData> chartData = [
-    ChartData(1, 420),
-    ChartData(2, 111),
-    ChartData(3, 44),
-    ChartData(4, 25),
-    ChartData(5, 40),
-    ChartData(6, 60),
-    ChartData(7, 60),
-    ChartData(8, 60),
-    ChartData(9, 60),
-    ChartData(10, 60),
-    ChartData(11, 60),
-    ChartData(12, 60),
-    ChartData(13, 60),
-    ChartData(14, 60),
-    ChartData(15, 60),
-    ChartData(16, 60),
-    ChartData(17, 60),
-    ChartData(18, 60),
-    ChartData(19, 60),
-    ChartData(20, 60),
-    ChartData(21, 60),
-    ChartData(22, 60),
-    ChartData(23, 60),
-    ChartData(24, 60),
-    ChartData(25, 60),
-    ChartData(26, 60),
-    ChartData(27, 60),
-    ChartData(28, 60),
-    ChartData(29, 60),
-    ChartData(30, 60),
-  ];
+  final List<DayChartData> chartData = state.everyDayChartData;
+  final JournalType currentType = state.currentType;
+  final selectDayChartDataIndex = state.selectDayChartDataIndex;
+
+  Color color =
+      currentType == JournalType.expense ? Colors.green : Colors.orange;
+
+  String title = currentType == JournalType.expense ? "支出" : "入账";
+
   return Container(
     padding: EdgeInsets.all(16),
-    child: SfCartesianChart(
-      plotAreaBorderWidth: 0,
-      primaryXAxis: NumericAxis(
-        majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
-        majorGridLines: MajorGridLines(width: 0, color: Colors.transparent),
-        interval: 6,
-        edgeLabelPlacement: EdgeLabelPlacement.shift,
-      ),
-      primaryYAxis: NumericAxis(
-        axisLine: AxisLine(width: 0, color: Colors.transparent),
-        isVisible: true,
-        majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
-      ),
-      series: <CartesianSeries<ChartData, int>>[
-        // Renders column chart
-        ColumnSeries<ChartData, int>(
-          dataSource: chartData,
-          xValueMapper: (ChartData data, _) => data.x,
-          yValueMapper: (ChartData data, _) => data.y,
-          // Width of the columns`23`
-          width: 1,
-          // Spacing between the columns
-          spacing: 0.5,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(bottom: 40),
+          child: Text(
+            "每日对比",
+            style: TextStyle(fontSize: 16, color: Colors.black),
+          ),
+        ),
+        SfCartesianChart(
+          plotAreaBorderWidth: 0,
+          tooltipBehavior: _tooltipBehavior(color, title),
+          primaryXAxis: CategoryAxis(
+            majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
+            majorGridLines: MajorGridLines(width: 0, color: Colors.transparent),
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
+          ),
+          primaryYAxis: NumericAxis(
+            axisLine: AxisLine(width: 0, color: Colors.transparent),
+            isVisible: true,
+            majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
+          ),
+          series: <CartesianSeries<DayChartData, String>>[
+            // Renders column chart
+            ColumnSeries<DayChartData, String>(
+              selectionBehavior: _selectionBehavior(color),
+              onPointTap: (ChartPointDetails details) {
+                print(
+                  "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",
+                );
+                var index = details.pointIndex ?? -1;
+                if (index != -1) {
+                  context.read<StatisticsBloc>().add(
+                    StatisticsOnChangeDayChartData(
+                      selectIndex: index,
+                    ),
+                  );
+                }
+              },
+              initialSelectedDataIndexes: [selectDayChartDataIndex],
+              enableTooltip: true,
+              dataSource: chartData,
+              xValueMapper: (DayChartData data, _) => data.formatDateStr2,
+              yValueMapper: (DayChartData data, _) => data.amount,
+              // Width of the columns`23`
+              width: 1,
+              // Spacing between the columns
+              spacing: 0.5,
+            ),
+          ],
         ),
       ],
     ),
@@ -90,10 +155,13 @@ Widget buildStatisticsEveryDayChart(
 Widget buildStatisticsEveryMonthChart(
   BuildContext context,
   StatisticsState state,
-  SelectionBehavior selectionBehavior,
 ) {
   var list = state.monthChartData;
   var selectMonthChartDataIndex = state.selectMonthChartDataIndex;
+  var currentType = state.currentType;
+  Color color =
+  currentType == JournalType.expense ? Colors.green : Colors.orange;
+
   return Container(
     padding: EdgeInsets.all(16),
     child: Column(
@@ -116,7 +184,7 @@ Widget buildStatisticsEveryMonthChart(
           series: <CartesianSeries<MonthChartData, String>>[
             // Renders column chart
             ColumnSeries<MonthChartData, String>(
-              selectionBehavior: selectionBehavior,
+              selectionBehavior: _selectionBehavior(color),
               onPointTap: (ChartPointDetails details) {
                 print(
                   "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",

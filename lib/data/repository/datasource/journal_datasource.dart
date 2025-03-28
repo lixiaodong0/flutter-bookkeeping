@@ -11,6 +11,10 @@ abstract class JournalDataSource {
     DateTime limitDate,
     JournalType journalType,
   );
+  Future<List<JournalBean>> getDayJournal(
+      DateTime limitDate,
+      JournalType journalType,
+      );
 
   Future<List<JournalBean>> getPageJournal({
     int pageSize = 20,

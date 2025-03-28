@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/day_chart_data.dart';
 import 'package:bookkeeping/data/bean/doughnut_chart_data.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/statistics/bloc/statistics_bloc.dart';
@@ -5,6 +6,8 @@ import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
 import 'package:bookkeeping/statistics/statistics_chart.dart';
 import 'package:bookkeeping/statistics/statistics_ranking_list.dart';
 import 'package:bookkeeping/statistics/statistics_topbar.dart';
+import 'package:bookkeeping/util/date_util.dart';
+import 'package:bookkeeping/util/format_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,18 +26,10 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  late SelectionBehavior _selectionBehavior;
-  late TooltipBehavior  _tooltipBehavior ;
+
 
   @override
   void initState() {
-    _selectionBehavior = SelectionBehavior(
-      enable: true,
-      selectedColor: Colors.green,
-      unselectedColor: Colors.green,
-      unselectedOpacity: 0.2,
-      toggleSelection: false,
-    );
     super.initState();
   }
 
@@ -42,12 +37,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create:
-          (context) =>
-      StatisticsBloc(
-        repository: context.read<JournalRepository>(),
-        monthRepository: context.read<JournalMonthRepository>(),
-      )
-        ..add(StatisticsInitLoad()),
+          (context) => StatisticsBloc(
+            repository: context.read<JournalRepository>(),
+            monthRepository: context.read<JournalMonthRepository>(),
+          )..add(StatisticsInitLoad()),
       child: BlocListener<StatisticsBloc, StatisticsState>(
         listener: (context, state) {
           if (state.datePickerDialogState is DatePickerDialogOpenState) {
@@ -80,11 +73,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       buildStatisticsHeader(context, state),
                       buildStatisticsCircularChart(context, state),
                       buildStatisticsProjectRankingList(context, state),
-                      buildStatisticsEveryDayChart(context, state),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          top: 40,
+                          bottom: 40,
+                        ),
+                        child: Divider(height: 1, color: Colors.grey[400]),
+                      ),
+                      buildStatisticsEveryDayChart(
+                        context,
+                        state,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          top: 40,
+                          bottom: 40,
+                        ),
+                        child: Divider(height: 1, color: Colors.grey[400]),
+                      ),
                       buildStatisticsEveryMonthChart(
                         context,
                         state,
-                        _selectionBehavior,
                       ),
                       buildStatisticsJournalRankingList(context, state),
                     ],

@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/day_chart_data.dart';
 import 'package:bookkeeping/data/bean/doughnut_chart_data.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
@@ -26,6 +27,15 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     on<StatisticsOnSelectedDate>(_onSelectedDate);
     on<StatisticsOnExpandedChange>(_onExpandedChange);
     on<StatisticsOnChangeJournalRankingList>(_onChangeJournalRankingList);
+    on<StatisticsOnChangeDayChartData>(_onChangeDayChartData);
+  }
+
+  void _onChangeDayChartData(
+    StatisticsOnChangeDayChartData event,
+    Emitter<StatisticsState> emit,
+  ) async {
+    var selectIndex = event.selectIndex;
+    emit(state.copyWith(selectDayChartDataIndex: selectIndex));
   }
 
   void _onChangeJournalRankingList(
@@ -55,6 +65,13 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     list.sort((a, b) => num.parse(b.amount).compareTo(num.parse(a.amount)));
     //最多返回11条数据
     return list.take(11).toList();
+  }
+
+  Future<List<JournalBean>> _queryJournalDay(
+    DateTime currentDate,
+    JournalType journalType,
+  ) async {
+    return repository.getDayJournal(currentDate, journalType);
   }
 
   void _onExpandedChange(
@@ -125,6 +142,22 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     await _reload(emit);
   }
 
+  Future<List<DayChartData>> _createEveryDayChartData(
+    DateTime endTime,
+    JournalType type,
+  ) async {
+    var startTime = endTime;
+    List<DayChartData> list = [];
+    for (var index = 0; index < 30; index++) {
+      var todayAmount = await repository.getTodayTotalAmount(startTime, type);
+      list.insert(0, DayChartData(startTime, num.parse(todayAmount)));
+      startTime = startTime.subtract(Duration(days: 1));
+    }
+    print("_createEveryDayChartData");
+    print(list);
+    return list;
+  }
+
   Future<void> _reload(Emitter<StatisticsState> emit) async {
     var currentDate = state.currentDate ?? DateTime.now();
     var currentType = state.currentType;
@@ -163,6 +196,14 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       projectList,
       currentType,
     );
+
+    //每天图表数据
+    var everyDayCharData = await _createEveryDayChartData(
+      currentDate,
+      currentType,
+    );
+
+    var selectDayChartDataIndex = everyDayCharData.length - 1;
 
     //每月图表数据
     //半年
@@ -221,10 +262,12 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       state.copyWith(
         monthChartData: monthChartDataList,
         dougnutChartData: dougnutChartData,
+        everyDayChartData: everyDayCharData,
         projectRankingList: projectRankingData,
         currentMonthIncome: monthIncome,
         currentMonthExpense: monthExpense,
         selectMonthChartDataIndex: selectMonthChartDataIndex,
+        selectDayChartDataIndex: selectDayChartDataIndex,
         monthRankingList: monthRankingList,
       ),
     );
