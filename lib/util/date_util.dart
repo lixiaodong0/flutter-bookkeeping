@@ -3,6 +3,10 @@ class DateUtil {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
+  static String formatMonth(DateTime date) {
+    return "${date.month}月${date.day}日 ${date.hour.toString().padLeft(2,'0')}:${date.minute.toString().padLeft(2,'0')}";
+  }
+
   static DateTime parse(String dateStr) {
     return DateTime.parse(dateStr);
   }

@@ -1,9 +1,13 @@
+import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../data/bean/doughnut_chart_data.dart';
 import '../data/bean/journal_type.dart';
+import '../data/bean/month_chart_data.dart';
+import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 
 class ChartData {
@@ -88,40 +92,60 @@ Widget buildStatisticsEveryMonthChart(
   StatisticsState state,
   SelectionBehavior selectionBehavior,
 ) {
-  final List<ChartData> chartData = [
-    ChartData(1, 35),
-    ChartData(2, 23),
-    ChartData(3, 34),
-    ChartData(4, 25),
-    ChartData(5, 40),
-    ChartData(6, 60),
-  ];
+  var list = state.monthChartData;
+  var selectMonthChartDataIndex = state.selectMonthChartDataIndex;
   return Container(
     padding: EdgeInsets.all(16),
-    child: SfCartesianChart(
-      plotAreaBorderWidth: 0,
-      primaryXAxis: CategoryAxis(
-        majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
-        majorGridLines: MajorGridLines(width: 0, color: Colors.transparent),
-      ),
-      primaryYAxis: NumericAxis(isVisible: false),
-      series: <CartesianSeries<ChartData, int>>[
-        // Renders column chart
-        ColumnSeries<ChartData, int>(
-          selectionBehavior: selectionBehavior,
-          onPointTap: (ChartPointDetails details) {
-            print("[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}");
-          },
-          initialSelectedDataIndexes: [1],
-          dataSource: chartData,
-          xValueMapper: (ChartData data, _) => data.x,
-          yValueMapper: (ChartData data, _) => data.y,
-          dataLabelMapper: (ChartData data, _) => data.y.toString(),
-          dataLabelSettings: const DataLabelSettings(isVisible: true),
-          // Width of the columns`23`
-          width: 1,
-          // Spacing between the columns
-          spacing: 0.5,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.zero,
+          child: Text(
+            "月度对比",
+            style: TextStyle(fontSize: 16, color: Colors.black),
+          ),
+        ),
+        SfCartesianChart(
+          plotAreaBorderWidth: 0,
+          primaryXAxis: CategoryAxis(
+            majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
+            majorGridLines: MajorGridLines(width: 0, color: Colors.transparent),
+          ),
+          primaryYAxis: NumericAxis(isVisible: false),
+          series: <CartesianSeries<MonthChartData, String>>[
+            // Renders column chart
+            ColumnSeries<MonthChartData, String>(
+              selectionBehavior: selectionBehavior,
+              onPointTap: (ChartPointDetails details) {
+                print(
+                  "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",
+                );
+                var index = details.pointIndex ?? -1;
+                if (index != -1) {
+                  context.read<StatisticsBloc>().add(
+                    StatisticsOnChangeJournalRankingList(
+                      changeDateTime: list[index].date,
+                      selectIndex: index,
+                    ),
+                  );
+                }
+              },
+              initialSelectedDataIndexes: [selectMonthChartDataIndex],
+              dataSource: list,
+              xValueMapper: (MonthChartData data, _) => data.dateStr,
+              yValueMapper: (MonthChartData data, _) => data.amount,
+              dataLabelMapper: (MonthChartData data, _) => data.amountLabel,
+              dataLabelSettings: const DataLabelSettings(
+                isVisible: true,
+                textStyle: TextStyle(fontSize: 12),
+              ),
+              // Width of the columns`23`
+              width: 1,
+              // Spacing between the columns
+              spacing: 0.5,
+            ),
+          ],
         ),
       ],
     ),

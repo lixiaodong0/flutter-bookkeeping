@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/bean/project_ranking_bean.dart';
 import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../util/date_util.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 
@@ -107,5 +109,111 @@ Widget buildStatisticsJournalRankingList(
   BuildContext context,
   StatisticsState state,
 ) {
-  return Container();
+  var originalList = state.monthRankingList;
+  var currentType = state.currentType;
+  var currentMonth = state.currentDate?.month;
+
+  var title =
+      currentType == JournalType.expense
+          ? "$currentMonth月支出排行"
+          : "$currentMonth月入账排行";
+  List<Widget> children = [];
+  children.add(
+    Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+          child: Text(
+            title,
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  var list = originalList.take(10).toList();
+  for (var i = 0; i < list.length; i++) {
+    var value = list[i];
+    children.add(
+      _journalRankingListItem(context, i + 1, currentType.symbol, value),
+    );
+  }
+  if (originalList.length > 10) {
+    children.add(_allItem(context));
+  }
+  return Container(
+    padding: EdgeInsets.only(left: 4, right: 16),
+    child: Column(children: children),
+  );
+}
+
+Widget _journalRankingListItem(
+  BuildContext context,
+  int index,
+  String symbol,
+  JournalBean data,
+) {
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 40,
+          child: Center(
+            child: Text(
+              "$index",
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                data.journalProjectName,
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                "$symbol${FormatUtil.formatAmount(data.amount)}",
+                style: TextStyle(fontSize: 14, color: Colors.black),
+              ),
+              Text(
+                DateUtil.formatMonth(data.date),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _allItem(BuildContext context) {
+  var title = "全部排行";
+  var icon = Icons.navigate_next_rounded;
+  return sizedButtonWidget(
+    onPressed: () {
+      // context.read<StatisticsBloc>().add();
+    },
+    width: 100,
+    height: 36,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(title, style: TextStyle(fontSize: 14, color: Colors.grey)),
+        Icon(icon, color: Colors.grey, size: 14),
+      ],
+    ),
+  );
 }

@@ -1,5 +1,7 @@
 import 'package:bookkeeping/data/bean/doughnut_chart_data.dart';
+import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/data/bean/month_chart_data.dart';
 import 'package:bookkeeping/data/bean/project_ranking_bean.dart';
 import 'package:equatable/equatable.dart';
 
@@ -13,6 +15,9 @@ final class StatisticsState extends Equatable {
   final bool expandedProjectRanking;
   final List<DoughnutChartData> dougnutChartData;
   final List<ProjectRankingBean> projectRankingList;
+  final List<MonthChartData> monthChartData;
+  final int selectMonthChartDataIndex;
+  final List<JournalBean> monthRankingList;
   final DatePickerDialogState datePickerDialogState;
 
   const StatisticsState({
@@ -23,6 +28,9 @@ final class StatisticsState extends Equatable {
     this.currentMonthExpense = "0",
     this.dougnutChartData = const [],
     this.projectRankingList = const [],
+    this.monthChartData = const [],
+    this.selectMonthChartDataIndex = 0,
+    this.monthRankingList = const [],
     this.datePickerDialogState = const DatePickerDialogCloseState(),
   });
 
@@ -36,6 +44,9 @@ final class StatisticsState extends Equatable {
     dougnutChartData,
     projectRankingList,
     datePickerDialogState,
+    monthChartData,
+    selectMonthChartDataIndex,
+    monthRankingList,
   ];
 
   StatisticsState copyWith({
@@ -46,7 +57,10 @@ final class StatisticsState extends Equatable {
     String? currentMonthExpense,
     List<DoughnutChartData>? dougnutChartData,
     List<ProjectRankingBean>? projectRankingList,
+    List<MonthChartData>? monthChartData,
+    int? selectMonthChartDataIndex,
     DatePickerDialogState? datePickerDialogState,
+    List<JournalBean>? monthRankingList,
   }) {
     return StatisticsState(
       currentDate: currentDate ?? this.currentDate,
@@ -56,6 +70,9 @@ final class StatisticsState extends Equatable {
       currentMonthExpense: currentMonthExpense ?? this.currentMonthExpense,
       dougnutChartData: dougnutChartData ?? this.dougnutChartData,
       projectRankingList: projectRankingList ?? this.projectRankingList,
+      monthChartData: monthChartData ?? this.monthChartData,
+      selectMonthChartDataIndex: selectMonthChartDataIndex ?? this.selectMonthChartDataIndex,
+      monthRankingList: monthRankingList ?? this.monthRankingList,
       datePickerDialogState: datePickerDialogState ?? this.datePickerDialogState,
     );
   }

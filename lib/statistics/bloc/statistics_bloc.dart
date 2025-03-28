@@ -1,6 +1,7 @@
 import 'package:bookkeeping/data/bean/doughnut_chart_data.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/data/bean/month_chart_data.dart';
 import 'package:bookkeeping/data/bean/project_ranking_bean.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
@@ -24,6 +25,36 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     on<StatisticsOnCloseDatePicker>(_onShowCloseDatePicker);
     on<StatisticsOnSelectedDate>(_onSelectedDate);
     on<StatisticsOnExpandedChange>(_onExpandedChange);
+    on<StatisticsOnChangeJournalRankingList>(_onChangeJournalRankingList);
+  }
+
+  void _onChangeJournalRankingList(
+    StatisticsOnChangeJournalRankingList event,
+    Emitter<StatisticsState> emit,
+  ) async {
+    var changeDateTime = event.changeDateTime;
+    var selectIndex = event.selectIndex;
+    var result = await _queryJournalMonth(changeDateTime, state.currentType);
+    emit(
+      state.copyWith(
+        monthRankingList: result,
+        selectMonthChartDataIndex: selectIndex,
+      ),
+    );
+  }
+
+  Future<List<JournalBean>> _queryJournalMonth(
+    DateTime currentDate,
+    JournalType journalType,
+  ) async {
+    List<JournalBean> list = await repository.getMonthJournal(
+      currentDate,
+      journalType,
+    );
+    //价格从大到小排序
+    list.sort((a, b) => num.parse(b.amount).compareTo(num.parse(a.amount)));
+    //最多返回11条数据
+    return list.take(11).toList();
   }
 
   void _onExpandedChange(
@@ -133,12 +164,68 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       currentType,
     );
 
+    //每月图表数据
+    //半年
+    List<MonthChartData> monthChartDataList = [];
+    monthChartDataList.add(
+      MonthChartData(
+        date: currentDate,
+        dateStr: "${currentDate.month}月",
+        amount: double.parse(monthExpense),
+        amountLabel: '¥${FormatUtil.formatAmount(monthExpense)}',
+      ),
+    );
+    var startDate = currentDate;
+    DateTime? findFormatDate;
+    for (var index = 0; index < 5; index++) {
+      if (startDate.month - 1 >= 1) {
+        startDate = DateTime(startDate.year, startDate.month - 1);
+      } else {
+        startDate = DateTime(startDate.year - 1, 12);
+
+        findFormatDate = startDate;
+      }
+      var monthAmount = await repository.getMonthTotalAmount(
+        startDate,
+        currentType,
+      );
+      monthChartDataList.insert(
+        0,
+        MonthChartData(
+          date: startDate,
+          dateStr: "${startDate.month}月",
+          amount: double.parse(monthAmount),
+          amountLabel: '¥${FormatUtil.formatAmount(monthAmount)}',
+        ),
+      );
+    }
+
+    //这里主要用是区分不同年份
+    if (findFormatDate != null) {
+      var findIndex = monthChartDataList.indexWhere(
+        (data) => data.date == findFormatDate,
+      );
+      if (findIndex != -1) {
+        var currentItem = monthChartDataList[findIndex];
+        currentItem.dateStr =
+            '${currentItem.date.month}月\n${currentItem.date.year}';
+        var nextItem = monthChartDataList[findIndex + 1];
+        nextItem.dateStr = '${nextItem.date.month}月\n${nextItem.date.year}';
+      }
+    }
+
+    var selectMonthChartDataIndex = monthChartDataList.length - 1;
+    var monthRankingList = await _queryJournalMonth(currentDate, currentType);
+
     emit(
       state.copyWith(
+        monthChartData: monthChartDataList,
         dougnutChartData: dougnutChartData,
         projectRankingList: projectRankingData,
         currentMonthIncome: monthIncome,
         currentMonthExpense: monthExpense,
+        selectMonthChartDataIndex: selectMonthChartDataIndex,
+        monthRankingList: monthRankingList,
       ),
     );
   }

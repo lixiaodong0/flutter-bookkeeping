@@ -38,3 +38,13 @@ class StatisticsOnExpandedChange extends StatisticsEvent {
 
   const StatisticsOnExpandedChange({required this.newExpanded});
 }
+
+class StatisticsOnChangeJournalRankingList extends StatisticsEvent {
+  final DateTime changeDateTime;
+  final int selectIndex;
+
+  const StatisticsOnChangeJournalRankingList({
+    required this.changeDateTime,
+    required this.selectIndex,
+  });
+}
