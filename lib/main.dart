@@ -6,6 +6,7 @@ import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/db/database.dart';
 import 'package:bookkeeping/db/journal_month_dao.dart';
 import 'package:bookkeeping/db/journal_project_dao.dart';
+import 'package:bookkeeping/filter/filter_journal_screen.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,12 @@ final GoRouter _router = GoRouter(
       ],
       builder: (BuildContext context, GoRouterState state, Widget child) {
         return _ScaffoldWithNavBar(child: child);
+      },
+    ),
+    GoRoute(
+      path: "/filter_journal",
+      builder: (BuildContext context, GoRouterState state) {
+        return FilterJournalScreen();
       },
     ),
   ],

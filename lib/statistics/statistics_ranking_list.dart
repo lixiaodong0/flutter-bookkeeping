@@ -7,6 +7,7 @@ import 'package:bookkeeping/widget/clickable_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../util/date_util.dart';
 import 'bloc/statistics_bloc.dart';
@@ -65,41 +66,46 @@ Widget _projectRankingListItem(
 ) {
   var progressColor =
       type == JournalType.expense ? Colors.green : Colors.orange;
-  return Padding(
-    padding: EdgeInsets.symmetric(vertical: 4),
-    child: Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            data.name,
-            style: TextStyle(fontSize: 14, color: Colors.black),
+  return GestureDetector(
+    onTap: () {
+      context.go("/filter_journal");
+    },
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              data.name,
+              style: TextStyle(fontSize: 14, color: Colors.black),
+            ),
           ),
-        ),
-        Expanded(
-          child: LinearProgressIndicator(
-            value: data.progress,
-            backgroundColor: Colors.white,
-            minHeight: 10,
-            borderRadius: BorderRadius.circular(10),
-            valueColor: AlwaysStoppedAnimation(progressColor),
+          Expanded(
+            child: LinearProgressIndicator(
+              value: data.progress,
+              backgroundColor: Colors.white,
+              minHeight: 10,
+              borderRadius: BorderRadius.circular(10),
+              valueColor: AlwaysStoppedAnimation(progressColor),
+            ),
           ),
-        ),
-        SizedBox(
-          width: 100,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "¥${FormatUtil.formatAmount(data.amount.toString())}",
-                style: TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              Icon(Icons.navigate_next_rounded, color: Colors.grey, size: 14),
-            ],
+          SizedBox(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "¥${FormatUtil.formatAmount(data.amount.toString())}",
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                Icon(Icons.navigate_next_rounded, color: Colors.grey, size: 14),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -112,18 +118,18 @@ Widget buildStatisticsJournalRankingList(
   var originalList = state.monthRankingList;
   var currentType = state.currentType;
   var currentMonth = state.currentDate?.month;
-
+  var first = originalList.firstOrNull;
   var title =
       currentType == JournalType.expense
-          ? "$currentMonth月支出排行"
-          : "$currentMonth月入账排行";
+          ? "${first?.date.month}月支出排行"
+          : "$first?.date.month月入账排行";
   List<Widget> children = [];
   children.add(
     Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Text(
             title,
             style: TextStyle(fontSize: 12, color: Colors.grey),
