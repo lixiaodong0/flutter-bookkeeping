@@ -3,6 +3,7 @@ import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../data/bean/doughnut_chart_data.dart';
@@ -109,12 +110,14 @@ Widget buildStatisticsEveryDayChart(
           primaryXAxis: CategoryAxis(
             majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
             majorGridLines: MajorGridLines(width: 0, color: Colors.transparent),
-            edgeLabelPlacement: EdgeLabelPlacement.shift,
+            edgeLabelPlacement : EdgeLabelPlacement.shift,
+            interval: 4,
           ),
           primaryYAxis: NumericAxis(
             axisLine: AxisLine(width: 0, color: Colors.transparent),
             isVisible: true,
             majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
+            numberFormat: NumberFormat("¥"),
           ),
           series: <CartesianSeries<DayChartData, String>>[
             // Renders column chart
