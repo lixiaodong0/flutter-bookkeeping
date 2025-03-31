@@ -50,7 +50,8 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: "/filter_journal",
       builder: (BuildContext context, GoRouterState state) {
-        return FilterJournalScreen();
+        var params = state.extra as FilterJournalScreenParams;
+        return FilterJournalScreen(params: params);
       },
     ),
   ],

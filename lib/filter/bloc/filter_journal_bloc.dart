@@ -4,14 +4,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/bean/filter_type.dart';
 import '../../data/repository/journal_month_repository.dart';
 import '../../data/repository/journal_repository.dart';
+import '../filter_journal_screen.dart';
 import 'filter_journal_event.dart';
 import 'filter_journal_state.dart';
 
 class FilterJournalBloc extends Bloc<FilterJournalEvent, FilterJournalState> {
   final JournalRepository repository;
+  final FilterJournalScreenParams params;
 
-  FilterJournalBloc({required this.repository})
-    : super(FilterJournalState(currentDate: DateTime.now())) {
+  FilterJournalBloc({required this.repository, required this.params})
+    : super(
+        FilterJournalState(
+          currentDate: params.date,
+          currentType: params.type,
+          projectBean: params.projectBean,
+        ),
+      ) {
     on<FilterJournalInitLoad>(_onInitLoad);
     on<FilterJournalOnChangeFilterType>(_onChangeFilterType);
   }

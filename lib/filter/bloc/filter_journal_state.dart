@@ -1,5 +1,6 @@
 import 'package:bookkeeping/data/bean/filter_type.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
+import 'package:bookkeeping/data/bean/project_ranking_bean.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../data/bean/journal_type.dart';
@@ -8,6 +9,7 @@ final class FilterJournalState extends Equatable {
   final DateTime? currentDate;
   final JournalType currentType;
   final FilterType currentFilterType;
+  final ProjectRankingBean? projectBean;
   final List<JournalBean> list;
   final String monthAmount;
 
@@ -15,6 +17,7 @@ final class FilterJournalState extends Equatable {
     this.currentDate,
     this.currentType = JournalType.expense,
     this.currentFilterType = FilterType.amount,
+    this.projectBean,
     this.list = const [],
     this.monthAmount = "0",
   });
@@ -26,6 +29,7 @@ final class FilterJournalState extends Equatable {
     currentFilterType,
     list,
     monthAmount,
+    projectBean,
   ];
 
   FilterJournalState copyWith({
@@ -34,6 +38,7 @@ final class FilterJournalState extends Equatable {
     FilterType? currentFilterType,
     List<JournalBean>? list,
     String? monthAmount,
+    ProjectRankingBean? projectBean,
   }) {
     return FilterJournalState(
       currentDate: currentDate ?? this.currentDate,
@@ -41,6 +46,7 @@ final class FilterJournalState extends Equatable {
       currentFilterType: currentFilterType ?? this.currentFilterType,
       list: list ?? this.list,
       monthAmount: monthAmount ?? this.monthAmount,
+      projectBean: projectBean ?? this.projectBean,
     );
   }
 }

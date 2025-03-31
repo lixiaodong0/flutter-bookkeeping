@@ -17,7 +17,7 @@ Widget buildFilterJournalHeader(
   var typeTitle = state.currentType == JournalType.expense ? "支出" : "入账";
   var month = state.currentDate?.month;
   var monthAmount = state.monthAmount;
-
+  var projectName = state.projectBean?.name ?? "";
   return SliverToBoxAdapter(
     child: Column(
       children: [
@@ -27,7 +27,7 @@ Widget buildFilterJournalHeader(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "$month月共$typeTitle",
+                "$month月$projectName共$typeTitle",
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
               SizedBox(height: 10),
@@ -51,7 +51,8 @@ Widget buildFilterJournalHeader(
 
 Widget _buildFilterContainer(BuildContext context, FilterType selectedType) {
   var journalType = JournalType.expense;
-  var selectedTextColor = journalType == JournalType.expense ? Colors.green : Colors.orange;
+  var selectedTextColor =
+      journalType == JournalType.expense ? Colors.green : Colors.orange;
   var selectedBackgroundColor = selectedTextColor.withAlpha(50);
 
   var unselectedBackgroundColor = Color(0xFFF5F5F5);

@@ -85,7 +85,12 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     StatisticsOnSelectedDate event,
     Emitter<StatisticsState> emit,
   ) async {
-    emit(state.copyWith(currentDate: event.selectedDate));
+    emit(
+      state.copyWith(
+        currentDate: event.selectedDate,
+        datePickerDialogState: DatePickerDialogCloseState(),
+      ),
+    );
     await _reload(emit);
   }
 

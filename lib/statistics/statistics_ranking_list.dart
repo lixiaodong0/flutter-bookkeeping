@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../filter/filter_journal_screen.dart';
 import '../util/date_util.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
@@ -24,7 +25,14 @@ Widget buildStatisticsProjectRankingList(
   var expandedProjectRanking = state.expandedProjectRanking;
   var expandedList = expandedProjectRanking ? list : list.take(4).toList();
   for (var value in expandedList) {
-    children.add(_projectRankingListItem(context, state.currentType, value));
+    children.add(
+      _projectRankingListItem(
+        context,
+        state.currentType,
+        value,
+        state.currentDate ?? DateTime.now(),
+      ),
+    );
   }
   if (list.length > 4) {
     children.add(_expandedItem(context, state.expandedProjectRanking));
@@ -63,12 +71,20 @@ Widget _projectRankingListItem(
   BuildContext context,
   JournalType type,
   ProjectRankingBean data,
+  DateTime date,
 ) {
   var progressColor =
       type == JournalType.expense ? Colors.green : Colors.orange;
   return GestureDetector(
     onTap: () {
-      context.go("/filter_journal");
+      context.push(
+        "/filter_journal",
+        extra: FilterJournalScreenParams(
+          type: type,
+          date: date,
+          projectBean: data,
+        ),
+      );
     },
     child: Padding(
       padding: EdgeInsets.symmetric(vertical: 4),
@@ -147,7 +163,7 @@ Widget buildStatisticsJournalRankingList(
     );
   }
   if (originalList.length > 10) {
-    children.add(_allItem(context));
+    children.add(_allItem(context, state));
   }
   return Container(
     padding: EdgeInsets.only(left: 4, right: 16),
@@ -205,12 +221,18 @@ Widget _journalRankingListItem(
   );
 }
 
-Widget _allItem(BuildContext context) {
+Widget _allItem(BuildContext context, StatisticsState state) {
   var title = "全部排行";
   var icon = Icons.navigate_next_rounded;
   return sizedButtonWidget(
     onPressed: () {
-      // context.read<StatisticsBloc>().add();
+      context.push(
+        "/filter_journal",
+        extra: FilterJournalScreenParams(
+          type: state.currentType,
+          date: state.currentDate ?? DateTime.now(),
+        ),
+      );
     },
     width: 100,
     height: 36,
