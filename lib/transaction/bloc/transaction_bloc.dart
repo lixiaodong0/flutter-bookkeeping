@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:bookkeeping/cache/scroll_date_amount_cache.dart';
 import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
@@ -157,15 +158,26 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     //   "[_onScrollChange]firstIndex:${firstIndex},findItem:${findItem},date:${date}",
     // );
     if (!DateUtil.isSameMonth(date, state.currentDate)) {
-      //重新计算
-      var totalIncome = await repository.getMonthTotalAmount(
-        date,
-        JournalType.income,
-      );
-      var totalExpense = await repository.getMonthTotalAmount(
-        date,
-        JournalType.expense,
-      );
+      var hasCache = DateAmountCache().hasCache(date);
+      String totalIncome;
+      String totalExpense;
+      if (hasCache) {
+        //读缓存
+        var cache = DateAmountCache().getCache(date);
+        totalIncome = cache!.incomeAmount;
+        totalExpense = cache.expenseAmount;
+      } else {
+        //读数据库
+        totalIncome = await repository.getMonthTotalAmount(
+          date,
+          JournalType.income,
+        );
+        totalExpense = await repository.getMonthTotalAmount(
+          date,
+          JournalType.expense,
+        );
+        DateAmountCache().putCache(date, totalIncome, totalExpense);
+      }
       emit(
         state.copyWith(
           currentDate: date,
