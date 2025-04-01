@@ -49,6 +49,7 @@ class _FilterJournalScreenState extends State<FilterJournalScreen> {
             return Scaffold(
               backgroundColor: Colors.white,
               appBar: AppBar(
+                surfaceTintColor: Colors.white,
                 backgroundColor: Colors.white,
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back_ios_new_rounded),
