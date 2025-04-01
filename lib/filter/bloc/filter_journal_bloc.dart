@@ -42,11 +42,27 @@ class FilterJournalBloc extends Bloc<FilterJournalEvent, FilterJournalState> {
     emit(state.copyWith(currentFilterType: filterType, list: list));
   }
 
+  int _getProjectId() {
+    if (params.projectBean != null) {
+      return params.projectBean!.id;
+    }
+    return -1;
+  }
+
   Future<void> _reload(Emitter<FilterJournalState> emit) async {
     var date = state.currentDate ?? DateTime.now();
     var type = state.currentType;
-    var monthAmount = await repository.getMonthTotalAmount(date, type);
-    var list = await repository.getMonthJournal(date, type);
+    var projectId = _getProjectId();
+    var monthAmount = await repository.getMonthTotalAmount(
+      date,
+      type,
+      projectId: projectId,
+    );
+    var list = await repository.getMonthJournal(
+      date,
+      type,
+      projectId: projectId,
+    );
     _sort(list, state.currentFilterType);
     emit(state.copyWith(monthAmount: monthAmount, list: list));
   }

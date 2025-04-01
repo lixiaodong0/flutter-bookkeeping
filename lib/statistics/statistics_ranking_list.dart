@@ -133,12 +133,12 @@ Widget buildStatisticsJournalRankingList(
 ) {
   var originalList = state.monthRankingList;
   var currentType = state.currentType;
-  var currentMonth = state.currentDate?.month;
-  var first = originalList.firstOrNull;
+  var currentMonth = originalList.firstOrNull?.date.month;
+
   var title =
       currentType == JournalType.expense
-          ? "${first?.date.month}月支出排行"
-          : "$first?.date.month月入账排行";
+          ? "$currentMonth月支出排行"
+          : "$currentMonth月入账排行";
   List<Widget> children = [];
   children.add(
     Row(

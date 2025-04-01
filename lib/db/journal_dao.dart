@@ -57,8 +57,9 @@ class JournalDao {
   ///查询月份账单
   Future<List<JournalBean>> queryAllByMonth(
     DateTime limitDate,
-    JournalType journalType,
-  ) async {
+    JournalType journalType, {
+    int projectId = -1,
+  }) async {
     final String tableName = JournalEntry.table;
     final String projectTableName = JournalProjectEntry.table;
 
@@ -80,6 +81,13 @@ class JournalDao {
     //类型筛选条件
     whereClauses.add('${JournalEntry.tableColumnType} = ?');
     arguments.add(journalType.name);
+
+    //产品ID筛选
+    if (projectId != -1) {
+      whereClauses.add('${JournalEntry.tableColumnJournalProjectId} = ?');
+      arguments.add(projectId);
+    }
+
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
     String startTime =
@@ -330,36 +338,54 @@ class JournalDao {
   }
 
   //查询当月总的金额
-  Future<String> queryMonthTotalAmount(DateTime date, JournalType type) async {
+  Future<String> queryMonthTotalAmount(
+    DateTime date,
+    JournalType type, {
+    int projectId = -1,
+  }) async {
     final String tableName = JournalEntry.table;
     final String columnAmount = JournalEntry.tableColumnAmount;
-    final String columnType = JournalEntry.tableColumnType;
-    final String columnDate = JournalEntry.tableColumnDate;
 
-    String sql = '''
-      SELECT SUM($tableName.$columnAmount) AS total_amount
-      FROM $tableName WHERE $tableName.$columnType = ?
-      AND $tableName.$columnDate BETWEEN ? AND ?
-    ''';
+    // 动态构建 WHERE 子句
+    List<String> whereClauses = [];
+    List<Object?> arguments = [];
 
+    //类型筛选条件
+    whereClauses.add('${JournalEntry.tableColumnType} = ?');
+    arguments.add(type.name);
+
+    //时间筛选条件
+    whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
     String startTime = DateTime(date.year, date.month, 1).toIso8601String();
     String endTime =
-        DateTime(
-          date.year,
-          date.month,
-          DateUtil.calculateMonthDays(date.year, date.month),
-          23,
-          59,
-          59,
-        ).toIso8601String();
+    DateTime(
+      date.year,
+      date.month,
+      DateUtil.calculateMonthDays(date.year, date.month),
+      23,
+      59,
+      59,
+    ).toIso8601String();
+    arguments.add(startTime);
+    arguments.add(endTime);
+
+    //产品筛选条件
+    if (projectId != -1) {
+      whereClauses.add('${JournalEntry.tableColumnJournalProjectId} = ?');
+      arguments.add(projectId);
+    }
+
+    String whereClause =
+    whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+
+    String sql = '''
+      SELECT SUM($columnAmount) AS total_amount
+      FROM $tableName $whereClause
+    ''';
 
     // 获取数据库实例
     Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.rawQuery(sql, [
-      type.name,
-      startTime,
-      endTime,
-    ]);
+    final List<Map<String, dynamic>> results = await db.rawQuery(sql, arguments);
 
     // print(results);
 

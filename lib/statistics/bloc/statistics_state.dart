@@ -11,8 +11,7 @@ import '../../data/bean/journal_month_bean.dart';
 final class StatisticsState extends Equatable {
   final DateTime? currentDate;
   final JournalType currentType;
-  final String currentMonthIncome;
-  final String currentMonthExpense;
+  final String currentMonthAmount;
   final bool expandedProjectRanking;
   final List<DayChartData> everyDayChartData;
   final List<DoughnutChartData> dougnutChartData;
@@ -27,8 +26,7 @@ final class StatisticsState extends Equatable {
     this.currentDate,
     this.currentType = JournalType.expense,
     this.expandedProjectRanking = false,
-    this.currentMonthIncome = "0",
-    this.currentMonthExpense = "0",
+    this.currentMonthAmount = "0",
     this.everyDayChartData = const [],
     this.dougnutChartData = const [],
     this.projectRankingList = const [],
@@ -44,8 +42,7 @@ final class StatisticsState extends Equatable {
     currentDate,
     currentType,
     expandedProjectRanking,
-    currentMonthIncome,
-    currentMonthExpense,
+    currentMonthAmount,
     everyDayChartData,
     dougnutChartData,
     projectRankingList,
@@ -60,8 +57,7 @@ final class StatisticsState extends Equatable {
     DateTime? currentDate,
     JournalType? currentType,
     bool? expandedProjectRanking,
-    String? currentMonthIncome,
-    String? currentMonthExpense,
+    String? currentMonthAmount,
     List<DayChartData>? everyDayChartData,
     List<DoughnutChartData>? dougnutChartData,
     List<ProjectRankingBean>? projectRankingList,
@@ -75,8 +71,7 @@ final class StatisticsState extends Equatable {
       currentDate: currentDate ?? this.currentDate,
       currentType: currentType ?? this.currentType,
       expandedProjectRanking: expandedProjectRanking ?? this.expandedProjectRanking,
-      currentMonthIncome: currentMonthIncome ?? this.currentMonthIncome,
-      currentMonthExpense: currentMonthExpense ?? this.currentMonthExpense,
+      currentMonthAmount: currentMonthAmount ?? this.currentMonthAmount,
       everyDayChartData: everyDayChartData ?? this.everyDayChartData,
       dougnutChartData: dougnutChartData ?? this.dougnutChartData,
       projectRankingList: projectRankingList ?? this.projectRankingList,

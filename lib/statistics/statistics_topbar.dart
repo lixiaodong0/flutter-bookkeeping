@@ -10,10 +10,7 @@ import 'bloc/statistics_event.dart';
 import 'bloc/statistics_state.dart';
 
 Widget buildStatisticsHeader(BuildContext context, StatisticsState state) {
-  var totalAmount =
-      state.currentType == JournalType.expense
-          ? state.currentMonthExpense
-          : state.currentMonthIncome;
+  var totalAmount = state.currentMonthAmount;
   var color =
       state.currentType == JournalType.expense ? Colors.green : Colors.orange;
   return Container(

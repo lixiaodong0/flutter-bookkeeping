@@ -167,13 +167,9 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     var currentDate = state.currentDate ?? DateTime.now();
     var currentType = state.currentType;
 
-    var monthIncome = await repository.getMonthTotalAmount(
+    var currentMonthAmount = await repository.getMonthTotalAmount(
       currentDate,
-      JournalType.income,
-    );
-    var monthExpense = await repository.getMonthTotalAmount(
-      currentDate,
-      JournalType.expense,
+      currentType,
     );
 
     var monthJournal = await repository.getMonthJournal(
@@ -217,8 +213,8 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       MonthChartData(
         date: currentDate,
         dateStr: "${currentDate.month}月",
-        amount: double.parse(monthExpense),
-        amountLabel: '¥${FormatUtil.formatAmount(monthExpense)}',
+        amount: double.parse(currentMonthAmount),
+        amountLabel: '¥${FormatUtil.formatAmount(currentMonthAmount)}',
       ),
     );
     var startDate = currentDate;
@@ -269,8 +265,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
         dougnutChartData: dougnutChartData,
         everyDayChartData: everyDayCharData,
         projectRankingList: projectRankingData,
-        currentMonthIncome: monthIncome,
-        currentMonthExpense: monthExpense,
+        currentMonthAmount: currentMonthAmount,
         selectMonthChartDataIndex: selectMonthChartDataIndex,
         selectDayChartDataIndex: selectDayChartDataIndex,
         monthRankingList: monthRankingList,

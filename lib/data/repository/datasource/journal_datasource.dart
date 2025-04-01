@@ -9,12 +9,14 @@ abstract class JournalDataSource {
 
   Future<List<JournalBean>> getMonthJournal(
     DateTime limitDate,
+    JournalType journalType, {
+    int projectId = -1,
+  });
+
+  Future<List<JournalBean>> getDayJournal(
+    DateTime limitDate,
     JournalType journalType,
   );
-  Future<List<JournalBean>> getDayJournal(
-      DateTime limitDate,
-      JournalType journalType,
-      );
 
   Future<List<JournalBean>> getPageJournal({
     int pageSize = 20,
@@ -25,7 +27,11 @@ abstract class JournalDataSource {
 
   Future<String> getTodayTotalAmount(DateTime date, JournalType type);
 
-  Future<String> getMonthTotalAmount(DateTime date, JournalType type);
+  Future<String> getMonthTotalAmount(
+    DateTime date,
+    JournalType type, {
+    int projectId = -1,
+  });
 
   Future<int> addJournal(JournalEntry entry);
 }
