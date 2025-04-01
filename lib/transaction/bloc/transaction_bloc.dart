@@ -52,6 +52,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedProject event,
     Emitter<TransactionState> emit,
   ) async {
+    _clearAmountCache();
     currentLimitProject = event.selectedProject;
     page = 1;
     var result = await _loadData();
@@ -68,6 +69,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedMonth event,
     Emitter<TransactionState> emit,
   ) async {
+    _clearAmountCache();
     currentLimitDate = event.selectedDate;
     page = 1;
     var result = await _loadData();
@@ -78,6 +80,9 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
         lists: result,
       ),
     );
+  }
+  void _clearAmountCache(){
+    DateAmountCache().clearAllCache();
   }
 
   void _onShowMonthPicker(
@@ -157,6 +162,9 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     // print(
     //   "[_onScrollChange]firstIndex:${firstIndex},findItem:${findItem},date:${date}",
     // );
+
+    var projectId = currentLimitProject?.id ?? -1;
+
     if (!DateUtil.isSameMonth(date, state.currentDate)) {
       var hasCache = DateAmountCache().hasCache(date);
       String totalIncome;
@@ -171,10 +179,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
         totalIncome = await repository.getMonthTotalAmount(
           date,
           JournalType.income,
+          projectId: projectId,
         );
         totalExpense = await repository.getMonthTotalAmount(
           date,
           JournalType.expense,
+          projectId: projectId,
         );
         DateAmountCache().putCache(date, totalIncome, totalExpense);
       }

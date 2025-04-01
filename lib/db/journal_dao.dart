@@ -301,30 +301,51 @@ class JournalDao {
   }
 
   //查询当天总的金额
-  Future<String> queryTodayTotalAmount(DateTime date, JournalType type) async {
+  Future<String> queryTodayTotalAmount(
+    DateTime date,
+    JournalType type, {
+    int projectId = -1,
+  }) async {
     final String tableName = JournalEntry.table;
     final String columnAmount = JournalEntry.tableColumnAmount;
-    final String columnType = JournalEntry.tableColumnType;
-    final String columnDate = JournalEntry.tableColumnDate;
+
+    // 动态构建 WHERE 子句
+    List<String> whereClauses = [];
+    List<Object?> arguments = [];
+
+    //类型筛选条件
+    whereClauses.add('${JournalEntry.tableColumnType} = ?');
+    arguments.add(type.name);
+
+    //时间筛选条件
+    whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
+    String startTime =
+    DateTime(date.year, date.month, date.day).toIso8601String();
+    String endTime =
+    DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
+    arguments.add(startTime);
+    arguments.add(endTime);
+
+    //产品筛选条件
+    if (projectId != -1) {
+      whereClauses.add('${JournalEntry.tableColumnJournalProjectId} = ?');
+      arguments.add(projectId);
+    }
+
+    String whereClause =
+    whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
 
     String sql = '''
-      SELECT SUM($tableName.$columnAmount) AS total_amount
-      FROM $tableName WHERE $tableName.$columnType = ?
-      AND $tableName.$columnDate BETWEEN ? AND ?
+      SELECT SUM($columnAmount) AS total_amount
+      FROM $tableName $whereClause
     ''';
-
-    String startTime =
-        DateTime(date.year, date.month, date.day).toIso8601String();
-    String endTime =
-        DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
 
     // 获取数据库实例
     Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.rawQuery(sql, [
-      type.name,
-      startTime,
-      endTime,
-    ]);
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      sql,
+      arguments,
+    );
 
     // print(results);
 
@@ -358,14 +379,14 @@ class JournalDao {
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
     String startTime = DateTime(date.year, date.month, 1).toIso8601String();
     String endTime =
-    DateTime(
-      date.year,
-      date.month,
-      DateUtil.calculateMonthDays(date.year, date.month),
-      23,
-      59,
-      59,
-    ).toIso8601String();
+        DateTime(
+          date.year,
+          date.month,
+          DateUtil.calculateMonthDays(date.year, date.month),
+          23,
+          59,
+          59,
+        ).toIso8601String();
     arguments.add(startTime);
     arguments.add(endTime);
 
@@ -376,7 +397,7 @@ class JournalDao {
     }
 
     String whereClause =
-    whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+        whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
 
     String sql = '''
       SELECT SUM($columnAmount) AS total_amount
@@ -385,7 +406,10 @@ class JournalDao {
 
     // 获取数据库实例
     Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.rawQuery(sql, arguments);
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      sql,
+      arguments,
+    );
 
     // print(results);
 

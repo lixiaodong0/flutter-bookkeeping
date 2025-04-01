@@ -38,6 +38,8 @@ class JournalRepository implements JournalDataSource {
       limitProject: limitProject,
     );
 
+    var projectId = limitProject?.id ?? -1;
+
     if (result.isNotEmpty) {
       //根据分页数据 获取每天的日期
       Set<String> allDate = {};
@@ -49,15 +51,23 @@ class JournalRepository implements JournalDataSource {
       Map<String, DailyDateAmount> allDailyDateAmounts = {};
       for (var element in allDate) {
         var date = DateUtil.parse(element);
-        var totalIncome = await getTodayTotalAmount(date, JournalType.income);
-        var totalExpense = await getTodayTotalAmount(date, JournalType.expense);
+        var totalIncome = await getTodayTotalAmount(
+          date,
+          JournalType.income,
+          projectId: projectId,
+        );
+        var totalExpense = await getTodayTotalAmount(
+          date,
+          JournalType.expense,
+          projectId: projectId,
+        );
 
         var dailyDateAmount = DailyDateAmount(
           date: element,
           income: totalIncome,
           expense: totalExpense,
+          projectBean: limitProject,
         );
-
         allDailyDateAmounts[element] = dailyDateAmount;
       }
 
@@ -71,8 +81,16 @@ class JournalRepository implements JournalDataSource {
   }
 
   @override
-  Future<String> getTodayTotalAmount(DateTime date, JournalType type) {
-    return _localDataSource.getTodayTotalAmount(date, type);
+  Future<String> getTodayTotalAmount(
+    DateTime date,
+    JournalType type, {
+    int projectId = -1,
+  }) {
+    return _localDataSource.getTodayTotalAmount(
+      date,
+      type,
+      projectId: projectId,
+    );
   }
 
   @override

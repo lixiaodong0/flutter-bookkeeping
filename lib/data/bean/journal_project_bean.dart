@@ -30,13 +30,13 @@ final class JournalProjectBean {
 
   static JournalProjectBean allItemBean() {
     return const JournalProjectBean(
-      id: 0,
+      id: -1,
       journalType: JournalType.expense,
       name: "全部类型",
     );
   }
 
   bool isAllItemBean() {
-    return id == 0 && name == "全部类型";
+    return id == -1 && name == "全部类型";
   }
 }

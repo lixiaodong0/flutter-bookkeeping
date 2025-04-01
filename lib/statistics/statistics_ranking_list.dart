@@ -133,7 +133,9 @@ Widget buildStatisticsJournalRankingList(
 ) {
   var originalList = state.monthRankingList;
   var currentType = state.currentType;
-  var currentMonth = originalList.firstOrNull?.date.month;
+
+  var currentDate = originalList.firstOrNull?.date;
+  var currentMonth = currentDate?.month;
 
   var title =
       currentType == JournalType.expense
@@ -163,7 +165,7 @@ Widget buildStatisticsJournalRankingList(
     );
   }
   if (originalList.length > 10) {
-    children.add(_allItem(context, state));
+    children.add(_allItem(context, currentType,currentDate?? DateTime.now()));
   }
   return Container(
     padding: EdgeInsets.only(left: 4, right: 16),
@@ -221,7 +223,7 @@ Widget _journalRankingListItem(
   );
 }
 
-Widget _allItem(BuildContext context, StatisticsState state) {
+Widget _allItem(BuildContext context, JournalType currentType,DateTime currentDate) {
   var title = "全部排行";
   var icon = Icons.navigate_next_rounded;
   return sizedButtonWidget(
@@ -229,8 +231,8 @@ Widget _allItem(BuildContext context, StatisticsState state) {
       context.push(
         "/filter_journal",
         extra: FilterJournalScreenParams(
-          type: state.currentType,
-          date: state.currentDate ?? DateTime.now(),
+          type: currentType,
+          date: currentDate,
         ),
       );
     },

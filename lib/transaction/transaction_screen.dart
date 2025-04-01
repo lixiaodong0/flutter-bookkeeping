@@ -24,7 +24,7 @@ class TransactionScreen extends StatefulWidget {
 
 class _TransactionScreenState extends State<TransactionScreen> {
   final ItemPositionsListener itemPositionsListener =
-  ItemPositionsListener.create();
+      ItemPositionsListener.create();
   final ItemScrollController itemScrollController = ItemScrollController();
   final GlobalKey _blocContext = GlobalKey();
 
@@ -56,19 +56,17 @@ class _TransactionScreenState extends State<TransactionScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create:
-          (context) =>
-      TransactionBloc(
-        repository: context.read<JournalRepository>(),
-        projectRepository: context.read<JournalProjectRepository>(),
-        monthRepository: context.read<JournalMonthRepository>(),
-      )
-        ..add(TransactionInitLoad()),
+          (context) => TransactionBloc(
+            repository: context.read<JournalRepository>(),
+            projectRepository: context.read<JournalProjectRepository>(),
+            monthRepository: context.read<JournalMonthRepository>(),
+          )..add(TransactionInitLoad()),
 
       child: BlocListener<TransactionBloc, TransactionState>(
         listener: (context, state) {
           if (state.monthPickerDialogState is MonthPickerDialogOpenState) {
             var open =
-            state.monthPickerDialogState as MonthPickerDialogOpenState;
+                state.monthPickerDialogState as MonthPickerDialogOpenState;
             MonthPickerWidget.showDatePicker(
               context,
               currentDate: open.currentDate,
@@ -88,7 +86,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
           if (state.projectPickerDialogState is ProjectPickerDialogOpenState) {
             var open =
-            state.projectPickerDialogState as ProjectPickerDialogOpenState;
+                state.projectPickerDialogState as ProjectPickerDialogOpenState;
             ProjectPickerWidget.showDatePicker(
               context,
               currentProject: open.currentProject,
@@ -124,37 +122,37 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   RecordDialog.showRecordDialog(
                     context,
                     onSuccess: () {
-                      context.read<TransactionBloc>().add(
-                        TransactionReload(),
-                      );
+                      context.read<TransactionBloc>().add(TransactionReload());
                     },
                   );
                 },
                 width: 90,
                 height: 40,
                 child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withAlpha(50), // 阴影颜色
-                          offset: Offset(0, 4), // 阴影偏移量
-                          blurRadius: 6, // 模糊半径
-                          spreadRadius: 2, // 扩散半径
-                        ),
-                      ],
-                    ), child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(Icons.post_add_outlined, color: Colors.green),
-                    Text(
-                      "记一笔",
-                      style: TextStyle(color: Colors.green, fontSize: 14),
-                    ),
-                  ],
-                )),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withAlpha(50), // 阴影颜色
+                        offset: Offset(0, 4), // 阴影偏移量
+                        blurRadius: 6, // 模糊半径
+                        spreadRadius: 2, // 扩散半径
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.post_add_outlined, color: Colors.green),
+                      Text(
+                        "记一笔",
+                        style: TextStyle(color: Colors.green, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           },
@@ -173,7 +171,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Widget _buildTransactionList(BuildContext context, TransactionState state) {
     return ScrollablePositionedList.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       itemPositionsListener: itemPositionsListener,
       itemCount: state.lists.length,
       itemBuilder: (context, index) {
@@ -194,7 +192,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
         List<Widget> children = [];
         //渲染头部
         if (currentDate != previousDate && item.dailyAmount != null) {
-          children.add(buildTransactionHeader(context, item.dailyAmount!));
+          children.add(
+            buildTransactionHeader(context, item.dailyAmount!, index == 0),
+          );
         }
         //渲染Item
         children.add(

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/bean/journal_project_bean.dart';
+import '../data/bean/journal_type.dart';
 import '../widget/month_picker_widget.dart';
 import 'bloc/transaction_bloc.dart';
 import 'bloc/transaction_state.dart';
@@ -22,8 +23,9 @@ Widget buildTopBarContent(BuildContext context, TransactionState state) {
       ),
       Padding(
         padding: EdgeInsets.only(bottom: 4, left: 24, top: 4),
-        child: _currentDateContainer(
+        child: _currentDateAmountContainer(
           context,
+          state.currentProject,
           state.currentDate,
           state.dateMonthIncome,
           state.dateMonthExpense,
@@ -34,7 +36,7 @@ Widget buildTopBarContent(BuildContext context, TransactionState state) {
 }
 
 Widget _currentTypeContainer(BuildContext context, JournalProjectBean? data) {
-  var title = data?.name ?? "全部类型";
+  var title = data?.name ?? "";
   return sizedButtonWidget(
     width: 100,
     height: 26,
@@ -64,12 +66,21 @@ Widget _currentTypeContainer(BuildContext context, JournalProjectBean? data) {
   );
 }
 
-Widget _currentDateContainer(
+Widget _currentDateAmountContainer(
   BuildContext context,
+  JournalProjectBean? data,
   DateTime? current,
   String monthIncome,
   String monthExpense,
 ) {
+  var isAllType = data == null || data.isAllItemBean();
+  var projectName = data?.name ?? "";
+  if (isAllType) {
+    projectName = "";
+  }
+  var isShowMonthExpense = isAllType || data.journalType == JournalType.expense;
+  var isShowMonthIncome = isAllType || data.journalType == JournalType.income;
+
   return Row(
     children: [
       sizedButtonWidget(
@@ -92,15 +103,17 @@ Widget _currentDateContainer(
           ],
         ),
       ),
-      Text(
-        "总支出¥${FormatUtil.formatAmount(monthExpense)}",
-        style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
-      ),
-      Padding(padding: EdgeInsets.only(left: 8)),
-      Text(
-        "总入账¥${FormatUtil.formatAmount(monthIncome)}",
-        style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
-      ),
+      if (isShowMonthExpense)
+        Text(
+          "$projectName总支出¥${FormatUtil.formatAmount(monthExpense)}",
+          style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
+        ),
+      if (isAllType) Padding(padding: EdgeInsets.only(left: 8)),
+      if (isShowMonthIncome)
+        Text(
+          "$projectName总入账¥${FormatUtil.formatAmount(monthIncome)}",
+          style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
+        ),
     ],
   );
 }

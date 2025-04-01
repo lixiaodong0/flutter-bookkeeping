@@ -25,7 +25,11 @@ abstract class JournalDataSource {
     JournalProjectBean? limitProject,
   });
 
-  Future<String> getTodayTotalAmount(DateTime date, JournalType type);
+  Future<String> getTodayTotalAmount(
+    DateTime date,
+    JournalType type, {
+    int projectId = -1,
+  });
 
   Future<String> getMonthTotalAmount(
     DateTime date,
