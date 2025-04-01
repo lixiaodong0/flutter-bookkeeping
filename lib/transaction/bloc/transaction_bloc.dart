@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:bookkeeping/cache/scroll_date_amount_cache.dart';
 import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/data/bean/loading_state.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
@@ -54,7 +55,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   ) async {
     _clearAmountCache();
     currentLimitProject = event.selectedProject;
-    page = 1;
+    _resetPageParams();
     var result = await _loadData();
     emit(
       state.copyWith(
@@ -71,7 +72,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   ) async {
     _clearAmountCache();
     currentLimitDate = event.selectedDate;
-    page = 1;
+    _resetPageParams();
     var result = await _loadData();
     emit(
       state.copyWith(
@@ -81,7 +82,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       ),
     );
   }
-  void _clearAmountCache(){
+
+  void _clearAmountCache() {
     DateAmountCache().clearAllCache();
   }
 
@@ -160,9 +162,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     var findItem = state.lists[firstIndex];
     var date = findItem.date;
     // print(
-    //   "[_onScrollChange]firstIndex:${firstIndex},findItem:${findItem},date:${date}",
+    //   "[_onScrollChange]firstIndex:${firstIndex},lastIndex:${lastIndex},length:${state.lists.length-1},findItem:${findItem},date:${date}",
     // );
-
     var projectId = currentLimitProject?.id ?? -1;
 
     if (!DateUtil.isSameMonth(date, state.currentDate)) {
@@ -195,8 +196,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
           dateMonthExpense: totalExpense,
         ),
       );
-      _onScrollToBottom(emit, lastIndex);
     }
+    _onScrollToBottom(emit, lastIndex);
   }
 
   void _onScrollToBottom(Emitter<TransactionState> emit, int lastIndex) {
@@ -210,7 +211,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     print("_onInitLoad");
-    page = 1;
+    _resetPageParams();
     var result = await _loadData();
     emit(state.copyWith(lists: result));
   }
@@ -220,7 +221,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     print("_onReload");
-    page = 1;
+    _resetPageParams();
     var result = await _loadData();
     emit(state.copyWith(lists: result));
   }
@@ -241,16 +242,38 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     );
   }
 
+  //重置分页参数
+  void _resetPageParams() {
+    page = 1;
+    loadMoreLoadingState = LoadingState.finish;
+  }
+
+  var loadMoreLoadingState = LoadingState.finish;
+
   void _onLoadMore(
     TransactionLoadMore event,
     Emitter<TransactionState> emit,
   ) async {
+    if (loadMoreLoadingState == LoadingState.nodata) {
+      print("_onLoadMore no data");
+      return;
+    }
+    if (loadMoreLoadingState == LoadingState.loading) {
+      print("_onLoadMore loading");
+      return;
+    }
     print("_onLoadMore");
+    loadMoreLoadingState = LoadingState.loading;
     page++;
     var result = await _loadData();
     List<JournalBean> newLists = [];
     newLists.addAll(state.lists);
     newLists.addAll(result);
     emit(state.copyWith(lists: newLists));
+    if (result.length >= pageSize) {
+      loadMoreLoadingState = LoadingState.finish;
+    } else {
+      loadMoreLoadingState = LoadingState.nodata;
+    }
   }
 }
