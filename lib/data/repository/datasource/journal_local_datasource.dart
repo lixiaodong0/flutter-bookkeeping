@@ -78,4 +78,9 @@ class JournalLocalDataSource implements JournalDataSource {
   ) {
     return dao.queryAllByDay(limitDate, journalType);
   }
+
+  @override
+  Future<int> deleteJournal(int id) {
+    return dao.delete(id);
+  }
 }

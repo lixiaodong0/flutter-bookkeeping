@@ -3,5 +3,9 @@ class DetailJournalEvent {
 }
 
 class DetailJournalInitLoad extends DetailJournalEvent {
-   const DetailJournalInitLoad();
+  const DetailJournalInitLoad();
+}
+
+class DetailJournalOnDelete extends DetailJournalEvent {
+  const DetailJournalOnDelete();
 }

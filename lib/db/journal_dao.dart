@@ -17,6 +17,16 @@ class JournalDao {
     return await db.insert(JournalEntry.table, journalEntry.toMap());
   }
 
+  //删除数据
+  Future<int> delete(int id) async {
+    Database db = DatabaseHelper().db;
+    return await db.delete(
+      JournalEntry.table,
+      where: '${JournalEntry.tableColumnId} = ?',
+      whereArgs: [id],
+    );
+  }
+
   //查询所有数据 按照日期倒序
   Future<List<JournalBean>> queryAll() async {
     final String tableName = JournalEntry.table;

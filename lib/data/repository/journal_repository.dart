@@ -131,4 +131,9 @@ class JournalRepository implements JournalDataSource {
   ) {
     return _localDataSource.getDayJournal(limitDate, journalType);
   }
+
+  @override
+  Future<int> deleteJournal(int id) {
+    return _localDataSource.deleteJournal(id);
+  }
 }

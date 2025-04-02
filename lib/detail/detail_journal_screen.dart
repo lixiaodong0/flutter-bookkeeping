@@ -4,6 +4,7 @@ import 'package:bookkeeping/detail/bloc/detail_journal_evnet.dart';
 import 'package:bookkeeping/detail/bloc/detail_journal_state.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/util/format_util.dart';
+import 'package:bookkeeping/widget/alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -41,27 +42,36 @@ class _DetailJournalScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DetailJournalBloc, DetailJournalState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: Color(0xFFF5F5F5),
-          appBar: AppBar(
-            surfaceTintColor: Colors.transparent,
-            backgroundColor: Colors.transparent,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded),
-              onPressed: () {
-                context.pop();
-              },
-            ),
-          ),
-          body: Column(children: [_buildContent(state.currentJournal)]),
-        );
+    return BlocListener<DetailJournalBloc, DetailJournalState>(
+      listener: (context, state) {
+        if (state.isDeleted) {
+          context.pop();
+        }
       },
+      child: BlocBuilder<DetailJournalBloc, DetailJournalState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: Color(0xFFF5F5F5),
+            appBar: AppBar(
+              surfaceTintColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
+                onPressed: () {
+                  context.pop();
+                },
+              ),
+            ),
+            body: Column(
+              children: [_buildContent(context, state.currentJournal)],
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildContent(JournalBean? data) {
+  Widget _buildContent(BuildContext context, JournalBean? data) {
     if (data == null) {
       return Container();
     }
@@ -105,7 +115,7 @@ class _DetailJournalScreen extends StatelessWidget {
           SizedBox(height: 20),
           _keyValueContent("记录时间", DateUtil.simpleFormat(data.date)),
           SizedBox(height: 10),
-          _keyValueContent("来源", "手动"),
+          _keyValueContent("来源", "手动记账"),
           SizedBox(height: 10),
           _keyValueContent("备注", data.description ?? ""),
           SizedBox(height: 40),
@@ -114,7 +124,19 @@ class _DetailJournalScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    AlertConfirmDialog.showAlertDialog(
+                      context,
+                      confirm: "删除",
+                      desc: "删除后无法恢复，是否删除？",
+                      onCancel: () {},
+                      onConfirm: () {
+                        context.read<DetailJournalBloc>().add(
+                          DetailJournalOnDelete(),
+                        );
+                      },
+                    );
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
