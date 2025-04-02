@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:bookkeeping/detail/detail_journal_screen.dart';
+import 'package:bookkeeping/eventbus/eventbus.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_bloc.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
@@ -12,6 +15,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_project_repository.dart';
 import '../data/repository/journal_repository.dart';
+import '../eventbus/journal_event.dart';
 import '../record/record_dialog.dart';
 import '../widget/month_picker_widget.dart';
 import '../widget/project_picker_widget.dart';
@@ -29,10 +33,20 @@ class _TransactionScreenState extends State<TransactionScreen> {
   final ItemScrollController itemScrollController = ItemScrollController();
   final GlobalKey _blocContext = GlobalKey();
 
+  late final StreamSubscription _subscription;
+
   @override
   void initState() {
     super.initState();
     itemPositionsListener.itemPositions.addListener(_onScroll);
+
+    //订阅事件
+    _subscription = eventBus.on<JournalEvent>().listen((event) {
+      print("[eventBus-on]action=${event.action},id:${event.journalBean.id}");
+      _blocContext.currentContext?.read<TransactionBloc>().add(
+        TransactionOnJournalEvent(event: event),
+      );
+    });
   }
 
   void _onScroll() {
@@ -50,6 +64,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   @override
   void dispose() {
+    //取消事件
+    _subscription.cancel();
     super.dispose();
   }
 

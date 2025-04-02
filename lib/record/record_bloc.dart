@@ -4,6 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/db/model/journal_month_entry.dart';
+import 'package:bookkeeping/eventbus/eventbus.dart';
+import 'package:bookkeeping/eventbus/journal_event.dart';
 import 'package:bookkeeping/record/record_event.dart';
 import 'package:bookkeeping/record/record_state.dart';
 import 'package:bookkeeping/util/toast_util.dart';
@@ -186,7 +188,13 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       date: now,
       journalProjectId: currentProject.id,
     );
-    await repository.addJournal(entry);
+    var id = await repository.addJournal(entry);
+    if (id > 0) {
+      //添加成功
+      var journalBean = await repository.getJournal(id);
+      JournalEvent.publishAddEvent(journalBean!);
+    }
+
     await monthRepository.addJournalMonth(
       JournalMonthEntry(year: now.year, month: now.month),
     );

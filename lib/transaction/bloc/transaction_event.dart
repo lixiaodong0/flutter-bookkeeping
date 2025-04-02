@@ -1,5 +1,7 @@
 import 'package:bookkeeping/data/bean/journal_project_bean.dart';
 
+import '../../eventbus/journal_event.dart';
+
 sealed class TransactionEvent {
   const TransactionEvent();
 }
@@ -40,9 +42,16 @@ final class TransactionCloseProjectPicker extends TransactionEvent {
 
 final class TransactionSelectedProject extends TransactionEvent {
   JournalProjectBean? selectedProject;
+
   TransactionSelectedProject({required this.selectedProject});
 }
 
 final class TransactionReload extends TransactionEvent {}
 
 final class TransactionLoadMore extends TransactionEvent {}
+
+final class TransactionOnJournalEvent extends TransactionEvent {
+  const TransactionOnJournalEvent({required this.event});
+
+  final JournalEvent event;
+}

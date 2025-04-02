@@ -97,7 +97,7 @@ class _DetailJournalScreen extends StatelessWidget {
                       data.journalProjectName,
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
-                    Icon(Icons.navigate_next_rounded),
+                    // Icon(Icons.navigate_next_rounded),
                   ],
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 
 import 'package:bookkeeping/cache/scroll_date_amount_cache.dart';
@@ -7,6 +8,7 @@ import 'package:bookkeeping/data/bean/loading_state.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
+import 'package:bookkeeping/eventbus/eventbus.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
 import 'package:bookkeeping/util/date_util.dart';
@@ -14,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/bean/journal_bean.dart';
 import '../../data/bean/journal_project_bean.dart';
+import '../../eventbus/journal_event.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final JournalRepository repository;
@@ -47,21 +50,123 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<TransactionCloseProjectPicker>(_onCloseProjectPicker);
     on<TransactionSelectedProject>(_onSelectedProject);
     on<TransactionSelectedMonth>(_onSelectedMonth);
+    on<TransactionOnJournalEvent>(_onJournalEvent);
+  }
+
+  int _findIndexById(List<JournalBean> list, int id) {
+    for (var index = 0; index < list.length; index++) {
+      if (id == list[index].id) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  void _onJournalEvent(
+    TransactionOnJournalEvent event,
+    Emitter<TransactionState> emit,
+  ) async {
+    var journalEvent = event.event;
+    var journalBean = journalEvent.journalBean;
+    if (journalEvent.action == JournalEventAction.add) {
+      //新增逻辑不做处理，已经设置dialog监听触发刷新操作。
+      return;
+    }
+    List<JournalBean> origin = [];
+    origin.addAll(state.lists);
+    if (journalEvent.action == JournalEventAction.delete) {
+      //删除，动态更新
+      var findIndex = _findIndexById(origin, journalBean.id);
+      if (findIndex != -1) {
+        var removeBean = origin.removeAt(findIndex);
+        //更新缓存-每月的金额
+        var latestAmount = await _updateDateAmountCache(removeBean.date);
+        //更新缓存-每天的金额
+        await _updateDailyDateAmount(origin, removeBean.date);
+
+        //判断删除的月份是否正在展示，如果正在展示顺便更新价格。
+        if (DateUtil.isSameMonth(state.currentDate!, removeBean.date)) {
+          emit(
+            state.copyWith(
+              lists: origin,
+              dateMonthIncome: latestAmount.incomeAmount,
+              dateMonthExpense: latestAmount.expenseAmount,
+            ),
+          );
+        } else {
+          emit(state.copyWith(lists: origin));
+        }
+      }
+      return;
+    }
+
+    if (journalEvent.action == JournalEventAction.update) {
+      //更新
+      return;
+    }
+  }
+
+  int _getCurrentProjectId() => currentLimitProject?.id ?? -1;
+
+  Future<void> _updateDailyDateAmount(
+    List<JournalBean> list,
+    DateTime date,
+  ) async {
+    var projectId = _getCurrentProjectId();
+    var todayIncomeAmount = await repository.getTodayTotalAmount(
+      date,
+      JournalType.income,
+      projectId: projectId,
+    );
+    var todayExpenseAmount = await repository.getTodayTotalAmount(
+      date,
+      JournalType.expense,
+      projectId: projectId,
+    );
+    for (var item in list) {
+      var old = item.dailyAmount;
+      if (old != null &&
+          DateUtil.isSameDay(
+            date.year,
+            date.month,
+            date.day,
+            DateUtil.parse(old.date),
+          )) {
+        var latest = old.copyWith(
+          income: todayIncomeAmount,
+          expense: todayExpenseAmount,
+        );
+        item.dailyAmount = latest;
+      }
+    }
+  }
+
+  Future<AmountWrapper> _updateDateAmountCache(DateTime date) async {
+    var projectId = _getCurrentProjectId();
+    var totalIncome = await repository.getMonthTotalAmount(
+      date,
+      JournalType.income,
+      projectId: projectId,
+    );
+    var totalExpense = await repository.getMonthTotalAmount(
+      date,
+      JournalType.expense,
+      projectId: projectId,
+    );
+    DateAmountCache().putCache(date, totalIncome, totalExpense);
+    return DateAmountCache().getCache(date)!;
   }
 
   void _onSelectedProject(
     TransactionSelectedProject event,
     Emitter<TransactionState> emit,
   ) async {
-    _clearAmountCache();
     currentLimitProject = event.selectedProject;
-    _resetPageParams();
-    var result = await _loadData();
-    emit(
+    await _refresh(
+      emit,
       state.copyWith(
         currentProject: currentLimitProject,
         projectPickerDialogState: ProjectPickerDialogCloseState(),
-        lists: result,
       ),
     );
   }
@@ -70,15 +175,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionSelectedMonth event,
     Emitter<TransactionState> emit,
   ) async {
-    _clearAmountCache();
     currentLimitDate = event.selectedDate;
-    _resetPageParams();
-    var result = await _loadData();
-    emit(
+    await _refresh(
+      emit,
       state.copyWith(
         currentDate: currentLimitDate,
         monthPickerDialogState: MonthPickerDialogCloseState(),
-        lists: result,
       ),
     );
   }
@@ -164,8 +266,21 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     // print(
     //   "[_onScrollChange]firstIndex:${firstIndex},lastIndex:${lastIndex},length:${state.lists.length-1},findItem:${findItem},date:${date}",
     // );
-    var projectId = currentLimitProject?.id ?? -1;
 
+    if (!DateUtil.isSameMonth(date, state.currentDate)) {
+      var cache = DateAmountCache().getCache(date);
+      String totalIncome = cache?.incomeAmount ?? "";
+      String totalExpense = cache?.expenseAmount ?? "";
+      emit(
+        state.copyWith(
+          currentDate: date,
+          dateMonthIncome: totalIncome,
+          dateMonthExpense: totalExpense,
+        ),
+      );
+    }
+
+    /* var projectId = currentLimitProject?.id ?? -1;
     if (!DateUtil.isSameMonth(date, state.currentDate)) {
       var hasCache = DateAmountCache().hasCache(date);
       String totalIncome;
@@ -189,6 +304,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
         );
         DateAmountCache().putCache(date, totalIncome, totalExpense);
       }
+
       emit(
         state.copyWith(
           currentDate: date,
@@ -196,7 +312,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
           dateMonthExpense: totalExpense,
         ),
       );
-    }
+    }*/
     _onScrollToBottom(emit, lastIndex);
   }
 
@@ -211,9 +327,32 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     print("_onInitLoad");
+    await _refresh(emit, state);
+  }
+
+  Future<void> _refresh(
+    Emitter<TransactionState> emit,
+    TransactionState? extState,
+  ) async {
+    var _state = extState ?? state;
     _resetPageParams();
     var result = await _loadData();
-    emit(state.copyWith(lists: result));
+    var first = result.firstOrNull;
+    var currentDate = _state.currentDate;
+    var dateMonthIncome = _state.dateMonthIncome;
+    var dateMonthExpense = _state.dateMonthExpense;
+    if (first != null && DateUtil.isSameMonth(first.date, currentDate)) {
+      var cache = DateAmountCache().getCache(first.date);
+      dateMonthIncome = cache?.incomeAmount ?? "";
+      dateMonthExpense = cache?.expenseAmount ?? "";
+    }
+    emit(
+      _state.copyWith(
+        lists: result,
+        dateMonthExpense: dateMonthExpense,
+        dateMonthIncome: dateMonthIncome,
+      ),
+    );
   }
 
   void _onReload(
@@ -221,29 +360,52 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     print("_onReload");
-    _resetPageParams();
-    var result = await _loadData();
-    emit(state.copyWith(lists: result));
+    await _refresh(emit, state);
   }
 
   //加载数据
-  Future<List<JournalBean>> _loadData() {
+  Future<List<JournalBean>> _loadData() async {
     //特殊处理 全部类型的情况
     var limitProject =
         currentLimitProject?.isAllItemBean() == true
             ? null
             : currentLimitProject;
     var limitDate = currentLimitDate;
-    return repository.getPageJournal(
+    var result = await repository.getPageJournal(
       pageSize: pageSize,
       page: page,
       limitProject: limitProject,
       limitDate: limitDate,
     );
+    //缓存每月价格
+    Map<String, DateTime> allMonth = {};
+    for (var item in result) {
+      var key = "${item.date.year}-${item.date.month}";
+      allMonth[key] = item.date;
+    }
+    var projectId = _getCurrentProjectId();
+    for (var date in allMonth.values) {
+      var hasCache = DateAmountCache().hasCache(date);
+      if (!hasCache) {
+        var totalIncome = await repository.getMonthTotalAmount(
+          date,
+          JournalType.income,
+          projectId: projectId,
+        );
+        var totalExpense = await repository.getMonthTotalAmount(
+          date,
+          JournalType.expense,
+          projectId: projectId,
+        );
+        DateAmountCache().putCache(date, totalIncome, totalExpense);
+      }
+    }
+    return result;
   }
 
   //重置分页参数
   void _resetPageParams() {
+    _clearAmountCache();
     page = 1;
     loadMoreLoadingState = LoadingState.finish;
   }

@@ -12,4 +12,22 @@ class DailyDateAmount {
     required this.expense,
     required this.projectBean,
   });
+
+  DailyDateAmount copyWith({
+    String? date,
+    String? income,
+    String? expense,
+    JournalProjectBean? projectBean,
+  }) {
+    return DailyDateAmount(
+      date: date ?? this.date,
+      income: income ?? this.income,
+      expense: expense ?? this.expense,
+      projectBean: projectBean ?? this.projectBean,
+    );
+  }
+  @override
+  String toString() {
+    return 'DailyDateAmount(date: $date, income: $income, expense: $expense, projectBean: $projectBean)';
+  }
 }

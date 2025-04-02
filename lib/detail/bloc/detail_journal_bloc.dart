@@ -1,3 +1,4 @@
+import 'package:bookkeeping/eventbus/journal_event.dart';
 import 'package:bookkeeping/util/toast_util.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,6 +30,7 @@ class DetailJournalBloc extends Bloc<DetailJournalEvent, DetailJournalState> {
   ) async {
     var result = await repository.deleteJournal(id);
     emit(state.copyWith(isDeleted: true));
+    JournalEvent.publishDeleteEvent(state.currentJournal!);
     showToast("已删除");
   }
 }
