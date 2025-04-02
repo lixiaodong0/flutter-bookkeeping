@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 Widget clickableWidget(VoidCallback onPressed, Widget child) {
   return GestureDetector(
+    behavior: HitTestBehavior.opaque,
     onTap: () {
       onPressed();
     },
@@ -17,6 +18,7 @@ Widget sizedButtonWidget({
   required Widget child,
 }) {
   return GestureDetector(
+    behavior: HitTestBehavior.opaque,
     onTap: () {
       onPressed?.call();
     },

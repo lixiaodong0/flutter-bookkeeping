@@ -77,6 +77,7 @@ Widget _projectRankingListItem(
   var progressColor =
       type == JournalType.expense ? Colors.green : Colors.orange;
   return GestureDetector(
+    behavior: HitTestBehavior.opaque,
     onTap: () {
       context.push(
         "/filter_journal",
@@ -163,6 +164,7 @@ Widget buildStatisticsJournalRankingList(
     var value = list[i];
     children.add(
       GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           DetailJournalScreenRoute.launch(context, value.id);
         },

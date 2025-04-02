@@ -216,6 +216,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
         //渲染Item
         children.add(
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               DetailJournalScreenRoute.launch(context, item.id);
             },

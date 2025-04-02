@@ -7,6 +7,7 @@ import '../util/format_util.dart';
 
 Widget journalListItem(BuildContext context, String symbol, JournalBean data) {
   return GestureDetector(
+    behavior: HitTestBehavior.opaque,
     onTap: () {
       DetailJournalScreenRoute.launch(context, data.id);
     },
