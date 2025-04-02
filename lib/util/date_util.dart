@@ -4,7 +4,7 @@ class DateUtil {
   }
 
   static String formatMonth(DateTime date) {
-    return "${date.month}月${date.day}日 ${date.hour.toString().padLeft(2,'0')}:${date.minute.toString().padLeft(2,'0')}";
+    return "${date.month}月${date.day}日 ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
   }
 
   static String formatMonthDay(DateTime date) {
@@ -13,6 +13,11 @@ class DateUtil {
 
   static DateTime parse(String dateStr) {
     return DateTime.parse(dateStr);
+  }
+
+  //2025年4月1日 20:15:17
+  static String simpleFormat(DateTime date) {
+    return "${date.year}年${date.month}月${date.day}日 ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}";
   }
 
   static bool isSameDay(int year, int month, int day, DateTime date) {

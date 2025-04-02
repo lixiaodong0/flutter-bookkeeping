@@ -54,6 +54,61 @@ class JournalDao {
     return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 
+  //根据ID查询数据
+  Future<JournalBean?> queryById(int id) async {
+    final String tableName = JournalEntry.table;
+    final String projectTableName = JournalProjectEntry.table;
+
+    final List<String> columns = [
+      JournalEntry.tableColumnId,
+      JournalEntry.tableColumnType,
+      JournalEntry.tableColumnAmount,
+      JournalEntry.tableColumnDate,
+      JournalEntry.tableColumnDescription,
+      JournalEntry.tableColumnJournalProjectId,
+
+      '$projectTableName.${JournalProjectEntry.tableColumnName}',
+    ];
+
+    // 动态构建 WHERE 子句
+    List<String> whereClauses = [];
+    List<Object?> arguments = [];
+
+    //id筛选条件
+    whereClauses.add('$tableName.${JournalEntry.tableColumnId} = ?');
+    arguments.add(id);
+
+    String whereClause =
+        whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+
+    final List<String> selectFields =
+        columns
+            .map(
+              (column) => column.contains('.') ? column : '$tableName.$column',
+            )
+            .toList();
+
+    String sql = '''
+      SELECT 
+      ${selectFields.join(', ')}
+      FROM $tableName 
+      JOIN
+      $projectTableName ON $tableName.${JournalEntry.tableColumnJournalProjectId} = $projectTableName.${JournalProjectEntry.tableColumnId} 
+      $whereClause
+    ''';
+
+    print("[queryById]$sql");
+    // 获取数据库实例
+    Database db = DatabaseHelper().db;
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      sql,
+      arguments,
+    );
+    print("[queryById]$results");
+    var list = results.map((e) => JournalBean.fromJson(e)).toList();
+    return list.firstOrNull;
+  }
+
   ///查询月份账单
   Future<List<JournalBean>> queryAllByMonth(
     DateTime limitDate,
@@ -320,9 +375,9 @@ class JournalDao {
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
     String startTime =
-    DateTime(date.year, date.month, date.day).toIso8601String();
+        DateTime(date.year, date.month, date.day).toIso8601String();
     String endTime =
-    DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
+        DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
     arguments.add(startTime);
     arguments.add(endTime);
 
@@ -333,7 +388,7 @@ class JournalDao {
     }
 
     String whereClause =
-    whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+        whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
 
     String sql = '''
       SELECT SUM($columnAmount) AS total_amount

@@ -1,6 +1,7 @@
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/bean/project_ranking_bean.dart';
+import 'package:bookkeeping/detail/detail_journal_screen.dart';
 import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
 import 'package:bookkeeping/util/format_util.dart';
 import 'package:bookkeeping/widget/clickable_widget.dart';
@@ -161,11 +162,21 @@ Widget buildStatisticsJournalRankingList(
   for (var i = 0; i < list.length; i++) {
     var value = list[i];
     children.add(
-      _journalRankingListItem(context, i + 1, currentType.symbol, value),
+      GestureDetector(
+        onTap: () {
+          DetailJournalScreenRoute.launch(context, value.id);
+        },
+        child: _journalRankingListItem(
+          context,
+          i + 1,
+          currentType.symbol,
+          value,
+        ),
+      ),
     );
   }
   if (originalList.length > 10) {
-    children.add(_allItem(context, currentType,currentDate?? DateTime.now()));
+    children.add(_allItem(context, currentType, currentDate ?? DateTime.now()));
   }
   return Container(
     padding: EdgeInsets.only(left: 4, right: 16),
@@ -223,17 +234,18 @@ Widget _journalRankingListItem(
   );
 }
 
-Widget _allItem(BuildContext context, JournalType currentType,DateTime currentDate) {
+Widget _allItem(
+  BuildContext context,
+  JournalType currentType,
+  DateTime currentDate,
+) {
   var title = "全部排行";
   var icon = Icons.navigate_next_rounded;
   return sizedButtonWidget(
     onPressed: () {
       context.push(
         "/filter_journal",
-        extra: FilterJournalScreenParams(
-          type: currentType,
-          date: currentDate,
-        ),
+        extra: FilterJournalScreenParams(type: currentType, date: currentDate),
       );
     },
     width: 100,

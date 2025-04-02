@@ -12,6 +12,11 @@ class JournalLocalDataSource implements JournalDataSource {
   JournalLocalDataSource({required this.dao});
 
   @override
+  Future<JournalBean?> getJournal(int id) async {
+    return await dao.queryById(id);
+  }
+
+  @override
   Future<int> addJournal(JournalEntry entry) async {
     return await dao.insert(entry);
   }
@@ -45,7 +50,7 @@ class JournalLocalDataSource implements JournalDataSource {
     JournalType type, {
     int projectId = -1,
   }) {
-    return dao.queryTodayTotalAmount(date, type,projectId:projectId);
+    return dao.queryTodayTotalAmount(date, type, projectId: projectId);
   }
 
   @override

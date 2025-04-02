@@ -5,6 +5,8 @@ import '../../bean/journal_bean.dart';
 import '../../bean/journal_project_bean.dart';
 
 abstract class JournalDataSource {
+  Future<JournalBean?> getJournal(int id);
+
   Future<List<JournalBean>> getAllJournal();
 
   Future<List<JournalBean>> getMonthJournal(

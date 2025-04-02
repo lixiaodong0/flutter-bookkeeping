@@ -14,6 +14,11 @@ class JournalRepository implements JournalDataSource {
     : _localDataSource = localDataSource;
 
   @override
+  Future<JournalBean?> getJournal(int id) {
+    return _localDataSource.getJournal(id);
+  }
+
+  @override
   Future<int> addJournal(JournalEntry entry) {
     return _localDataSource.addJournal(entry);
   }

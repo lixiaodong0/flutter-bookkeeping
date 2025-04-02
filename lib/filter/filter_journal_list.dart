@@ -8,7 +8,7 @@ import '../util/format_util.dart';
 Widget journalListItem(BuildContext context, String symbol, JournalBean data) {
   return GestureDetector(
     onTap: () {
-      DetailJournalScreenRoute.launch(context);
+      DetailJournalScreenRoute.launch(context, data.id);
     },
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

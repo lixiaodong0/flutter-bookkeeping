@@ -1,3 +1,4 @@
+import 'package:bookkeeping/detail/detail_journal_screen.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_bloc.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
@@ -198,13 +199,18 @@ class _TransactionScreenState extends State<TransactionScreen> {
         }
         //渲染Item
         children.add(
-          buildTransactionItem(
-            context,
-            item.type,
-            item.journalProjectName,
-            item.amount,
-            item.date,
-            isLastItem: nextDate != currentDate,
+          GestureDetector(
+            onTap: () {
+              DetailJournalScreenRoute.launch(context, item.id);
+            },
+            child: buildTransactionItem(
+              context,
+              item.type,
+              item.journalProjectName,
+              item.amount,
+              item.date,
+              isLastItem: nextDate != currentDate,
+            ),
           ),
         );
         return Column(children: children);
