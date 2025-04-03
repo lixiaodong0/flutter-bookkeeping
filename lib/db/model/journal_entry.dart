@@ -4,7 +4,7 @@
 import 'package:bookkeeping/db/model/journal_project_entry.dart';
 
 final class JournalEntry {
-  final int? id; //主键可为空
+  int? id; //主键可为空
   final String type; // 'income' 或 'expense'
   final String amount;
   final DateTime date;
@@ -19,7 +19,6 @@ final class JournalEntry {
     this.description,
     required this.journalProjectId,
   });
-
 
   Map<String, dynamic> toMap() {
     return {

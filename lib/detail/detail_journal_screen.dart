@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
 import 'package:bookkeeping/detail/bloc/detail_journal_evnet.dart';
 import 'package:bookkeeping/detail/bloc/detail_journal_state.dart';
+import 'package:bookkeeping/record/record_dialog.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/util/format_util.dart';
 import 'package:bookkeeping/widget/alert_dialog.dart';
@@ -9,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../eventbus/eventbus.dart';
+import '../eventbus/journal_event.dart';
 import 'bloc/detail_journal_bloc.dart';
 
 class DetailJournalScreenRoute {
@@ -37,8 +42,34 @@ class DetailJournalScreenRoute {
   }
 }
 
-class _DetailJournalScreen extends StatelessWidget {
-  const _DetailJournalScreen({super.key});
+class _DetailJournalScreen extends StatefulWidget {
+  const _DetailJournalScreen();
+
+  @override
+  State createState() => _DetailJournalScreenState();
+}
+
+class _DetailJournalScreenState extends State<_DetailJournalScreen> {
+  late final StreamSubscription _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    //订阅事件
+    _subscription = eventBus.on<JournalEvent>().listen((event) {
+      context.read<DetailJournalBloc>().add(
+        DetailJournalOnJournalEvent(event: event),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    //取消事件
+    _subscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +184,9 @@ class _DetailJournalScreen extends StatelessWidget {
               ),
               Expanded(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    RecordDialog.showRecordDialog(context, edit: data);
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,

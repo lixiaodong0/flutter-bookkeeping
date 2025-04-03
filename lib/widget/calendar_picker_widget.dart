@@ -257,10 +257,12 @@ class _CalendarPickerWidgetState extends State<CalendarPickerWidget> {
     Color backgroundColor = isSameDay ? Colors.green : Colors.white;
     return TextButton(
       onPressed: () {
-        widget._onSelectedDate(
-          context,
-          DateTime(data.year, data.month, data.day),
-        );
+        if(data.isEnabled){
+          widget._onSelectedDate(
+            context,
+            DateTime(data.year, data.month, data.day),
+          );
+        }
       },
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,

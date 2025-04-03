@@ -14,6 +14,18 @@ class DetailJournalBloc extends Bloc<DetailJournalEvent, DetailJournalState> {
     : super(DetailJournalState()) {
     on<DetailJournalInitLoad>(_initLoad);
     on<DetailJournalOnDelete>(_onDelete);
+    on<DetailJournalOnJournalEvent>(_onJournalEvent);
+  }
+
+  void _onJournalEvent(
+    DetailJournalOnJournalEvent event,
+    Emitter<DetailJournalState> emit,
+  ) async {
+    if (event.event.action == JournalEventAction.update) {
+      if (event.event.journalBean.id == id) {
+        emit(state.copyWith(currentJournal: event.event.journalBean));
+      }
+    }
   }
 
   void _initLoad(

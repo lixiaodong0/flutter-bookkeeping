@@ -22,6 +22,11 @@ class JournalLocalDataSource implements JournalDataSource {
   }
 
   @override
+  Future<int> updateJournal(JournalEntry entry) async {
+    return await dao.update(entry);
+  }
+
+  @override
   Future<List<JournalBean>> getAllJournal() async {
     var results = await dao.queryAll();
     return results;

@@ -11,6 +11,7 @@ import 'package:bookkeeping/record/record_state.dart';
 import 'package:bookkeeping/util/toast_util.dart';
 import 'package:flutter/material.dart';
 
+import '../data/bean/journal_bean.dart';
 import '../data/bean/journal_project_bean.dart';
 import '../data/bean/journal_type.dart';
 import '../data/repository/journal_repository.dart';
@@ -21,11 +22,13 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
   final JournalRepository repository;
   final JournalProjectRepository projectRepository;
   final JournalMonthRepository monthRepository;
+  final JournalBean? edit;
 
   RecordBloc({
     required this.repository,
     required this.projectRepository,
     required this.monthRepository,
+    this.edit,
   }) : super(RecordState(currentDate: DateTime.now())) {
     on<RecordOnInitial>(_onInitial);
     on<RecordOnCheckedProject>(_onCheckedProject);
@@ -45,21 +48,55 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
   void _onInitial(RecordOnInitial event, Emitter<RecordState> emit) async {
     print("[_onInitial]");
-    await _onSwitchJournalType(state.journalType, emit);
+    int? defaultProjectId;
+    if (edit != null) {
+      defaultProjectId = edit!.journalProjectId;
+      Color confirmColor;
+      if (edit!.type == JournalType.expense) {
+        confirmColor = Colors.green;
+      } else {
+        confirmColor = Colors.orange;
+      }
+      emit(
+        state.copyWith(
+          inputAmount: edit!.amount,
+          journalType: edit!.type,
+          currentDate: edit!.date,
+          remark: edit!.description,
+          confirmEnabled: edit!.amount.isNotEmpty,
+          confirmColor: confirmColor,
+        ),
+      );
+    }
+    await _onSwitchJournalType(
+      state.journalType,
+      emit,
+      defaultProjectId: defaultProjectId,
+    );
   }
 
   Future<void> _onSwitchJournalType(
     JournalType journalType,
-    Emitter<RecordState> emit,
-  ) async {
+    Emitter<RecordState> emit, {
+    int? defaultProjectId,
+  }) async {
     List<JournalProjectBean> list = [];
     if (journalType == JournalType.expense) {
       list = await projectRepository.getAllExpenseJournalProjects();
     } else {
       list = await projectRepository.getAllIncomeJournalProjects();
     }
+    var currentProject = list.firstOrNull;
+    if (defaultProjectId != null) {
+      for (var value in list) {
+        if (value.id == defaultProjectId) {
+          currentProject = value;
+          break;
+        }
+      }
+    }
     print("[_onSwitchJournalType]list:$list");
-    emit(state.copyWith(projects: list, currentProject: list.firstOrNull));
+    emit(state.copyWith(projects: list, currentProject: currentProject));
   }
 
   void _onOnUpdateCurrentDate(
@@ -200,16 +237,40 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       journalProjectId: currentProject.id,
       description: state.remark,
     );
-    var id = await repository.addJournal(entry);
-    if (id > 0) {
-      //添加成功
-      var journalBean = await repository.getJournal(id);
-      JournalEvent.publishAddEvent(journalBean!);
-    }
 
+    if (edit != null) {
+      //编辑
+      if (_isChanged(entry)) {
+        print("账单数据更新 oldDate:${edit!.date},newDate:${entry.date}");
+        entry.id = edit!.id;
+        await repository.updateJournal(entry);
+        var journalBean = await repository.getJournal(edit!.id);
+        JournalEvent.publishUpdateEvent(journalBean!);
+      }
+    } else {
+      var id = await repository.addJournal(entry);
+      if (id > 0) {
+        print("账单数据新增");
+        //添加成功
+        var journalBean = await repository.getJournal(id);
+        JournalEvent.publishAddEvent(journalBean!);
+      }
+    }
     await monthRepository.addJournalMonth(
       JournalMonthEntry(year: now.year, month: now.month),
     );
     emit(state.copyWith(confirmStatus: RecordFinishStatus.success));
+  }
+
+  bool _isChanged(JournalEntry entry) {
+    var old = edit!;
+    if (entry.description != old.description ||
+        entry.amount != old.amount ||
+        entry.journalProjectId != old.journalProjectId ||
+        entry.type != old.type.name ||
+        entry.date != old.date) {
+      return true;
+    }
+    return false;
   }
 }

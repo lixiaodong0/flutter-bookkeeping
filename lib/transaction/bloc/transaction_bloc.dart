@@ -79,30 +79,46 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       var findIndex = _findIndexById(origin, journalBean.id);
       if (findIndex != -1) {
         var removeBean = origin.removeAt(findIndex);
-        //更新缓存-每月的金额
-        var latestAmount = await _updateDateAmountCache(removeBean.date);
-        //更新缓存-每天的金额
-        await _updateDailyDateAmount(origin, removeBean.date);
-
-        //判断删除的月份是否正在展示，如果正在展示顺便更新价格。
-        if (DateUtil.isSameMonth(state.currentDate!, removeBean.date)) {
-          emit(
-            state.copyWith(
-              lists: origin,
-              dateMonthIncome: latestAmount.incomeAmount,
-              dateMonthExpense: latestAmount.expenseAmount,
-            ),
-          );
-        } else {
-          emit(state.copyWith(lists: origin));
-        }
+        await _startUpdate(origin, removeBean, emit);
       }
       return;
     }
 
     if (journalEvent.action == JournalEventAction.update) {
       //更新
+      var findIndex = _findIndexById(origin, journalBean.id);
+      if (findIndex != -1) {
+        var oldBean = origin[findIndex];
+        var newBean = journalBean;
+        newBean.dailyAmount = oldBean.dailyAmount;
+        origin[findIndex] = newBean;
+        await _startUpdate(origin, origin[findIndex], emit);
+      }
       return;
+    }
+  }
+
+  Future<void> _startUpdate(
+    List<JournalBean> origin,
+    JournalBean updateBean,
+    Emitter<TransactionState> emit,
+  ) async {
+    //更新缓存-每月的金额
+    var latestAmount = await _updateDateAmountCache(updateBean.date);
+    //更新缓存-每天的金额
+    await _updateDailyDateAmount(origin, updateBean.date);
+
+    //判断删除的月份是否正在展示，如果正在展示顺便更新价格。
+    if (DateUtil.isSameMonth(state.currentDate!, updateBean.date)) {
+      emit(
+        state.copyWith(
+          lists: origin,
+          dateMonthIncome: latestAmount.incomeAmount,
+          dateMonthExpense: latestAmount.expenseAmount,
+        ),
+      );
+    } else {
+      emit(state.copyWith(lists: origin));
     }
   }
 

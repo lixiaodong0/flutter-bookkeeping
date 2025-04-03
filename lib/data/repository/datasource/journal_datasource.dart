@@ -40,6 +40,7 @@ abstract class JournalDataSource {
   });
 
   Future<int> addJournal(JournalEntry entry);
+  Future<int> updateJournal(JournalEntry entry);
 
   Future<int> deleteJournal(int id);
 }

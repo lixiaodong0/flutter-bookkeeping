@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../data/bean/journal_bean.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_repository.dart';
 import '../widget/calendar_picker_widget.dart';
@@ -22,6 +23,7 @@ class RecordDialog extends StatelessWidget {
 
   static showRecordDialog(
     BuildContext context, {
+    JournalBean? edit,
     OnRecordSuccessFunction? onSuccess,
   }) {
     var rootContext = Navigator.of(context, rootNavigator: true).context;
@@ -39,6 +41,7 @@ class RecordDialog extends StatelessWidget {
                 repository: context.read<JournalRepository>(),
                 projectRepository: context.read<JournalProjectRepository>(),
                 monthRepository: context.read<JournalMonthRepository>(),
+                edit: edit,
               )..add(RecordOnInitial()),
 
           child: RecordDialog(onRecordSuccess: onSuccess),
@@ -210,7 +213,7 @@ class RecordDialog extends StatelessWidget {
       onPressed: () {
         CalendarPickerWidget.showDatePicker(
           context,
-          defaultDate: DateTime.now(),
+          defaultDate: current,
           onChanged: (date) {
             context.read<RecordBloc>().add(
               RecordOnUpdateCurrentDate(date: date),

@@ -17,6 +17,17 @@ class JournalDao {
     return await db.insert(JournalEntry.table, journalEntry.toMap());
   }
 
+  //更新数据
+  Future<int> update(JournalEntry journalEntry) async {
+    Database db = DatabaseHelper().db;
+    return await db.update(
+      JournalEntry.table,
+      journalEntry.toMap(),
+      where: '${JournalEntry.tableColumnId} = ?',
+      whereArgs: [journalEntry.id],
+    );
+  }
+
   //删除数据
   Future<int> delete(int id) async {
     Database db = DatabaseHelper().db;
