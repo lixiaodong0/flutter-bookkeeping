@@ -112,6 +112,7 @@ Widget buildTransactionItem(
   String amount,
   DateTime date, {
   bool isLastItem = false,
+  String desc = "",
 }) {
   Color journalColor = Colors.black;
   if (journalType == JournalType.income) {
@@ -141,9 +142,30 @@ Widget buildTransactionItem(
                 style: TextStyle(fontSize: 14, color: Colors.black),
               ),
               Padding(padding: EdgeInsets.only(top: 4)),
-              Text(
-                "${FormatUtil.formatTime(date.hour)}:${FormatUtil.formatTime(date.minute)}",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              Row(
+                children: [
+                  Text(
+                    "${FormatUtil.formatTime(date.hour)}:${FormatUtil.formatTime(date.minute)}",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  if (desc.isNotEmpty)
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 6),
+                      height: 8,
+                      child: VerticalDivider(
+                        width: 2,
+                        color: Colors.grey.withAlpha(100),
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      desc,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

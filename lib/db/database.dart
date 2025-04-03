@@ -10,6 +10,7 @@ import 'package:path/path.dart';
 import 'generate/journal_project_generate.dart';
 import 'journal_project_dao.dart';
 import 'model/journal_project_entry.dart';
+import 'model/remark_entry.dart';
 
 class DatabaseHelper {
   //私有构造函数
@@ -34,6 +35,7 @@ class DatabaseHelper {
         db.execute(JournalEntry.createTableSql());
         db.execute(JournalProjectEntry.createTableSql());
         db.execute(JournalMonthEntry.createTableSql());
+        db.execute(RemarkEntry.createTableSql());
         JournalProjectGenerate.generate(db);
         var end = DateTime.now().millisecondsSinceEpoch - start;
         log("database onCreate finish ${end / 1000}ms");

@@ -213,6 +213,13 @@ Widget _journalRankingListItem(
                 data.journalProjectName,
                 style: TextStyle(fontSize: 16, color: Colors.black),
               ),
+              if (data.description != null && data.description!.isNotEmpty)
+                Text(
+                  data.description ?? "",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
             ],
           ),
         ),

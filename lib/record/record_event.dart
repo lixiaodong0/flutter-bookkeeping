@@ -35,4 +35,10 @@ final class RecordOnClickKeyCode extends RecordEvent {
   const RecordOnClickKeyCode({required this.keyCode});
 }
 
+final class RecordOnChangeRemark extends RecordEvent {
+  final String remark;
+
+  const RecordOnChangeRemark({required this.remark});
+}
+
 final class RecordOnClickConfirm extends RecordEvent {}

@@ -33,6 +33,14 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     on<RecordOnClickKeyCode>(_onClickKeyCode);
     on<RecordOnClickConfirm>(_onClickConfirm);
     on<RecordOnUpdateCurrentDate>(_onOnUpdateCurrentDate);
+    on<RecordOnChangeRemark>(_onChangeRemark);
+  }
+
+  void _onChangeRemark(
+    RecordOnChangeRemark event,
+    Emitter<RecordState> emit,
+  ) async {
+    emit(state.copyWith(remark: event.remark));
   }
 
   void _onInitial(RecordOnInitial event, Emitter<RecordState> emit) async {
@@ -166,6 +174,9 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
   ) async {
     print("[_onClickConfirm]");
     var inputAmount = state.inputAmount.trim();
+    if (inputAmount.isEmpty) {
+      return;
+    }
     if (inputAmount == "0." || inputAmount == "0") {
       showToast("所输入金额不得小于0.01");
       return;
@@ -187,6 +198,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       type: state.journalType.name,
       date: now,
       journalProjectId: currentProject.id,
+      description: state.remark,
     );
     var id = await repository.addJournal(entry);
     if (id > 0) {

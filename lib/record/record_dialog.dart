@@ -3,6 +3,7 @@ import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/record/record_bloc.dart';
 import 'package:bookkeeping/record/record_event.dart';
 import 'package:bookkeeping/record/record_state.dart';
+import 'package:bookkeeping/widget/remark_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,12 +89,44 @@ class RecordDialog extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.only(top: 8)),
             _projectListContainer(),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                "添加备注",
-                style: TextStyle(fontSize: 14, color: Color(0xFF63728c)),
-              ),
+            BlocBuilder<RecordBloc, RecordState>(
+              builder: (context, state) {
+                var remark = state.remark ?? "";
+                var maxWidth = MediaQuery.of(context).size.width - 100;
+                return Row(
+                  children: [
+                    if (remark.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxWidth),
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 16),
+                          child: Text(
+                            remark,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    TextButton(
+                      onPressed: () {
+                        RemarkDialog.showDialog(context, remark, (remark) {
+                          context.read<RecordBloc>().add(
+                            RecordOnChangeRemark(remark: remark),
+                          );
+                        });
+                      },
+                      child: Text(
+                        remark.isNotEmpty ? "修改" : "添加备注",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF63728c),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             BlocBuilder<RecordBloc, RecordState>(
               builder: (context, state) {

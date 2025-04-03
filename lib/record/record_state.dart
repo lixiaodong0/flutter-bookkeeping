@@ -15,6 +15,7 @@ final class RecordState extends Equatable {
   final bool confirmEnabled;
   final RecordFinishStatus confirmStatus;
   final DateTime? currentDate;
+  final String? remark;
 
   const RecordState({
     this.inputAmount = "",
@@ -25,6 +26,7 @@ final class RecordState extends Equatable {
     this.confirmEnabled = false,
     this.confirmStatus = RecordFinishStatus.init,
     this.currentDate,
+    this.remark,
   });
 
   RecordState copyWith({
@@ -36,6 +38,7 @@ final class RecordState extends Equatable {
     bool? confirmEnabled,
     RecordFinishStatus? confirmStatus,
     DateTime? currentDate,
+    String? remark,
   }) {
     return RecordState(
       inputAmount: inputAmount ?? this.inputAmount,
@@ -46,6 +49,7 @@ final class RecordState extends Equatable {
       confirmEnabled: confirmEnabled ?? this.confirmEnabled,
       confirmStatus: confirmStatus ?? this.confirmStatus,
       currentDate: currentDate ?? this.currentDate,
+      remark: remark ?? this.remark,
     );
   }
 
@@ -59,5 +63,6 @@ final class RecordState extends Equatable {
     confirmEnabled,
     confirmStatus,
     currentDate,
+    remark,
   ];
 }

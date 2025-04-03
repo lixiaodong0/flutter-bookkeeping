@@ -227,6 +227,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
               item.amount,
               item.date,
               isLastItem: nextDate != currentDate,
+              desc: item.description ?? "",
             ),
           ),
         );
