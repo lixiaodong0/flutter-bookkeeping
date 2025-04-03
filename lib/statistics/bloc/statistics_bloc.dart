@@ -21,6 +21,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   StatisticsBloc({required this.repository, required this.monthRepository})
     : super(StatisticsState(currentDate: DateTime.now())) {
     on<StatisticsInitLoad>(_onInitLoad);
+    on<StatisticsReload>(_onReload);
     on<StatisticsOnSwitchType>(_onSwitchType);
     on<StatisticsOnShowDatePicker>(_onShowDatePicker);
     on<StatisticsOnCloseDatePicker>(_onShowCloseDatePicker);
@@ -137,6 +138,10 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     Emitter<StatisticsState> emit,
   ) async {
     emit(state.copyWith(currentType: event.journalType));
+    await _reload(emit);
+  }
+
+  void _onReload(StatisticsReload event, Emitter<StatisticsState> emit) async {
     await _reload(emit);
   }
 

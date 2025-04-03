@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bookkeeping/data/bean/day_chart_data.dart';
 import 'package:bookkeeping/data/bean/doughnut_chart_data.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
@@ -15,6 +17,8 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_repository.dart';
+import '../eventbus/eventbus.dart';
+import '../eventbus/journal_event.dart';
 import '../widget/month_picker_widget.dart';
 import 'bloc/statistics_state.dart';
 
@@ -26,11 +30,23 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-
+  late final StreamSubscription _subscription;
+  final GlobalKey _blocContext = GlobalKey();
 
   @override
   void initState() {
+    //订阅事件
+    _subscription = eventBus.on<JournalEvent>().listen((event) {
+      _blocContext.currentContext?.read<StatisticsBloc>().add(StatisticsReload());
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    //取消事件
+    _subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -42,6 +58,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             monthRepository: context.read<JournalMonthRepository>(),
           )..add(StatisticsInitLoad()),
       child: BlocListener<StatisticsBloc, StatisticsState>(
+        key: _blocContext,
         listener: (context, state) {
           if (state.datePickerDialogState is DatePickerDialogOpenState) {
             var open = state.datePickerDialogState as DatePickerDialogOpenState;
@@ -82,10 +99,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ),
                         child: Divider(height: 1, color: Colors.grey[400]),
                       ),
-                      buildStatisticsEveryDayChart(
-                        context,
-                        state,
-                      ),
+                      buildStatisticsEveryDayChart(context, state),
                       Padding(
                         padding: EdgeInsets.only(
                           left: 16,
@@ -95,10 +109,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ),
                         child: Divider(height: 1, color: Colors.grey[400]),
                       ),
-                      buildStatisticsEveryMonthChart(
-                        context,
-                        state,
-                      ),
+                      buildStatisticsEveryMonthChart(context, state),
                       buildStatisticsJournalRankingList(context, state),
                     ],
                   ),
