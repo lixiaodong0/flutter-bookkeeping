@@ -21,7 +21,15 @@ class FilterJournalBloc extends Bloc<FilterJournalEvent, FilterJournalState> {
         ),
       ) {
     on<FilterJournalInitLoad>(_onInitLoad);
+    on<FilterJournalReload>(_onReload);
     on<FilterJournalOnChangeFilterType>(_onChangeFilterType);
+  }
+
+  void _onReload(
+    FilterJournalReload event,
+    Emitter<FilterJournalState> emit,
+  ) async {
+    await _reload(emit);
   }
 
   void _onInitLoad(

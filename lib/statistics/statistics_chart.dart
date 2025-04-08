@@ -60,10 +60,6 @@ class ChartBehaviorProvider {
           onTap: () {
             //按钮
             series.parent?.trackballBehavior?.showByIndex(index);
-            // if (chartData.amount > 0) {
-            //   print("点击了");
-            //   // series.parent?.trackballBehavior?.showByIndex(index);
-            // }
             if (chartData.amount > 0) {
               context.read<StatisticsBloc>().add(
                 StatisticsOnShowEveryDayDataDialog(
@@ -225,17 +221,17 @@ Widget buildStatisticsEveryDayChart(
               },
               // enableTooltip: true,
               selectionBehavior: selectionBehavior,
-              onPointTap: (ChartPointDetails details) {
-                print(
-                  "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",
-                );
-                var index = details.pointIndex ?? -1;
-                if (index != -1) {
-                  context.read<StatisticsBloc>().add(
-                    StatisticsOnChangeDayChartData(selectIndex: index),
-                  );
-                }
-              },
+              // onPointTap: (ChartPointDetails details) {
+              //   print(
+              //     "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",
+              //   );
+              //   var index = details.pointIndex ?? -1;
+              //   if (index != -1) {
+              //     context.read<StatisticsBloc>().add(
+              //       StatisticsOnChangeDayChartData(selectIndex: index),
+              //     );
+              //   }
+              // },
               initialSelectedDataIndexes: [selectDayChartDataIndex],
               dataSource: chartData,
               xValueMapper: (DayChartData data, _) => data.formatDateStr2,
