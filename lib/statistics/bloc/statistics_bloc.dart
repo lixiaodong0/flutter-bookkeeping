@@ -31,6 +31,8 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     on<StatisticsOnExpandedChange>(_onExpandedChange);
     on<StatisticsOnChangeJournalRankingList>(_onChangeJournalRankingList);
     on<StatisticsOnChangeDayChartData>(_onChangeDayChartData);
+    on<StatisticsOnShowEveryDayDataDialog>(_onShowEveryDayDataDialog);
+    on<StatisticsOnCloseEveryDayDataDialog>(_onCloseEveryDayDataDialog);
   }
 
   void _onChangeDayChartData(
@@ -133,6 +135,32 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     Emitter<StatisticsState> emit,
   ) async {
     emit(state.copyWith(datePickerDialogState: DatePickerDialogCloseState()));
+  }
+
+  void _onShowEveryDayDataDialog(
+    StatisticsOnShowEveryDayDataDialog event,
+    Emitter<StatisticsState> emit,
+  ) async {
+    var list = await _queryJournalDay(event.date, event.type);
+    emit(
+      state.copyWith(
+        everyDayDataDialogState: EveryDayDataDialogOpenState(
+          date: event.date,
+          list: list,
+          type: event.type,
+          amount: event.amount,
+        ),
+      ),
+    );
+  }
+
+  void _onCloseEveryDayDataDialog(
+    StatisticsOnCloseEveryDayDataDialog event,
+    Emitter<StatisticsState> emit,
+  ) async {
+    emit(
+      state.copyWith(everyDayDataDialogState: EveryDayDataDialogCloseState()),
+    );
   }
 
   void _onSwitchType(

@@ -10,6 +10,7 @@ import 'package:bookkeeping/statistics/statistics_ranking_list.dart';
 import 'package:bookkeeping/statistics/statistics_topbar.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/util/format_util.dart';
+import 'package:bookkeeping/widget/every_day_data_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -81,6 +82,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               onClose: () {
                 context.read<StatisticsBloc>().add(
                   StatisticsOnCloseDatePicker(),
+                );
+              },
+            );
+          }
+
+          if (state.everyDayDataDialogState is EveryDayDataDialogOpenState) {
+            var open =
+                state.everyDayDataDialogState as EveryDayDataDialogOpenState;
+            EveryDayDataDialog.showDialog(
+              context,
+              open.list,
+              open.amount,
+              open.date,
+              open.type,
+              () {
+                context.read<StatisticsBloc>().add(
+                  StatisticsOnCloseEveryDayDataDialog(),
                 );
               },
             );

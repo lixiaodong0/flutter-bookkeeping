@@ -11,6 +11,10 @@ class DateUtil {
     return "${date.month}月${date.day}号";
   }
 
+  static String formatYearMonthDay(DateTime date) {
+    return "${date.year}年${date.month}月${date.day}日";
+  }
+
   static DateTime parse(String dateStr) {
     return DateTime.parse(dateStr);
   }

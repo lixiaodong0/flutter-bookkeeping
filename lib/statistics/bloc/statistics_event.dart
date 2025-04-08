@@ -27,6 +27,22 @@ class StatisticsOnCloseDatePicker extends StatisticsEvent {
   const StatisticsOnCloseDatePicker();
 }
 
+class StatisticsOnShowEveryDayDataDialog extends StatisticsEvent {
+  final JournalType type;
+  final DateTime date;
+  final String amount;
+
+  const StatisticsOnShowEveryDayDataDialog({
+    required this.type,
+    required this.date,
+    required this.amount,
+  });
+}
+
+class StatisticsOnCloseEveryDayDataDialog extends StatisticsEvent {
+  const StatisticsOnCloseEveryDayDataDialog();
+}
+
 class StatisticsOnSelectedDate extends StatisticsEvent {
   final DateTime selectedDate;
 
@@ -48,10 +64,9 @@ class StatisticsOnChangeJournalRankingList extends StatisticsEvent {
     required this.selectIndex,
   });
 }
+
 class StatisticsOnChangeDayChartData extends StatisticsEvent {
   final int selectIndex;
 
-  const StatisticsOnChangeDayChartData({
-    required this.selectIndex,
-  });
+  const StatisticsOnChangeDayChartData({required this.selectIndex});
 }

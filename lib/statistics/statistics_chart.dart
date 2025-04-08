@@ -64,6 +64,15 @@ class ChartBehaviorProvider {
             //   print("点击了");
             //   // series.parent?.trackballBehavior?.showByIndex(index);
             // }
+            if (chartData.amount > 0) {
+              context.read<StatisticsBloc>().add(
+                StatisticsOnShowEveryDayDataDialog(
+                  type: currentType,
+                  date: chartData.date,
+                  amount: chartData.amount.toString(),
+                ),
+              );
+            }
           },
           child: Container(
             width: 100,

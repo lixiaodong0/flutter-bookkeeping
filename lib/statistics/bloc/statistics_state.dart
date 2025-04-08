@@ -25,6 +25,7 @@ final class StatisticsState extends Equatable {
   final int selectDayChartDataIndex;
   final List<JournalBean> monthRankingList;
   final DatePickerDialogState datePickerDialogState;
+  final EveryDayDataDialogState everyDayDataDialogState;
 
   const StatisticsState({
     this.currentDate,
@@ -42,6 +43,7 @@ final class StatisticsState extends Equatable {
     this.selectDayChartDataIndex = 0,
     this.monthRankingList = const [],
     this.datePickerDialogState = const DatePickerDialogCloseState(),
+    this.everyDayDataDialogState = const EveryDayDataDialogState(),
   });
 
   @override
@@ -56,6 +58,7 @@ final class StatisticsState extends Equatable {
     dougnutChartData,
     projectRankingList,
     datePickerDialogState,
+    everyDayDataDialogState,
     monthChartData,
     monthSelectionBehavior,
     selectMonthChartDataIndex,
@@ -79,6 +82,7 @@ final class StatisticsState extends Equatable {
     int? selectDayChartDataIndex,
     DatePickerDialogState? datePickerDialogState,
     List<JournalBean>? monthRankingList,
+    EveryDayDataDialogState? everyDayDataDialogState,
   }) {
     return StatisticsState(
       currentDate: currentDate ?? this.currentDate,
@@ -87,12 +91,15 @@ final class StatisticsState extends Equatable {
           expandedProjectRanking ?? this.expandedProjectRanking,
       currentMonthAmount: currentMonthAmount ?? this.currentMonthAmount,
       everyDayChartData: everyDayChartData ?? this.everyDayChartData,
-      everyDaySelectionBehavior: everyDaySelectionBehavior ?? this.everyDaySelectionBehavior,
-      everyDayTrackballBehavior: everyDayTrackballBehavior ?? this.everyDayTrackballBehavior,
+      everyDaySelectionBehavior:
+          everyDaySelectionBehavior ?? this.everyDaySelectionBehavior,
+      everyDayTrackballBehavior:
+          everyDayTrackballBehavior ?? this.everyDayTrackballBehavior,
       dougnutChartData: dougnutChartData ?? this.dougnutChartData,
       projectRankingList: projectRankingList ?? this.projectRankingList,
       monthChartData: monthChartData ?? this.monthChartData,
-      monthSelectionBehavior: monthSelectionBehavior ?? this.monthSelectionBehavior,
+      monthSelectionBehavior:
+          monthSelectionBehavior ?? this.monthSelectionBehavior,
       selectMonthChartDataIndex:
           selectMonthChartDataIndex ?? this.selectMonthChartDataIndex,
       selectDayChartDataIndex:
@@ -100,6 +107,8 @@ final class StatisticsState extends Equatable {
       monthRankingList: monthRankingList ?? this.monthRankingList,
       datePickerDialogState:
           datePickerDialogState ?? this.datePickerDialogState,
+      everyDayDataDialogState:
+          everyDayDataDialogState ?? this.everyDayDataDialogState,
     );
   }
 }
@@ -120,4 +129,26 @@ final class DatePickerDialogOpenState extends DatePickerDialogState {
 
 final class DatePickerDialogCloseState extends DatePickerDialogState {
   const DatePickerDialogCloseState();
+}
+
+final class EveryDayDataDialogState {
+  const EveryDayDataDialogState();
+}
+
+final class EveryDayDataDialogOpenState extends EveryDayDataDialogState {
+  final DateTime date;
+  final List<JournalBean> list;
+  final JournalType type;
+  final String amount;
+
+  const EveryDayDataDialogOpenState({
+    required this.date,
+    required this.list,
+    required this.type,
+    required this.amount,
+  });
+}
+
+final class EveryDayDataDialogCloseState extends EveryDayDataDialogState {
+  const EveryDayDataDialogCloseState();
 }
