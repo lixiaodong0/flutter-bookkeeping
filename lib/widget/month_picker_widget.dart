@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class MonthPickerWidget extends StatelessWidget {
   final DateTime currentDate;
   final List<JournalMonthGroupBean> allDate;
-  final ValueChanged<DateTime> onChanged;
+  final ValueChanged<JournalMonthBean> onChanged;
 
   const MonthPickerWidget({
     super.key,
@@ -17,7 +17,7 @@ class MonthPickerWidget extends StatelessWidget {
     BuildContext context, {
     required DateTime currentDate,
     required List<JournalMonthGroupBean> allDate,
-    required ValueChanged<DateTime> onChanged,
+    required ValueChanged<JournalMonthBean> onChanged,
     required VoidCallback onClose,
   }) {
     var rootContext = Navigator.of(context, rootNavigator: true).context;
@@ -40,8 +40,8 @@ class MonthPickerWidget extends StatelessWidget {
     });
   }
 
-  void _onSelectedDate(BuildContext context, DateTime date) {
-    onChanged(date);
+  void _onSelectedDate(BuildContext context,  JournalMonthBean data) {
+    onChanged(data);
     Navigator.of(context).pop();
   }
 
@@ -69,9 +69,7 @@ class MonthPickerWidget extends StatelessWidget {
         _topToolbarContainer(context),
         Divider(height: 1),
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(children: children),
-          ),
+          child: SingleChildScrollView(child: Column(children: children)),
         ),
       ],
     );
@@ -115,7 +113,7 @@ class MonthPickerWidget extends StatelessWidget {
     }
     return GridView.count(
       crossAxisCount: 4,
-      childAspectRatio: 1/0.5,
+      childAspectRatio: 1 / 0.5,
       padding: EdgeInsets.symmetric(horizontal: 16),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
@@ -135,7 +133,7 @@ class MonthPickerWidget extends StatelessWidget {
     Color backgroundColor = isSameMonth ? Colors.green : Colors.white;
     return TextButton(
       onPressed: () {
-        _onSelectedDate(context, DateTime(data.year, data.month));
+        _onSelectedDate(context, data);
       },
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,

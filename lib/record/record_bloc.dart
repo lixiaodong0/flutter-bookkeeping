@@ -257,7 +257,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       }
     }
     await monthRepository.addJournalMonth(
-      JournalMonthEntry(year: now.year, month: now.month),
+      JournalMonthEntry(year: now.year, month: now.month, maxDay: now.day),
     );
     emit(state.copyWith(confirmStatus: RecordFinishStatus.success));
   }

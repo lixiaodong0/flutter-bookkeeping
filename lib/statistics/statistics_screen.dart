@@ -76,7 +76,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               allDate: open.allDate,
               onChanged: (newDate) {
                 context.read<StatisticsBloc>().add(
-                  StatisticsOnSelectedDate(selectedDate: newDate),
+                  StatisticsOnSelectedDate(
+                    selectedDate: DateTime(
+                      newDate.year,
+                      newDate.month,
+                      newDate.maxDay,
+                    ),
+                  ),
                 );
               },
               onClose: () {

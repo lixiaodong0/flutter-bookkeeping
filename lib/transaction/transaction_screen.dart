@@ -90,7 +90,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
               allDate: open.allDate,
               onChanged: (newDate) {
                 context.read<TransactionBloc>().add(
-                  TransactionSelectedMonth(selectedDate: newDate),
+                  TransactionSelectedMonth(
+                    selectedDate: DateTime(newDate.year, newDate.month),
+                  ),
                 );
               },
               onClose: () {
