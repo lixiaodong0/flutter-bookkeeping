@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/bean/journal_month_bean.dart';
+import '../../util/date_util.dart';
+import '../statistics_chart.dart';
 
 class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   final JournalRepository repository;
@@ -209,7 +211,12 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       currentType,
     );
 
+    var everyDayTrackballBehavior =
+        ChartBehaviorProvider.createTrackballBehavior(currentType);
+    var everyDaySelectionBehavior =
+        ChartBehaviorProvider.createSelectionBehavior(currentType);
     var selectDayChartDataIndex = everyDayCharData.length - 1;
+    // everyDaySelectionBehavior.selectDataPoints(selectDayChartDataIndex);
 
     //每月图表数据
     //半年
@@ -247,6 +254,10 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       );
     }
 
+    var monthSelectionBehavior = ChartBehaviorProvider.createSelectionBehavior(
+      currentType,
+    );
+
     //这里主要用是区分不同年份
     if (findFormatDate != null) {
       var findIndex = monthChartDataList.indexWhere(
@@ -260,15 +271,17 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
         nextItem.dateStr = '${nextItem.date.month}月\n${nextItem.date.year}';
       }
     }
-
     var selectMonthChartDataIndex = monthChartDataList.length - 1;
     var monthRankingList = await _queryJournalMonth(currentDate, currentType);
 
     emit(
       state.copyWith(
         monthChartData: monthChartDataList,
+        monthSelectionBehavior: monthSelectionBehavior,
         dougnutChartData: dougnutChartData,
         everyDayChartData: everyDayCharData,
+        everyDayTrackballBehavior: everyDayTrackballBehavior,
+        everyDaySelectionBehavior: everyDaySelectionBehavior,
         projectRankingList: projectRankingData,
         currentMonthAmount: currentMonthAmount,
         selectMonthChartDataIndex: selectMonthChartDataIndex,
@@ -276,6 +289,10 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
         monthRankingList: monthRankingList,
       ),
     );
+
+    //延迟2秒执行 默认选中图表逻辑
+    await Future.delayed(Duration(seconds: 2));
+    everyDayTrackballBehavior.showByIndex(selectDayChartDataIndex);
   }
 
   List<ProjectRankingBean> _createProjectRankingData(

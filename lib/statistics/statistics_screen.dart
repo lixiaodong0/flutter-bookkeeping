@@ -31,13 +31,16 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   late final StreamSubscription _subscription;
+  ChartSeriesController? seriesController;
   final GlobalKey _blocContext = GlobalKey();
 
   @override
   void initState() {
     //订阅事件
     _subscription = eventBus.on<JournalEvent>().listen((event) {
-      _blocContext.currentContext?.read<StatisticsBloc>().add(StatisticsReload());
+      _blocContext.currentContext?.read<StatisticsBloc>().add(
+        StatisticsReload(),
+      );
     });
     super.initState();
   }
@@ -47,6 +50,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     //取消事件
     _subscription.cancel();
     super.dispose();
+  }
+
+  _onCallback(ChartSeriesController seriesController) {
+    this.seriesController = seriesController;
   }
 
   @override
@@ -99,7 +106,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ),
                         child: Divider(height: 1, color: Colors.grey[400]),
                       ),
-                      buildStatisticsEveryDayChart(context, state),
+                      buildStatisticsEveryDayChart(
+                        context,
+                        state,
+                        seriesController,
+                        _onCallback,
+                      ),
                       Padding(
                         padding: EdgeInsets.only(
                           left: 16,

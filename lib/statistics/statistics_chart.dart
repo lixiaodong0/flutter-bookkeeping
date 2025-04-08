@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:bookkeeping/data/bean/day_chart_data.dart';
 import 'package:bookkeeping/statistics/bloc/statistics_event.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,83 +16,159 @@ import '../util/format_util.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 
-class ChartData {
-  ChartData(this.x, this.y);
+class ChartBehaviorProvider {
+  static SelectionBehavior createSelectionBehavior(JournalType currentType) {
+    Color color =
+        currentType == JournalType.expense ? Colors.green : Colors.orange;
+    return SelectionBehavior(
+      enable: true,
+      selectedColor: color,
+      unselectedColor: color,
+      unselectedOpacity: 0.2,
+      toggleSelection: false,
+    );
+  }
 
-  final int x;
-  final double y;
-}
-
-SelectionBehavior _selectionBehavior(Color color) {
-  return SelectionBehavior(
-    enable: true,
-    selectedColor: color,
-    unselectedColor: color,
-    unselectedOpacity: 0.2,
-    toggleSelection: false,
-  );
-}
-
-TooltipBehavior _tooltipBehavior(Color color, String title) {
-  return TooltipBehavior(
-    enable: true,
-    color: Colors.black87,
-    shouldAlwaysShow: true,
-    builder: (
-      dynamic data,
-      dynamic point,
-      dynamic series,
-      int pointIndex,
-      int seriesIndex,
-    ) {
-      var chartData = data as DayChartData;
-      return Container(
-        width: 100,
-        height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          color: Colors.black87,
-        ),
-        padding: EdgeInsets.only(left: 4, top: 4, bottom: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+  static TrackballBehavior createTrackballBehavior(JournalType currentType) {
+    Color color =
+        currentType == JournalType.expense ? Colors.green : Colors.orange;
+    String title = currentType == JournalType.expense ? "支出" : "入账";
+    return TrackballBehavior(
+      activationMode: ActivationMode.longPress,
+      enable: true,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      tooltipAlignment: ChartAlignment.near,
+      shouldAlwaysShow: true,
+      lineWidth: 2,
+      lineDashArray: [2, 2],
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        var index =
+            trackballDetails
+                .groupingModeInfo
+                ?.currentPointIndices
+                .firstOrNull ??
+            0;
+        var series =
+            trackballDetails.groupingModeInfo?.visibleSeriesList.firstOrNull
+                as ColumnSeriesRenderer<DayChartData, String>;
+        var chartData = series.dataSource![index];
+        series.selectionBehavior?.selectDataPoints(index);
+        //TrackballBehavior如果激活改为按下就触发会导致无法响应悬浮窗的点击事件.
+        //通过配合onChartTouchInteractionUp: (ChartTouchInteractionArgs args)，监听手指抬起，手动计算坐标点位，调用API形式触发。
+        //点击悬浮窗的时候在重置为当前showByIndex位置。
+        return GestureDetector(
+          onTap: () {
+            //按钮
+            series.parent?.trackballBehavior?.showByIndex(index);
+            // if (chartData.amount > 0) {
+            //   print("点击了");
+            //   // series.parent?.trackballBehavior?.showByIndex(index);
+            // }
+          },
+          child: Container(
+            width: 100,
+            height: 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: Colors.black87,
+            ),
+            padding: EdgeInsets.only(left: 4, top: 4, bottom: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "${DateUtil.formatMonthDay(chartData.date)}共$title",
-                  style: TextStyle(color: Colors.white, fontSize: 10),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${DateUtil.formatMonthDay(chartData.date)}共$title",
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                    Text(
+                      "¥${FormatUtil.formatAmount(chartData.amount.toString())}",
+                      style: TextStyle(color: color, fontSize: 12),
+                    ),
+                  ],
                 ),
-                Text(
-                  "¥${FormatUtil.formatAmount(chartData.amount.toString())}",
-                  style: TextStyle(color: color, fontSize: 12),
-                ),
+                if (chartData.amount > 0)
+                  Icon(
+                    Icons.navigate_next_rounded,
+                    size: 12,
+                    color: Colors.grey,
+                  ),
               ],
             ),
-            Icon(Icons.navigate_next_rounded, size: 12, color: Colors.grey),
-          ],
-        ),
-      );
-    },
-  );
+          ),
+        );
+      },
+    );
+  }
+
+  static TooltipBehavior createTooltipBehavior(Color color, String title) {
+    return TooltipBehavior(
+      activationMode: ActivationMode.doubleTap,
+      enable: true,
+      color: Colors.black87,
+      shouldAlwaysShow: true,
+      tooltipPosition: TooltipPosition.auto,
+      builder: (
+        dynamic data,
+        dynamic point,
+        dynamic series,
+        int pointIndex,
+        int seriesIndex,
+      ) {
+        var chartData = data as DayChartData;
+        return Container(
+          width: 100,
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.black87,
+          ),
+          padding: EdgeInsets.only(left: 4, top: 4, bottom: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${DateUtil.formatMonthDay(chartData.date)}共$title",
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    "¥${FormatUtil.formatAmount(chartData.amount.toString())}",
+                    style: TextStyle(color: color, fontSize: 12),
+                  ),
+                ],
+              ),
+              Icon(Icons.navigate_next_rounded, size: 12, color: Colors.grey),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 //每日图表
+typedef SeriesRendererCreatedCallback =
+    void Function(ChartSeriesController controller);
+
 Widget buildStatisticsEveryDayChart(
   BuildContext context,
   StatisticsState state,
+  ChartSeriesController? seriesController,
+  SeriesRendererCreatedCallback callback,
 ) {
   final List<DayChartData> chartData = state.everyDayChartData;
-  final JournalType currentType = state.currentType;
   final selectDayChartDataIndex = state.selectDayChartDataIndex;
-
-  Color color =
-      currentType == JournalType.expense ? Colors.green : Colors.orange;
-
-  String title = currentType == JournalType.expense ? "支出" : "入账";
+  var selectionBehavior = state.everyDaySelectionBehavior;
+  var trackballBehavior = state.everyDayTrackballBehavior;
 
   return Container(
     padding: EdgeInsets.all(16),
@@ -106,11 +184,21 @@ Widget buildStatisticsEveryDayChart(
         ),
         SfCartesianChart(
           plotAreaBorderWidth: 0,
-          tooltipBehavior: _tooltipBehavior(color, title),
+          trackballBehavior: trackballBehavior,
+          //TrackballBehavior如果激活改为按下就触发会导致无法响应悬浮窗的点击事件.
+          //这里监听手指抬起，手动计算坐标点位，调用API形式触发。
+          onChartTouchInteractionUp: (ChartTouchInteractionArgs args) {
+            final Offset value = Offset(args.position.dx, args.position.dy);
+            if (seriesController != null) {
+              CartesianChartPoint<dynamic> point = seriesController!
+                  .pixelToPoint(value);
+              trackballBehavior?.show(point.x, point.y?.toDouble() ?? 0);
+            }
+          },
           primaryXAxis: CategoryAxis(
             majorTickLines: MajorTickLines(width: 0, color: Colors.transparent),
             majorGridLines: MajorGridLines(width: 0, color: Colors.transparent),
-            edgeLabelPlacement : EdgeLabelPlacement.shift,
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
             interval: 4,
           ),
           primaryYAxis: NumericAxis(
@@ -122,7 +210,12 @@ Widget buildStatisticsEveryDayChart(
           series: <CartesianSeries<DayChartData, String>>[
             // Renders column chart
             ColumnSeries<DayChartData, String>(
-              selectionBehavior: _selectionBehavior(color),
+              onRendererCreated: (ChartSeriesController controller) {
+                seriesController = controller;
+                callback(controller);
+              },
+              // enableTooltip: true,
+              selectionBehavior: selectionBehavior,
               onPointTap: (ChartPointDetails details) {
                 print(
                   "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",
@@ -130,14 +223,11 @@ Widget buildStatisticsEveryDayChart(
                 var index = details.pointIndex ?? -1;
                 if (index != -1) {
                   context.read<StatisticsBloc>().add(
-                    StatisticsOnChangeDayChartData(
-                      selectIndex: index,
-                    ),
+                    StatisticsOnChangeDayChartData(selectIndex: index),
                   );
                 }
               },
               initialSelectedDataIndexes: [selectDayChartDataIndex],
-              enableTooltip: true,
               dataSource: chartData,
               xValueMapper: (DayChartData data, _) => data.formatDateStr2,
               yValueMapper: (DayChartData data, _) => data.amount,
@@ -160,11 +250,8 @@ Widget buildStatisticsEveryMonthChart(
   StatisticsState state,
 ) {
   var list = state.monthChartData;
+  var selectionBehavior = state.monthSelectionBehavior;
   var selectMonthChartDataIndex = state.selectMonthChartDataIndex;
-  var currentType = state.currentType;
-  Color color =
-  currentType == JournalType.expense ? Colors.green : Colors.orange;
-
   return Container(
     padding: EdgeInsets.all(16),
     child: Column(
@@ -187,7 +274,7 @@ Widget buildStatisticsEveryMonthChart(
           series: <CartesianSeries<MonthChartData, String>>[
             // Renders column chart
             ColumnSeries<MonthChartData, String>(
-              selectionBehavior: _selectionBehavior(color),
+              selectionBehavior: selectionBehavior,
               onPointTap: (ChartPointDetails details) {
                 print(
                   "[onPointTap]${details.dataPoints?.length},pointIndex:${details.pointIndex},seriesIndex:${details.seriesIndex}",
