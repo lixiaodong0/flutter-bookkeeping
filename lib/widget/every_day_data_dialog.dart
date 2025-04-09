@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/bean/income_images.dart';
+
 class EveryDayDataDialog extends StatefulWidget {
   final List<JournalBean> list;
   final String amount;
@@ -174,6 +176,16 @@ class _EveryDayDataDialogState extends State<EveryDayDataDialog> {
   Widget _buildItem(int index, JournalBean data, JournalType type) {
     Color amountTextColor =
         type == JournalType.income ? Colors.orange : Colors.black;
+
+    var projectName = data.journalProjectName;
+    Color journalColor =
+        type == JournalType.income ? Colors.orange : Colors.green;
+
+    String assetName =
+        type == JournalType.income
+            ? IncomeImages.fromName(projectName).img
+            : ExpenseImages.fromName(projectName).img;
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -187,12 +199,17 @@ class _EveryDayDataDialogState extends State<EveryDayDataDialog> {
               ),
             ),
           ),
+          journalTypeImageWidget(
+            assetName,
+            containerColor: journalColor,
+          ),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  data.journalProjectName,
+                  projectName,
                   style: TextStyle(fontSize: 16, color: Colors.black),
                 ),
                 if (data.description != null && data.description!.isNotEmpty)
