@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bookkeeping/data/bean/income_images.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
 import 'package:bookkeeping/detail/bloc/detail_journal_evnet.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/bean/journal_type.dart';
 import '../eventbus/eventbus.dart';
 import '../eventbus/journal_event.dart';
 import 'bloc/detail_journal_bloc.dart';
@@ -106,6 +108,16 @@ class _DetailJournalScreenState extends State<_DetailJournalScreen> {
     if (data == null) {
       return Container();
     }
+
+    var projectName = data.journalProjectName;
+    Color journalColor =
+        data.type == JournalType.income ? Colors.orange : Colors.green;
+
+    String assetName =
+        data.type == JournalType.income
+            ? IncomeImages.fromName(projectName).img
+            : ExpenseImages.fromName(projectName).img;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
@@ -124,8 +136,15 @@ class _DetailJournalScreenState extends State<_DetailJournalScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    journalTypeImageWidget(
+                      assetName,
+                      containerColor: journalColor,
+                      containerSize: 20,
+                      iconSize: 10,
+                    ),
+                    SizedBox(width: 4),
                     Text(
-                      data.journalProjectName,
+                      projectName,
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                     // Icon(Icons.navigate_next_rounded),
@@ -138,7 +157,7 @@ class _DetailJournalScreenState extends State<_DetailJournalScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "${data.type.symbol} ${FormatUtil.formatAmount(data.amount)}",
+                "${data.type.symbol}${FormatUtil.formatAmount(data.amount)}",
                 style: TextStyle(fontSize: 30, color: Colors.black),
               ),
             ],

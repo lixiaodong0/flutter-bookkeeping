@@ -139,59 +139,58 @@ Widget buildTransactionItem(
       color: Colors.white,
       shape: BoxShape.rectangle,
     ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    child: Stack(
       children: [
-        journalTypeImageWidget(assetName, containerColor: journalColor),
-        SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                projectName,
-                style: TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              Padding(padding: EdgeInsets.only(top: 4)),
-              Row(
+        Row(
+          children: [
+            journalTypeImageWidget(assetName, containerColor: journalColor),
+            SizedBox(width: 8),
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${FormatUtil.formatTime(date.hour)}:${FormatUtil.formatTime(date.minute)}",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    projectName,
+                    style: TextStyle(fontSize: 14, color: Colors.black),
                   ),
-                  if (desc.isNotEmpty)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6),
-                      height: 8,
-                      child: VerticalDivider(
-                        width: 2,
-                        color: Colors.grey.withAlpha(100),
+                  SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Text(
+                        "${FormatUtil.formatTime(date.hour)}:${FormatUtil.formatTime(date.minute)}",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
-                    ),
-                  Expanded(
-                    child: Text(
-                      desc,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      if (desc.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 6),
+                          height: 8,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.grey.withAlpha(100),
+                          ),
+                        ),
+                      Expanded(
+                        child: Text(
+                          desc,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            Spacer()
+          ],
         ),
-        Expanded(
-          flex: 1,
-          child: Stack(
-            alignment: AlignmentDirectional.topEnd,
-            children: [
-              Text(
-                "${journalType.symbol}${FormatUtil.formatAmount(amount)}",
-                style: TextStyle(fontSize: 16, color: journalTextColor),
-              ),
-            ],
+        Align(
+          alignment: Alignment.topRight,
+          child: Text(
+            "${journalType.symbol}${FormatUtil.formatAmount(amount)}",
+            style: TextStyle(fontSize: 16, color: journalTextColor),
           ),
         ),
       ],

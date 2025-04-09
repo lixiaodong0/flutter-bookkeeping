@@ -1,11 +1,24 @@
 import 'package:bookkeeping/detail/detail_journal_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../data/bean/income_images.dart';
 import '../data/bean/journal_bean.dart';
+import '../data/bean/journal_type.dart';
 import '../util/date_util.dart';
 import '../util/format_util.dart';
 
 Widget journalListItem(BuildContext context, String symbol, JournalBean data) {
+
+  var projectName = data.journalProjectName;
+  Color journalColor =
+  data.type == JournalType.income ? Colors.orange : Colors.green;
+
+  String assetName =
+  data.type == JournalType.income
+      ? IncomeImages.fromName(projectName).img
+      : ExpenseImages.fromName(projectName).img;
+
+
   return GestureDetector(
     behavior: HitTestBehavior.opaque,
     onTap: () {
@@ -17,12 +30,17 @@ Widget journalListItem(BuildContext context, String symbol, JournalBean data) {
         children: [
           Row(
             children: [
+              journalTypeImageWidget(
+                assetName,
+                containerColor: journalColor,
+              ),
+              SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      data.journalProjectName,
+                      projectName,
                       style: const TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     if (data.description != null && data.description!.isNotEmpty)

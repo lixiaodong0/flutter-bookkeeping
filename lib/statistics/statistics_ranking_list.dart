@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/bean/income_images.dart';
 import '../filter/filter_journal_screen.dart';
 import '../util/date_util.dart';
 import 'bloc/statistics_bloc.dart';
@@ -76,6 +77,17 @@ Widget _projectRankingListItem(
 ) {
   var progressColor =
       type == JournalType.expense ? Colors.green : Colors.orange;
+
+
+  var projectName = data.name;
+  Color journalColor =
+  type == JournalType.income ? Colors.orange : Colors.green;
+
+  String assetName =
+  type == JournalType.income
+      ? IncomeImages.fromName(projectName).img
+      : ExpenseImages.fromName(projectName).img;
+
   return GestureDetector(
     behavior: HitTestBehavior.opaque,
     onTap: () {
@@ -92,10 +104,17 @@ Widget _projectRankingListItem(
       padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
+          journalTypeImageWidget(
+            assetName,
+            containerColor: journalColor,
+            containerSize: 20,
+            iconSize: 10,
+          ),
+          SizedBox(width: 8),
           SizedBox(
             width: 100,
             child: Text(
-              data.name,
+              projectName,
               style: TextStyle(fontSize: 14, color: Colors.black),
             ),
           ),
@@ -192,6 +211,16 @@ Widget _journalRankingListItem(
   String symbol,
   JournalBean data,
 ) {
+
+  var projectName = data.journalProjectName;
+  Color journalColor =
+  data.type == JournalType.income ? Colors.orange : Colors.green;
+
+  String assetName =
+  data.type == JournalType.income
+      ? IncomeImages.fromName(projectName).img
+      : ExpenseImages.fromName(projectName).img;
+
   return Padding(
     padding: EdgeInsets.symmetric(vertical: 8),
     child: Row(
@@ -205,12 +234,17 @@ Widget _journalRankingListItem(
             ),
           ),
         ),
+        journalTypeImageWidget(
+          assetName,
+          containerColor: journalColor,
+        ),
+        SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                data.journalProjectName,
+                projectName,
                 style: TextStyle(fontSize: 16, color: Colors.black),
               ),
               if (data.description != null && data.description!.isNotEmpty)
