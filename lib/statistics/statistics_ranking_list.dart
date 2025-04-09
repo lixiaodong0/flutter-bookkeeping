@@ -78,15 +78,14 @@ Widget _projectRankingListItem(
   var progressColor =
       type == JournalType.expense ? Colors.green : Colors.orange;
 
-
   var projectName = data.name;
   Color journalColor =
-  type == JournalType.income ? Colors.orange : Colors.green;
+      type == JournalType.income ? Colors.orange : Colors.green;
 
   String assetName =
-  type == JournalType.income
-      ? IncomeImages.fromName(projectName).img
-      : ExpenseImages.fromName(projectName).img;
+      type == JournalType.income
+          ? IncomeImages.fromName(projectName).img
+          : ExpenseImages.fromName(projectName).img;
 
   return GestureDetector(
     behavior: HitTestBehavior.opaque,
@@ -101,7 +100,7 @@ Widget _projectRankingListItem(
       );
     },
     child: Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           journalTypeImageWidget(
@@ -156,7 +155,8 @@ Widget buildStatisticsJournalRankingList(
   var currentType = state.currentType;
 
   var currentDate = originalList.firstOrNull?.date;
-  var currentMonth = currentDate?.month;
+
+  var currentMonth = currentDate?.month ?? state.currentDate?.month ?? 0;
 
   var title =
       currentType == JournalType.expense
@@ -211,15 +211,14 @@ Widget _journalRankingListItem(
   String symbol,
   JournalBean data,
 ) {
-
   var projectName = data.journalProjectName;
   Color journalColor =
-  data.type == JournalType.income ? Colors.orange : Colors.green;
+      data.type == JournalType.income ? Colors.orange : Colors.green;
 
   String assetName =
-  data.type == JournalType.income
-      ? IncomeImages.fromName(projectName).img
-      : ExpenseImages.fromName(projectName).img;
+      data.type == JournalType.income
+          ? IncomeImages.fromName(projectName).img
+          : ExpenseImages.fromName(projectName).img;
 
   return Padding(
     padding: EdgeInsets.symmetric(vertical: 8),
@@ -234,10 +233,7 @@ Widget _journalRankingListItem(
             ),
           ),
         ),
-        journalTypeImageWidget(
-          assetName,
-          containerColor: journalColor,
-        ),
+        journalTypeImageWidget(assetName, containerColor: journalColor),
         SizedBox(width: 8),
         Expanded(
           child: Column(

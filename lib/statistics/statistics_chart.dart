@@ -333,7 +333,7 @@ Widget buildStatisticsCircularChart(
       //https://help.syncfusion.com/flutter/circular-charts/datalabel
       SfCircularChart(
         centerY: '55%',
-        centerX: '55%',
+        centerX: '50%',
         series: <CircularSeries<DoughnutChartData, String>>[
           DoughnutSeries<DoughnutChartData, String>(
             dataSource: state.dougnutChartData,
@@ -341,7 +341,8 @@ Widget buildStatisticsCircularChart(
             yValueMapper: (DoughnutChartData data, _) => data.value,
             animationDuration: 600,
             //外圆大小
-            radius: '50%',
+            radius: '40%',
+            innerRadius: '60%',
             //按照百分百倒序排序
             sortingOrder: SortingOrder.descending,
             sortFieldValueMapper: (DoughnutChartData data, _) => data.value,
