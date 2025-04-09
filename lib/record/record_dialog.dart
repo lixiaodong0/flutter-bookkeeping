@@ -7,7 +7,9 @@ import 'package:bookkeeping/widget/remark_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../data/bean/income_images.dart';
 import '../data/bean/journal_bean.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_repository.dart';
@@ -33,7 +35,7 @@ class RecordDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
-      scrollControlDisabledMaxHeightRatio: 0.7,
+      scrollControlDisabledMaxHeightRatio: 0.72,
       builder: (BuildContext context) {
         return BlocProvider(
           create:
@@ -91,7 +93,7 @@ class RecordDialog extends StatelessWidget {
               },
             ),
             Padding(padding: EdgeInsets.only(top: 8)),
-            _projectListContainer(),
+            Expanded(child: _projectListContainer()),
             BlocBuilder<RecordBloc, RecordState>(
               builder: (context, state) {
                 var remark = state.remark ?? "";
@@ -303,14 +305,11 @@ class RecordDialog extends StatelessWidget {
     return BlocBuilder<RecordBloc, RecordState>(
       builder: (context, state) {
         return SizedBox(
-          height: 100,
           child: GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 6, //每行几列
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 1 / 0.55, // 调整比例以适应所需高度
+              childAspectRatio: 0.70, // 调整比例以适应所需高度
             ),
             itemCount: state.projects.length,
             itemBuilder: (context, index) {
@@ -338,21 +337,35 @@ class RecordDialog extends StatelessWidget {
     JournalType type,
     VoidCallback onClickItem,
   ) {
-    Color backgroundColor = Colors.grey.withAlpha(200);
+    Color backgroundColor = Color(0xFFF5F5F5);
+    Color iconColor = Colors.grey;
     if (selected) {
       if (type == JournalType.expense) {
         backgroundColor = Colors.green;
       } else {
         backgroundColor = Colors.orange;
       }
+      iconColor = Colors.white;
     }
+    String assetName =
+        type == JournalType.expense
+            ? ExpenseImages.fromName(title).img
+            : IncomeImages.fromName(title).img;
+
     return TextButton(
       onPressed: onClickItem,
-      style: TextButton.styleFrom(
-        backgroundColor: backgroundColor,
-        padding: EdgeInsets.zero,
+      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+      child: Column(
+        children: [
+          journalTypeImageWidget(
+            assetName,
+            containerColor: backgroundColor,
+            iconColor: iconColor,
+          ),
+          SizedBox(height: 4),
+          Text(title, style: TextStyle(color: Colors.black, fontSize: 10)),
+        ],
       ),
-      child: Text(title, style: TextStyle(color: Colors.white, fontSize: 10)),
     );
   }
 }

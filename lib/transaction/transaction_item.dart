@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/daily_date_amount.dart';
+import 'package:bookkeeping/data/bean/income_images.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:flutter/material.dart';
@@ -114,10 +115,19 @@ Widget buildTransactionItem(
   bool isLastItem = false,
   String desc = "",
 }) {
-  Color journalColor = Colors.black;
+  Color journalTextColor = Colors.black;
   if (journalType == JournalType.income) {
-    journalColor = Colors.orange;
+    journalTextColor = Colors.orange;
   }
+
+  Color journalColor =
+      journalType == JournalType.income ? Colors.orange : Colors.green;
+
+  String assetName =
+      journalType == JournalType.income
+          ? IncomeImages.fromName(projectName).img
+          : ExpenseImages.fromName(projectName).img;
+
   BorderRadius borderRadius = BorderRadius.zero;
   if (isLastItem) {
     borderRadius = BorderRadius.vertical(bottom: Radius.circular(16));
@@ -132,6 +142,8 @@ Widget buildTransactionItem(
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        journalTypeImageWidget(assetName, containerColor: journalColor),
+        SizedBox(width: 8),
         Expanded(
           flex: 1,
           child: Column(
@@ -177,7 +189,7 @@ Widget buildTransactionItem(
             children: [
               Text(
                 "${journalType.symbol}${FormatUtil.formatAmount(amount)}",
-                style: TextStyle(fontSize: 16, color: journalColor),
+                style: TextStyle(fontSize: 16, color: journalTextColor),
               ),
             ],
           ),
