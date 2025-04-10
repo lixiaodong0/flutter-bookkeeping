@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:bookkeeping/cache/scroll_date_amount_cache.dart';
+import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/bean/loading_state.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/data/repository/journal_repository.dart';
-import 'package:bookkeeping/eventbus/eventbus.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_state.dart';
 import 'package:bookkeeping/util/date_util.dart';
@@ -30,7 +29,10 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   DateTime currentLimitDate = DateTime.now();
   JournalProjectBean? currentLimitProject = JournalProjectBean.allItemBean();
 
+  AccountBookBean currentAccountBook;
+
   TransactionBloc({
+    required this.currentAccountBook,
     required this.repository,
     required this.projectRepository,
     required this.monthRepository,
@@ -51,6 +53,15 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<TransactionSelectedProject>(_onSelectedProject);
     on<TransactionSelectedMonth>(_onSelectedMonth);
     on<TransactionOnJournalEvent>(_onJournalEvent);
+    on<TransactionUpdateAccountBook>(_onUpdateAccountBook);
+  }
+
+  void _onUpdateAccountBook(
+    TransactionUpdateAccountBook event,
+    Emitter<TransactionState> emit,
+  ) async {
+    //todo 这里更新操作
+
   }
 
   int _findIndexById(List<JournalBean> list, int id) {
@@ -130,11 +141,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   ) async {
     var projectId = _getCurrentProjectId();
     var todayIncomeAmount = await repository.getTodayTotalAmount(
+      currentAccountBook.id,
       date,
       JournalType.income,
       projectId: projectId,
     );
     var todayExpenseAmount = await repository.getTodayTotalAmount(
+      currentAccountBook.id,
       date,
       JournalType.expense,
       projectId: projectId,
@@ -160,11 +173,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   Future<AmountWrapper> _updateDateAmountCache(DateTime date) async {
     var projectId = _getCurrentProjectId();
     var totalIncome = await repository.getMonthTotalAmount(
+      currentAccountBook.id,
       date,
       JournalType.income,
       projectId: projectId,
     );
     var totalExpense = await repository.getMonthTotalAmount(
+      currentAccountBook.id,
       date,
       JournalType.expense,
       projectId: projectId,
@@ -388,6 +403,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
             : currentLimitProject;
     var limitDate = currentLimitDate;
     var result = await repository.getPageJournal(
+      currentAccountBook.id,
       pageSize: pageSize,
       page: page,
       limitProject: limitProject,
@@ -404,11 +420,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       var hasCache = DateAmountCache().hasCache(date);
       if (!hasCache) {
         var totalIncome = await repository.getMonthTotalAmount(
+          currentAccountBook.id,
           date,
           JournalType.income,
           projectId: projectId,
         );
         var totalExpense = await repository.getMonthTotalAmount(
+          currentAccountBook.id,
           date,
           JournalType.expense,
           projectId: projectId,

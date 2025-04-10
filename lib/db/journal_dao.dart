@@ -38,43 +38,6 @@ class JournalDao {
     );
   }
 
-  //查询所有数据 按照日期倒序
-  Future<List<JournalBean>> queryAll() async {
-    final String tableName = JournalEntry.table;
-    final String projectTableName = JournalProjectEntry.table;
-
-    final List<String> columns = [
-      JournalEntry.tableColumnId,
-      JournalEntry.tableColumnType,
-      JournalEntry.tableColumnAmount,
-      JournalEntry.tableColumnDate,
-      JournalEntry.tableColumnDescription,
-      JournalEntry.tableColumnJournalProjectId,
-
-      '$projectTableName.${JournalProjectEntry.tableColumnName}',
-    ];
-    final List<String> selectFields =
-        columns
-            .map(
-              (column) => column.contains('.') ? column : '$tableName.$column',
-            )
-            .toList();
-
-    String sql = '''
-      SELECT 
-      ${selectFields.join(', ')}
-      FROM $tableName
-      JOIN
-      $projectTableName ON $tableName.${JournalEntry.tableColumnJournalProjectId} = $projectTableName.${JournalProjectEntry.tableColumnId}
-      ORDER BY $tableName.${JournalEntry.tableColumnDate} DESC
-    ''';
-    // 获取数据库实例
-    Database db = DatabaseHelper().db;
-    final List<Map<String, dynamic>> results = await db.rawQuery(sql);
-    print(results);
-    return results.map((e) => JournalBean.fromJson(e)).toList();
-  }
-
   //根据ID查询数据
   Future<JournalBean?> queryById(int id) async {
     final String tableName = JournalEntry.table;
@@ -87,6 +50,7 @@ class JournalDao {
       JournalEntry.tableColumnDate,
       JournalEntry.tableColumnDescription,
       JournalEntry.tableColumnJournalProjectId,
+      JournalEntry.tableColumnAccountBookId,
 
       '$projectTableName.${JournalProjectEntry.tableColumnName}',
     ];
@@ -132,6 +96,7 @@ class JournalDao {
 
   ///查询月份账单
   Future<List<JournalBean>> queryAllByMonth(
+    int accountBookId,
     DateTime limitDate,
     JournalType journalType, {
     int projectId = -1,
@@ -146,6 +111,7 @@ class JournalDao {
       JournalEntry.tableColumnDate,
       JournalEntry.tableColumnDescription,
       JournalEntry.tableColumnJournalProjectId,
+      JournalEntry.tableColumnAccountBookId,
 
       '$projectTableName.${JournalProjectEntry.tableColumnName}',
     ];
@@ -153,6 +119,10 @@ class JournalDao {
     // 动态构建 WHERE 子句
     List<String> whereClauses = [];
     List<Object?> arguments = [];
+
+    //账本ID筛选
+    whereClauses.add('${JournalEntry.tableColumnAccountBookId} = ?');
+    arguments.add(accountBookId);
 
     //类型筛选条件
     whereClauses.add('${JournalEntry.tableColumnType} = ?');
@@ -213,6 +183,7 @@ class JournalDao {
 
   ///查询每天账单
   Future<List<JournalBean>> queryAllByDay(
+    int accountBookId,
     DateTime limitDate,
     JournalType journalType,
   ) async {
@@ -226,6 +197,7 @@ class JournalDao {
       JournalEntry.tableColumnDate,
       JournalEntry.tableColumnDescription,
       JournalEntry.tableColumnJournalProjectId,
+      JournalEntry.tableColumnAccountBookId,
 
       '$projectTableName.${JournalProjectEntry.tableColumnName}',
     ];
@@ -233,6 +205,10 @@ class JournalDao {
     // 动态构建 WHERE 子句
     List<String> whereClauses = [];
     List<Object?> arguments = [];
+
+    //账本ID筛选
+    whereClauses.add('${JournalEntry.tableColumnAccountBookId} = ?');
+    arguments.add(accountBookId);
 
     //类型筛选条件
     whereClauses.add('${JournalEntry.tableColumnType} = ?');
@@ -293,7 +269,8 @@ class JournalDao {
   /// page: 分页
   /// limitDate: 限制日期
   /// limitProject: 限制分类
-  Future<List<JournalBean>> queryPager({
+  Future<List<JournalBean>> queryPager(
+    int accountBookId, {
     int pageSize = 20,
     int page = 1,
 
@@ -310,6 +287,7 @@ class JournalDao {
       JournalEntry.tableColumnDate,
       JournalEntry.tableColumnDescription,
       JournalEntry.tableColumnJournalProjectId,
+      JournalEntry.tableColumnAccountBookId,
 
       '$projectTableName.${JournalProjectEntry.tableColumnName}',
     ];
@@ -325,6 +303,10 @@ class JournalDao {
     // 动态构建 WHERE 子句
     List<String> whereClauses = [];
     List<Object?> arguments = [];
+
+    //账本ID筛选
+    whereClauses.add('${JournalEntry.tableColumnAccountBookId} = ?');
+    arguments.add(accountBookId);
 
     //类型筛选条件
     if (limitProject != null) {
@@ -378,6 +360,7 @@ class JournalDao {
 
   //查询当天总的金额
   Future<String> queryTodayTotalAmount(
+    int accountBookId,
     DateTime date,
     JournalType type, {
     int projectId = -1,
@@ -388,6 +371,10 @@ class JournalDao {
     // 动态构建 WHERE 子句
     List<String> whereClauses = [];
     List<Object?> arguments = [];
+
+    //账本ID筛选
+    whereClauses.add('${JournalEntry.tableColumnAccountBookId} = ?');
+    arguments.add(accountBookId);
 
     //类型筛选条件
     whereClauses.add('${JournalEntry.tableColumnType} = ?');
@@ -436,6 +423,7 @@ class JournalDao {
 
   //查询当月总的金额
   Future<String> queryMonthTotalAmount(
+    int accountBookId,
     DateTime date,
     JournalType type, {
     int projectId = -1,
@@ -446,6 +434,10 @@ class JournalDao {
     // 动态构建 WHERE 子句
     List<String> whereClauses = [];
     List<Object?> arguments = [];
+
+    //账本ID筛选
+    whereClauses.add('${JournalEntry.tableColumnAccountBookId} = ?');
+    arguments.add(accountBookId);
 
     //类型筛选条件
     whereClauses.add('${JournalEntry.tableColumnType} = ?');

@@ -1,6 +1,7 @@
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/bean/account_book_bean.dart';
 import '../../data/bean/filter_type.dart';
 import '../../data/repository/journal_month_repository.dart';
 import '../../data/repository/journal_repository.dart';
@@ -11,15 +12,19 @@ import 'filter_journal_state.dart';
 class FilterJournalBloc extends Bloc<FilterJournalEvent, FilterJournalState> {
   final JournalRepository repository;
   final FilterJournalScreenParams params;
+  AccountBookBean currentAccountBook;
 
-  FilterJournalBloc({required this.repository, required this.params})
-    : super(
-        FilterJournalState(
-          currentDate: params.date,
-          currentType: params.type,
-          projectBean: params.projectBean,
-        ),
-      ) {
+  FilterJournalBloc({
+    required this.repository,
+    required this.params,
+    required this.currentAccountBook,
+  }) : super(
+         FilterJournalState(
+           currentDate: params.date,
+           currentType: params.type,
+           projectBean: params.projectBean,
+         ),
+       ) {
     on<FilterJournalInitLoad>(_onInitLoad);
     on<FilterJournalReload>(_onReload);
     on<FilterJournalOnChangeFilterType>(_onChangeFilterType);
@@ -62,11 +67,13 @@ class FilterJournalBloc extends Bloc<FilterJournalEvent, FilterJournalState> {
     var type = state.currentType;
     var projectId = _getProjectId();
     var monthAmount = await repository.getMonthTotalAmount(
+      currentAccountBook.id,
       date,
       type,
       projectId: projectId,
     );
     var list = await repository.getMonthJournal(
+      currentAccountBook.id,
       date,
       type,
       projectId: projectId,

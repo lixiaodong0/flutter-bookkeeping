@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bookkeeping/app_bloc.dart';
 import 'package:bookkeeping/filter/bloc/filter_journal_bloc.dart';
 import 'package:bookkeeping/filter/bloc/filter_journal_event.dart';
 import 'package:bookkeeping/util/date_util.dart';
@@ -48,7 +49,9 @@ class _FilterJournalScreenState extends State<FilterJournalScreen> {
     _subscription = eventBus.on<JournalEvent>().listen((event) {
       if (event.journalBean.type == widget.params.type &&
           DateUtil.isSameMonth(event.journalBean.date, widget.params.date)) {
-        blocContext.currentContext?.read<FilterJournalBloc>().add(FilterJournalReload());
+        blocContext.currentContext?.read<FilterJournalBloc>().add(
+          FilterJournalReload(),
+        );
       }
     });
     super.initState();
@@ -66,6 +69,8 @@ class _FilterJournalScreenState extends State<FilterJournalScreen> {
     return BlocProvider(
       create:
           (context) => FilterJournalBloc(
+            currentAccountBook:
+                context.read<AppBloc>().state.currentAccountBook!,
             repository: context.read<JournalRepository>(),
             params: widget.params,
           )..add(FilterJournalInitLoad()),

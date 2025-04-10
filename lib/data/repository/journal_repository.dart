@@ -29,12 +29,8 @@ class JournalRepository implements JournalDataSource {
   }
 
   @override
-  Future<List<JournalBean>> getAllJournal() {
-    return _localDataSource.getAllJournal();
-  }
-
-  @override
-  Future<List<JournalBean>> getPageJournal({
+  Future<List<JournalBean>> getPageJournal(
+    int accountBookId, {
     int pageSize = 20,
     int page = 0,
     DateTime? limitDate,
@@ -42,6 +38,7 @@ class JournalRepository implements JournalDataSource {
   }) async {
     //分页数据
     List<JournalBean> result = await _localDataSource.getPageJournal(
+      accountBookId,
       pageSize: pageSize,
       page: page,
       limitDate: limitDate,
@@ -62,11 +59,13 @@ class JournalRepository implements JournalDataSource {
       for (var element in allDate) {
         var date = DateUtil.parse(element);
         var totalIncome = await getTodayTotalAmount(
+          accountBookId,
           date,
           JournalType.income,
           projectId: projectId,
         );
         var totalExpense = await getTodayTotalAmount(
+          accountBookId,
           date,
           JournalType.expense,
           projectId: projectId,
@@ -92,11 +91,13 @@ class JournalRepository implements JournalDataSource {
 
   @override
   Future<String> getTodayTotalAmount(
+    int accountBookId,
     DateTime date,
     JournalType type, {
     int projectId = -1,
   }) {
     return _localDataSource.getTodayTotalAmount(
+      accountBookId,
       date,
       type,
       projectId: projectId,
@@ -105,11 +106,13 @@ class JournalRepository implements JournalDataSource {
 
   @override
   Future<String> getMonthTotalAmount(
+    int accountBookId,
     DateTime date,
     JournalType type, {
     int projectId = -1,
   }) {
     return _localDataSource.getMonthTotalAmount(
+      accountBookId,
       date,
       type,
       projectId: projectId,
@@ -118,11 +121,13 @@ class JournalRepository implements JournalDataSource {
 
   @override
   Future<List<JournalBean>> getMonthJournal(
+    int accountBookId,
     DateTime limitDate,
     JournalType journalType, {
     int projectId = -1,
   }) {
     return _localDataSource.getMonthJournal(
+      accountBookId,
       limitDate,
       journalType,
       projectId: projectId,
@@ -131,10 +136,15 @@ class JournalRepository implements JournalDataSource {
 
   @override
   Future<List<JournalBean>> getDayJournal(
+    int accountBookId,
     DateTime limitDate,
     JournalType journalType,
   ) {
-    return _localDataSource.getDayJournal(limitDate, journalType);
+    return _localDataSource.getDayJournal(
+      accountBookId,
+      limitDate,
+      journalType,
+    );
   }
 
   @override

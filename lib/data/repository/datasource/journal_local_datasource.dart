@@ -27,13 +27,8 @@ class JournalLocalDataSource implements JournalDataSource {
   }
 
   @override
-  Future<List<JournalBean>> getAllJournal() async {
-    var results = await dao.queryAll();
-    return results;
-  }
-
-  @override
-  Future<List<JournalBean>> getPageJournal({
+  Future<List<JournalBean>> getPageJournal(
+    int accountBookId, {
     int pageSize = 20,
     int page = 1,
 
@@ -41,6 +36,7 @@ class JournalLocalDataSource implements JournalDataSource {
     JournalProjectBean? limitProject,
   }) async {
     var results = await dao.queryPager(
+      accountBookId,
       pageSize: pageSize,
       page: page,
       limitDate: limitDate,
@@ -51,37 +47,56 @@ class JournalLocalDataSource implements JournalDataSource {
 
   @override
   Future<String> getTodayTotalAmount(
+    int accountBookId,
     DateTime date,
     JournalType type, {
     int projectId = -1,
   }) {
-    return dao.queryTodayTotalAmount(date, type, projectId: projectId);
+    return dao.queryTodayTotalAmount(
+      accountBookId,
+      date,
+      type,
+      projectId: projectId,
+    );
   }
 
   @override
   Future<String> getMonthTotalAmount(
+    int accountBookId,
     DateTime date,
     JournalType type, {
     int projectId = -1,
   }) {
-    return dao.queryMonthTotalAmount(date, type, projectId: projectId);
+    return dao.queryMonthTotalAmount(
+      accountBookId,
+      date,
+      type,
+      projectId: projectId,
+    );
   }
 
   @override
   Future<List<JournalBean>> getMonthJournal(
+    int accountBookId,
     DateTime limitDate,
     JournalType journalType, {
     int projectId = -1,
   }) {
-    return dao.queryAllByMonth(limitDate, journalType, projectId: projectId);
+    return dao.queryAllByMonth(
+      accountBookId,
+      limitDate,
+      journalType,
+      projectId: projectId,
+    );
   }
 
   @override
   Future<List<JournalBean>> getDayJournal(
+    int accountBookId,
     DateTime limitDate,
     JournalType journalType,
   ) {
-    return dao.queryAllByDay(limitDate, journalType);
+    return dao.queryAllByDay(accountBookId, limitDate, journalType);
   }
 
   @override

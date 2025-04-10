@@ -1,5 +1,6 @@
 import 'package:bookkeeping/data/bean/journal_project_bean.dart';
 
+import '../../data/bean/account_book_bean.dart';
 import '../../eventbus/journal_event.dart';
 
 sealed class TransactionEvent {
@@ -56,4 +57,10 @@ final class TransactionOnJournalEvent extends TransactionEvent {
   const TransactionOnJournalEvent({required this.event});
 
   final JournalEvent event;
+}
+
+class TransactionUpdateAccountBook extends TransactionEvent {
+  final AccountBookBean accountBookBean;
+
+  const TransactionUpdateAccountBook({required this.accountBookBean});
 }

@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 
@@ -21,6 +22,7 @@ class StatisticsOnSwitchType extends StatisticsEvent {
 
 class StatisticsOnShowDatePicker extends StatisticsEvent {
   final int accountBookId;
+
   const StatisticsOnShowDatePicker(this.accountBookId);
 }
 

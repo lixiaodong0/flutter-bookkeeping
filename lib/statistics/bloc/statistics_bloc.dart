@@ -12,6 +12,7 @@ import 'package:bookkeeping/util/format_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/bean/account_book_bean.dart';
 import '../../data/bean/journal_month_bean.dart';
 import '../../util/date_util.dart';
 import '../statistics_chart.dart';
@@ -20,8 +21,13 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   final JournalRepository repository;
   final JournalMonthRepository monthRepository;
 
-  StatisticsBloc({required this.repository, required this.monthRepository})
-    : super(StatisticsState(currentDate: DateTime.now())) {
+  AccountBookBean currentAccountBook;
+
+  StatisticsBloc({
+    required this.currentAccountBook,
+    required this.repository,
+    required this.monthRepository,
+  }) : super(StatisticsState(currentDate: DateTime.now())) {
     on<StatisticsInitLoad>(_onInitLoad);
     on<StatisticsReload>(_onReload);
     on<StatisticsOnSwitchType>(_onSwitchType);
@@ -63,6 +69,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     JournalType journalType,
   ) async {
     List<JournalBean> list = await repository.getMonthJournal(
+      currentAccountBook.id,
       currentDate,
       journalType,
     );
@@ -76,7 +83,11 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     DateTime currentDate,
     JournalType journalType,
   ) async {
-    return repository.getDayJournal(currentDate, journalType);
+    return repository.getDayJournal(
+      currentAccountBook.id,
+      currentDate,
+      journalType,
+    );
   }
 
   void _onExpandedChange(
@@ -189,7 +200,11 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     var startTime = endTime;
     List<DayChartData> list = [];
     for (var index = 0; index < 30; index++) {
-      var todayAmount = await repository.getTodayTotalAmount(startTime, type);
+      var todayAmount = await repository.getTodayTotalAmount(
+        currentAccountBook.id,
+        startTime,
+        type,
+      );
       list.insert(0, DayChartData(startTime, num.parse(todayAmount)));
       startTime = startTime.subtract(Duration(days: 1));
     }
@@ -203,11 +218,13 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     var currentType = state.currentType;
 
     var currentMonthAmount = await repository.getMonthTotalAmount(
+      currentAccountBook.id,
       currentDate,
       currentType,
     );
 
     var monthJournal = await repository.getMonthJournal(
+      currentAccountBook.id,
       currentDate,
       currentType,
     );
@@ -268,6 +285,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
         findFormatDate = startDate;
       }
       var monthAmount = await repository.getMonthTotalAmount(
+        currentAccountBook.id,
         startDate,
         currentType,
       );

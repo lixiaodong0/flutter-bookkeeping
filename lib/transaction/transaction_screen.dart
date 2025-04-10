@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bookkeeping/app_bloc.dart';
 import 'package:bookkeeping/detail/detail_journal_screen.dart';
 import 'package:bookkeeping/eventbus/eventbus.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_bloc.dart';
@@ -74,6 +75,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
     return BlocProvider(
       create:
           (context) => TransactionBloc(
+            currentAccountBook:
+                context.read<AppBloc>().state.currentAccountBook!,
             repository: context.read<JournalRepository>(),
             projectRepository: context.read<JournalProjectRepository>(),
             monthRepository: context.read<JournalMonthRepository>(),

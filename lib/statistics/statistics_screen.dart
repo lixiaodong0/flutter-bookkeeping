@@ -16,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../app_bloc.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_repository.dart';
 import '../eventbus/eventbus.dart';
@@ -62,6 +63,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return BlocProvider(
       create:
           (context) => StatisticsBloc(
+            currentAccountBook:
+                context.read<AppBloc>().state.currentAccountBook!,
             repository: context.read<JournalRepository>(),
             monthRepository: context.read<JournalMonthRepository>(),
           )..add(StatisticsInitLoad()),
