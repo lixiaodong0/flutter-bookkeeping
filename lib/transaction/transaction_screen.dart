@@ -182,6 +182,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Widget _buildHeader(BuildContext context, TransactionState state) {
     return Container(
+      width: double.infinity,
       height: 150,
       color: Colors.green,
       child: buildTopBarContent(context, state),

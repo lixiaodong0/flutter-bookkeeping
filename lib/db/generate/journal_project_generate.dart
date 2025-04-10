@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/db/model/account_book_entry.dart';
 import 'package:bookkeeping/db/model/journal_project_entry.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -9,7 +10,15 @@ final class JournalProjectGenerate {
     var table = JournalProjectEntry.table;
     _generateIncomeProjects(batch, table);
     _generateExpenseProjects(batch, table);
+    _generateSystemAccountBook(batch);
     batch.commit();
+  }
+
+  static _generateSystemAccountBook(Batch db) {
+    String table = AccountBookEntry.table;
+    db.rawInsert(
+      'INSERT INTO $table(${AccountBookEntry.tableColumnName}, ${AccountBookEntry.tableColumnCreateDate}, ${AccountBookEntry.tableColumnDescription}, ${AccountBookEntry.tableColumnSysDefault}, ${AccountBookEntry.tableColumnShow}) VALUES("默认账本","${DateTime.now().toIso8601String()}","系统默认",1,1)',
+    );
   }
 
   static _generateIncomeProjects(Batch db, String table) {

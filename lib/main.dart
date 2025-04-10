@@ -1,8 +1,12 @@
+import 'package:bookkeeping/app_bloc.dart';
 import 'package:bookkeeping/cache/picker_date_cache.dart';
+import 'package:bookkeeping/data/repository/account_book_repository.dart';
+import 'package:bookkeeping/data/repository/datasource/account_book_local_datasource.dart';
 import 'package:bookkeeping/data/repository/datasource/journal_month_local_datasource.dart';
 import 'package:bookkeeping/data/repository/datasource/journal_project_local_datasource.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
+import 'package:bookkeeping/db/account_book_dao.dart';
 import 'package:bookkeeping/db/database.dart';
 import 'package:bookkeeping/db/journal_month_dao.dart';
 import 'package:bookkeeping/db/journal_project_dao.dart';
@@ -88,8 +92,29 @@ class MyApp extends StatelessWidget {
                 ),
               ),
         ),
+        RepositoryProvider(
+          create:
+              (context) => AccountBookRepository(
+                localDataSource: AccountBookLocalDataSource(
+                  dao: AccountBookDao(),
+                ),
+              ),
+        ),
       ],
-      child: MaterialApp.router(routerConfig: _router),
+      child: BlocProvider(
+        create:
+            (context) => AppBloc(
+              accountBookRepository: context.read<AccountBookRepository>(),
+            )..add(AppInitLoad()),
+        child: BlocBuilder<AppBloc, AppState>(
+          builder: (context, state) {
+            if (state.currentAccountBook != null) {
+              return MaterialApp.router(routerConfig: _router);
+            }
+            return Container();
+          },
+        ),
+      ),
     );
   }
 }

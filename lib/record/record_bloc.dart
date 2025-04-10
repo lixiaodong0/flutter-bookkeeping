@@ -202,6 +202,11 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         return amount.substring(0, index + 3);
       }
     }
+
+    //处理位数
+    if (amount.length > 9) {
+      return amount.substring(0, 9);
+    }
     return amount;
   }
 

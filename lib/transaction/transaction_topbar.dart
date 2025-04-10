@@ -1,6 +1,10 @@
+import 'package:bookkeeping/app_bloc.dart';
+import 'package:bookkeeping/data/bean/account_book_bean.dart';
+import 'package:bookkeeping/data/repository/account_book_repository.dart';
 import 'package:bookkeeping/transaction/bloc/transaction_event.dart';
 import 'package:bookkeeping/util/format_util.dart';
 import 'package:bookkeeping/widget/clickable_widget.dart';
+import 'package:bookkeeping/widget/create_account_book_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,27 +12,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/bean/journal_project_bean.dart';
 import '../data/bean/journal_type.dart';
 import '../widget/month_picker_widget.dart';
+import '../widget/switch_account_book_button.dart';
 import 'bloc/transaction_bloc.dart';
 import 'bloc/transaction_state.dart';
 
 Widget buildTopBarContent(BuildContext context, TransactionState state) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.start,
-    crossAxisAlignment: CrossAxisAlignment.start,
+  return Stack(
     children: [
-      Spacer(),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: _currentTypeContainer(context, state.currentProject),
+      Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Spacer(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: _currentTypeContainer(context, state.currentProject),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 4, left: 24, top: 4),
+            child: _currentDateAmountContainer(
+              context,
+              state.currentProject,
+              state.currentDate,
+              state.dateMonthIncome,
+              state.dateMonthExpense,
+            ),
+          ),
+        ],
       ),
-      Padding(
-        padding: EdgeInsets.only(bottom: 4, left: 24, top: 4),
-        child: _currentDateAmountContainer(
-          context,
-          state.currentProject,
-          state.currentDate,
-          state.dateMonthIncome,
-          state.dateMonthExpense,
+      Positioned(
+        top: 0,
+        right: 0,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+          child: _currentAccountBookContainer(context),
         ),
       ),
     ],
@@ -115,5 +132,28 @@ Widget _currentDateAmountContainer(
           style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
         ),
     ],
+  );
+}
+
+Widget _currentAccountBookContainer(BuildContext context) {
+  return BlocBuilder<AppBloc, AppState>(
+    builder: (context, appState) {
+      return SwitchAccountBookButton(
+        currentAccountBook: appState.currentAccountBook!,
+        allAccountBooks: appState.allAccountBooks,
+        onSwitchCallback: (data) {
+          context.read<AppBloc>().add(AppUpdateCurrentAccountBook(data));
+        },
+        onCreateCallback: () {
+          CreateAccountBookDialog.showDialog(
+            context,
+            context.read<AccountBookRepository>(),
+            onCreateSuccessCallback: (data) {
+              context.read<AppBloc>().add(AppCreateNewAccountBook(data));
+            },
+          );
+        },
+      );
+    },
   );
 }

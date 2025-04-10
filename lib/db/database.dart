@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:bookkeeping/db/journal_dao.dart';
+import 'package:bookkeeping/db/model/account_book_entry.dart';
 import 'package:bookkeeping/db/model/journal_entry.dart';
 import 'package:bookkeeping/db/model/journal_month_entry.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,6 +33,7 @@ class DatabaseHelper {
         var start = DateTime.now().millisecondsSinceEpoch;
         //数据库创建
         log("database onCreate");
+        db.execute(AccountBookEntry.createTableSql());
         db.execute(JournalEntry.createTableSql());
         db.execute(JournalProjectEntry.createTableSql());
         db.execute(JournalMonthEntry.createTableSql());
