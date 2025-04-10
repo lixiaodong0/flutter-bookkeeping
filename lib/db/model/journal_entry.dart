@@ -10,6 +10,7 @@ final class JournalEntry {
   final DateTime date;
   final String? description;
   final int journalProjectId;
+  final int accountBookId;
 
   JournalEntry({
     this.id,
@@ -18,6 +19,7 @@ final class JournalEntry {
     required this.date,
     this.description,
     required this.journalProjectId,
+    required this.accountBookId,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,6 +30,7 @@ final class JournalEntry {
       tableColumnDate: date.toIso8601String(),
       tableColumnDescription: description,
       tableColumnJournalProjectId: journalProjectId,
+      tableColumnAccountBookId: accountBookId,
     };
   }
 
@@ -38,6 +41,7 @@ final class JournalEntry {
   static final tableColumnDate = "date";
   static final tableColumnDescription = "description";
   static final tableColumnJournalProjectId = "journal_project_id";
+  static final tableColumnAccountBookId = "account_book_id";
 
   static String createTableSql() {
     return '''
@@ -47,6 +51,7 @@ final class JournalEntry {
         $tableColumnAmount TEXT NOT NULL,
         $tableColumnDate TEXT NOT NULL,
         $tableColumnDescription TEXT,
+        $tableColumnJournalProjectId INTEGER NOT NULL,
         $tableColumnJournalProjectId INTEGER NOT NULL,
         FOREIGN KEY ($tableColumnJournalProjectId) REFERENCES ${JournalProjectEntry.table} (id)
       )

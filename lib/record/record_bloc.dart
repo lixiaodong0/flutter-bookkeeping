@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:bloc/bloc.dart';
+import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/repository/journal_month_repository.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/db/model/journal_month_entry.dart';
@@ -19,12 +20,14 @@ import '../db/model/journal_entry.dart';
 import '../widget/keyboard_widget.dart';
 
 class RecordBloc extends Bloc<RecordEvent, RecordState> {
+  final AccountBookBean currentAccountBook;
   final JournalRepository repository;
   final JournalProjectRepository projectRepository;
   final JournalMonthRepository monthRepository;
   final JournalBean? edit;
 
   RecordBloc({
+    required this.currentAccountBook,
     required this.repository,
     required this.projectRepository,
     required this.monthRepository,
@@ -236,6 +239,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     }
     var now = state.currentDate ?? DateTime.now();
     var entry = JournalEntry(
+      accountBookId: currentAccountBook.id,
       amount: amount.toString(),
       type: state.journalType.name,
       date: now,
@@ -262,7 +266,12 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       }
     }
     await monthRepository.addJournalMonth(
-      JournalMonthEntry(year: now.year, month: now.month, maxDay: now.day),
+      JournalMonthEntry(
+        year: now.year,
+        month: now.month,
+        maxDay: now.day,
+        accountBookId: currentAccountBook.id,
+      ),
     );
     emit(state.copyWith(confirmStatus: RecordFinishStatus.success));
   }

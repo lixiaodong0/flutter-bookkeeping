@@ -1,3 +1,5 @@
+import 'package:bookkeeping/app_bloc.dart';
+import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/repository/journal_project_repository.dart';
 import 'package:bookkeeping/record/record_bloc.dart';
@@ -28,6 +30,7 @@ class RecordDialog extends StatelessWidget {
     JournalBean? edit,
     OnRecordSuccessFunction? onSuccess,
   }) {
+    var currentAccountBook = context.read<AppBloc>().state.currentAccountBook;
     var rootContext = Navigator.of(context, rootNavigator: true).context;
     showModalBottomSheet(
       context: rootContext,
@@ -40,6 +43,7 @@ class RecordDialog extends StatelessWidget {
         return BlocProvider(
           create:
               (context) => RecordBloc(
+                currentAccountBook: currentAccountBook!,
                 repository: context.read<JournalRepository>(),
                 projectRepository: context.read<JournalProjectRepository>(),
                 monthRepository: context.read<JournalMonthRepository>(),

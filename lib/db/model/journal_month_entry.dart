@@ -7,12 +7,14 @@ final class JournalMonthEntry {
   final int year;
   final int month;
   final int maxDay;
+  final int accountBookId;
 
   JournalMonthEntry({
     this.id,
     required this.year,
     required this.month,
     required this.maxDay,
+    required this.accountBookId,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,6 +23,7 @@ final class JournalMonthEntry {
       tableColumnYear: year,
       tableColumnMonth: month,
       tableColumnMaxDay: maxDay,
+      tableColumnAccountBookId: accountBookId,
     };
   }
 
@@ -29,6 +32,7 @@ final class JournalMonthEntry {
   static final tableColumnYear = "year";
   static final tableColumnMonth = "month";
   static final tableColumnMaxDay = "max_day";
+  static final tableColumnAccountBookId = "account_book_id";
 
   static String createTableSql() {
     return '''
@@ -36,7 +40,8 @@ final class JournalMonthEntry {
         $tableColumnId INTEGER PRIMARY KEY AUTOINCREMENT,
         $tableColumnYear INTEGER NOT NULL,
         $tableColumnMonth INTEGER NOT NULL,
-        $tableColumnMaxDay INTEGER NOT NULL
+        $tableColumnMaxDay INTEGER NOT NULL,
+        $tableColumnAccountBookId INTEGER NOT NULL
       )
     ''';
   }
