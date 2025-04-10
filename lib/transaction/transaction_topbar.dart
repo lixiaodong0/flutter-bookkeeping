@@ -147,6 +147,9 @@ Widget _currentAccountBookContainer(BuildContext context) {
         allAccountBooks: appState.allAccountBooks,
         onSwitchCallback: (data) {
           context.read<AppBloc>().add(AppUpdateCurrentAccountBook(data));
+          context.read<TransactionBloc>().add(
+            TransactionUpdateAccountBook(accountBookBean: data),
+          );
         },
         onCreateCallback: () {
           CreateAccountBookDialog.showDialog(

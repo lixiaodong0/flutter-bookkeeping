@@ -52,7 +52,7 @@ final class JournalEntry {
         $tableColumnDate TEXT NOT NULL,
         $tableColumnDescription TEXT,
         $tableColumnJournalProjectId INTEGER NOT NULL,
-        $tableColumnJournalProjectId INTEGER NOT NULL,
+        $tableColumnAccountBookId INTEGER NOT NULL,
         FOREIGN KEY ($tableColumnJournalProjectId) REFERENCES ${JournalProjectEntry.table} (id)
       )
     ''';

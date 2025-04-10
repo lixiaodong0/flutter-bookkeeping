@@ -54,6 +54,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     if (newCurrentAccountBook.id == state.currentAccountBook?.id) {
       return;
     }
+
+    await accountBookRepository.setCurrentShowId(newCurrentAccountBook.id);
+
     List<AccountBookBean> allAccountBooks = [];
     allAccountBooks.addAll(state.allAccountBooks);
     for (var item in allAccountBooks) {

@@ -60,8 +60,16 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionUpdateAccountBook event,
     Emitter<TransactionState> emit,
   ) async {
-    //todo 这里更新操作
-
+    currentLimitDate = DateTime.now();
+    currentAccountBook = event.accountBookBean;
+    currentLimitProject = JournalProjectBean.allItemBean();
+    await _refresh(
+      emit,
+      TransactionState(
+        currentDate: DateTime.now(),
+        currentProject: JournalProjectBean.allItemBean(),
+      ),
+    );
   }
 
   int _findIndexById(List<JournalBean> list, int id) {

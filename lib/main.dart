@@ -111,7 +111,7 @@ class MyApp extends StatelessWidget {
             if (state.currentAccountBook != null) {
               return MaterialApp.router(routerConfig: _router);
             }
-            return Container();
+            return MaterialApp(home: Scaffold());
           },
         ),
       ),
