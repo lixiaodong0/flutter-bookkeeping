@@ -1,3 +1,4 @@
+import 'package:bookkeeping/app_bloc.dart';
 import 'package:bookkeeping/util/format_util.dart';
 import 'package:bookkeeping/widget/clickable_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,7 +55,11 @@ Widget buildStatisticsHeader(BuildContext context, StatisticsState state) {
 Widget _buildDateSwitchContainer(BuildContext context, DateTime? current) {
   return TextButton(
     onPressed: () {
-      context.read<StatisticsBloc>().add(StatisticsOnShowDatePicker());
+      var currentAccountBook =
+          context.read<AppBloc>().state.currentAccountBook!;
+      context.read<StatisticsBloc>().add(
+        StatisticsOnShowDatePicker(currentAccountBook.id),
+      );
     },
     style: TextButton.styleFrom(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),

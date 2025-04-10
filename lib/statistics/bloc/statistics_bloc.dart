@@ -103,7 +103,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     StatisticsOnShowDatePicker event,
     Emitter<StatisticsState> emit,
   ) async {
-    var result = await monthRepository.getAllJournalMonth();
+    var result = await monthRepository.getAllJournalMonth(event.accountBookId);
 
     Map<int, List<JournalMonthBean>> map = {};
     for (var item in result) {

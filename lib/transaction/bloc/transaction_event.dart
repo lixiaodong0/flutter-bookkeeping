@@ -19,7 +19,9 @@ final class TransactionOnScrollChange extends TransactionEvent {
 }
 
 final class TransactionShowMonthPicker extends TransactionEvent {
-  TransactionShowMonthPicker();
+  final int accountBookId;
+
+  const TransactionShowMonthPicker(this.accountBookId);
 }
 
 final class TransactionCloseMonthPicker extends TransactionEvent {

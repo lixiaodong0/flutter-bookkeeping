@@ -209,7 +209,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     TransactionShowMonthPicker event,
     Emitter<TransactionState> emit,
   ) async {
-    var result = await monthRepository.getAllJournalMonth();
+    var result = await monthRepository.getAllJournalMonth(event.accountBookId);
 
     Map<int, List<JournalMonthBean>> map = {};
     for (var item in result) {

@@ -20,7 +20,8 @@ class StatisticsOnSwitchType extends StatisticsEvent {
 }
 
 class StatisticsOnShowDatePicker extends StatisticsEvent {
-  const StatisticsOnShowDatePicker();
+  final int accountBookId;
+  const StatisticsOnShowDatePicker(this.accountBookId);
 }
 
 class StatisticsOnCloseDatePicker extends StatisticsEvent {

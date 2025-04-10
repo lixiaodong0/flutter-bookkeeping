@@ -16,7 +16,7 @@ class JournalMonthRepository implements JournalMonthDataSource {
   }
 
   @override
-  Future<List<JournalMonthBean>> getAllJournalMonth() {
-    return _localDataSource.getAllJournalMonth();
+  Future<List<JournalMonthBean>> getAllJournalMonth(int accountBookId) {
+    return _localDataSource.getAllJournalMonth(accountBookId);
   }
 }

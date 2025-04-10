@@ -42,10 +42,12 @@ class JournalMonthDao {
   }
 
   //查询所有数据
-  Future<List<JournalMonthBean>> queryAll() async {
+  Future<List<JournalMonthBean>> queryAll(int accountBookId) async {
     Database db = DatabaseHelper().db;
     final List<Map<String, dynamic>> results = await db.query(
       JournalMonthEntry.table,
+      where: '${JournalMonthEntry.tableColumnAccountBookId} = ?',
+      whereArgs: [accountBookId],
     );
     return results.map((e) => JournalMonthBean.fromJson(e)).toList();
   }

@@ -15,7 +15,7 @@ class JournalMonthLocalDataSource implements JournalMonthDataSource {
   }
 
   @override
-  Future<List<JournalMonthBean>> getAllJournalMonth() {
-    return dao.queryAll();
+  Future<List<JournalMonthBean>> getAllJournalMonth(int accountBookId) {
+    return dao.queryAll(accountBookId);
   }
 }

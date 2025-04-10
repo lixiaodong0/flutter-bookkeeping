@@ -104,7 +104,11 @@ Widget _currentDateAmountContainer(
         width: 86,
         height: 26,
         onPressed: () {
-          context.read<TransactionBloc>().add(TransactionShowMonthPicker());
+          var currentAccountBook =
+              context.read<AppBloc>().state.currentAccountBook!;
+          context.read<TransactionBloc>().add(
+            TransactionShowMonthPicker(currentAccountBook.id),
+          );
         },
         child: Row(
           children: [
