@@ -225,7 +225,7 @@ class JournalDao {
         DateTime(
           limitDate.year,
           limitDate.month,
-          DateUtil.calculateMonthDays(limitDate.year, limitDate.month),
+          limitDate.day,
           23,
           59,
           59,
