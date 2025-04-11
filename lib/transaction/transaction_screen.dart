@@ -70,6 +70,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
     super.dispose();
   }
 
+  Future<void> _reload(BuildContext context) async {
+    context.read<TransactionBloc>().add(TransactionReload());
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -144,7 +148,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   RecordDialog.showRecordDialog(
                     context,
                     onSuccess: () {
-                      context.read<TransactionBloc>().add(TransactionReload());
+                      _reload(context);
                     },
                   );
                 },
@@ -193,52 +197,61 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   Widget _buildTransactionList(BuildContext context, TransactionState state) {
-    return ScrollablePositionedList.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      itemPositionsListener: itemPositionsListener,
-      itemCount: state.lists.length,
-      itemBuilder: (context, index) {
-        var item = state.lists[index];
-        var currentDate = item.dailyAmount?.date ?? "";
-        var previousDate = "";
-        var previousIndex = index - 1;
-        if (previousIndex >= 0) {
-          previousDate = state.lists[previousIndex].dailyAmount?.date ?? "";
-        }
-
-        var nextDate = "";
-        var nextIndex = index + 1;
-        if (nextIndex < state.lists.length) {
-          nextDate = state.lists[nextIndex].dailyAmount?.date ?? "";
-        }
-
-        List<Widget> children = [];
-        //渲染头部
-        if (currentDate != previousDate && item.dailyAmount != null) {
-          children.add(
-            buildTransactionHeader(context, item.dailyAmount!, index == 0),
-          );
-        }
-        //渲染Item
-        children.add(
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              DetailJournalScreenRoute.launch(context, item.id);
-            },
-            child: buildTransactionItem(
-              context,
-              item.type,
-              item.journalProjectName,
-              item.amount,
-              item.date,
-              isLastItem: nextDate != currentDate,
-              desc: item.description ?? "",
-            ),
-          ),
-        );
-        return Column(children: children);
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: Colors.green,
+      elevation: 1,
+      onRefresh: () {
+        _reload(context);
+        return Future.delayed(Duration(seconds: 1), () {});
       },
+      child: ScrollablePositionedList.builder(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        itemPositionsListener: itemPositionsListener,
+        itemCount: state.lists.length,
+        itemBuilder: (context, index) {
+          var item = state.lists[index];
+          var currentDate = item.dailyAmount?.date ?? "";
+          var previousDate = "";
+          var previousIndex = index - 1;
+          if (previousIndex >= 0) {
+            previousDate = state.lists[previousIndex].dailyAmount?.date ?? "";
+          }
+
+          var nextDate = "";
+          var nextIndex = index + 1;
+          if (nextIndex < state.lists.length) {
+            nextDate = state.lists[nextIndex].dailyAmount?.date ?? "";
+          }
+
+          List<Widget> children = [];
+          //渲染头部
+          if (currentDate != previousDate && item.dailyAmount != null) {
+            children.add(
+              buildTransactionHeader(context, item.dailyAmount!, index == 0),
+            );
+          }
+          //渲染Item
+          children.add(
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                DetailJournalScreenRoute.launch(context, item.id);
+              },
+              child: buildTransactionItem(
+                context,
+                item.type,
+                item.journalProjectName,
+                item.amount,
+                item.date,
+                isLastItem: nextDate != currentDate,
+                desc: item.description ?? "",
+              ),
+            ),
+          );
+          return Column(children: children);
+        },
+      ),
     );
   }
 }
