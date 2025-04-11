@@ -109,9 +109,15 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       if (findIndex != -1) {
         var oldBean = origin[findIndex];
         var newBean = journalBean;
-        newBean.dailyAmount = oldBean.dailyAmount;
-        origin[findIndex] = newBean;
-        await _startUpdate(origin, origin[findIndex], emit);
+        if (newBean.date.millisecond == oldBean.date.millisecond) {
+          //时间段相同情况，动态更新
+          newBean.dailyAmount = oldBean.dailyAmount;
+          origin[findIndex] = newBean;
+          await _startUpdate(origin, origin[findIndex], emit);
+        } else {
+          //时间段不相同情况，比较复杂，要考虑两个时间端的金额变更，头部金额变更。这里简单点，直接刷新数据
+          await _refresh(emit, state);
+        }
       }
       return;
     }
