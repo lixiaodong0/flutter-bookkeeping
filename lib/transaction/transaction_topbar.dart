@@ -124,17 +124,30 @@ Widget _currentDateAmountContainer(
           ],
         ),
       ),
-      if (isShowMonthExpense)
-        Text(
-          "$projectName总支出¥${FormatUtil.formatAmount(monthExpense)}",
-          style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
+      Expanded(
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 2,
+          children: [
+            if (isShowMonthExpense)
+              Text(
+                "$projectName总支出¥${FormatUtil.formatAmount(monthExpense)}",
+                style: TextStyle(
+                  color: Colors.white.withAlpha(200),
+                  fontSize: 12,
+                ),
+              ),
+            if (isShowMonthIncome)
+              Text(
+                "$projectName总入账¥${FormatUtil.formatAmount(monthIncome)}",
+                style: TextStyle(
+                  color: Colors.white.withAlpha(200),
+                  fontSize: 12,
+                ),
+              ),
+          ],
         ),
-      if (isAllType) Padding(padding: EdgeInsets.only(left: 8)),
-      if (isShowMonthIncome)
-        Text(
-          "$projectName总入账¥${FormatUtil.formatAmount(monthIncome)}",
-          style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 12),
-        ),
+      ),
     ],
   );
 }

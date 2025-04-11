@@ -63,20 +63,17 @@ Widget buildTransactionHeader(
     ),
     child: Row(
       children: [
-        Expanded(
-          child: Row(
-            children: [
-              Text(
-                dateStr,
-                style: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-            ],
-          ),
+        Row(
+          children: [
+            Text(dateStr, style: TextStyle(fontSize: 16, color: Colors.black)),
+          ],
         ),
         Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          child: Wrap(
+            alignment: WrapAlignment.end,
             spacing: 8,
+            runSpacing: 2,
+            direction: Axis.horizontal,
             children: amountUnitChildren,
           ),
         ),
@@ -87,6 +84,7 @@ Widget buildTransactionHeader(
 
 Widget _amountUnitContainer(String unit, String amount) {
   return Row(
+    mainAxisSize: MainAxisSize.min,
     children: [
       Container(
         width: 20,
@@ -183,7 +181,7 @@ Widget buildTransactionItem(
                 ],
               ),
             ),
-            Spacer()
+            Spacer(),
           ],
         ),
         Align(

@@ -111,7 +111,7 @@ Widget _projectRankingListItem(
           ),
           SizedBox(width: 8),
           SizedBox(
-            width: 100,
+            width: 80,
             child: Text(
               projectName,
               style: TextStyle(fontSize: 14, color: Colors.black),
@@ -126,15 +126,20 @@ Widget _projectRankingListItem(
               valueColor: AlwaysStoppedAnimation(progressColor),
             ),
           ),
+          SizedBox(width: 8),
           SizedBox(
             width: 100,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "¥${FormatUtil.formatAmount(data.amount.toString())}",
-                  style: TextStyle(fontSize: 14, color: Colors.black),
+                Expanded(
+                  child: Text(
+                    "¥${FormatUtil.formatAmountWanYuan(data.amount.toString())}",
+                    style: TextStyle(fontSize: 14, color: Colors.black),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Icon(Icons.navigate_next_rounded, color: Colors.grey, size: 14),
               ],

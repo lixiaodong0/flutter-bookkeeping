@@ -90,9 +90,14 @@ class ChartBehaviorProvider {
                       "${DateUtil.formatMonthDay(chartData.date)}共$title",
                       style: TextStyle(color: Colors.white, fontSize: 10),
                     ),
-                    Text(
-                      "¥${FormatUtil.formatAmount(chartData.amount.toString())}",
-                      style: TextStyle(color: color, fontSize: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 80),
+                      child: Text(
+                        "¥${FormatUtil.formatAmount(chartData.amount.toString())}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: color, fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
