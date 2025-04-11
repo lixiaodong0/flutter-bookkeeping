@@ -1,5 +1,6 @@
 import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/repository/account_book_repository.dart';
+import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,6 +55,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     if (newCurrentAccountBook.id == state.currentAccountBook?.id) {
       return;
     }
+    showSuccessActionToast("已切换到${newCurrentAccountBook.name}");
 
     await accountBookRepository.setCurrentShowId(newCurrentAccountBook.id);
 

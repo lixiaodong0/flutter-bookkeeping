@@ -14,6 +14,7 @@ import 'package:bookkeeping/detail/detail_journal_screen.dart';
 import 'package:bookkeeping/filter/filter_journal_screen.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
+import 'package:bookkeeping/util/toast_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -27,8 +28,6 @@ void main() async {
   runApp(const MyApp());
   PickerDateCache().create();
 }
-
-final GlobalKey toastGlobalContext = GlobalKey();
 
 final GoRouter _router = GoRouter(
   initialLocation: "/transaction",
@@ -127,7 +126,7 @@ class _ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: toastGlobalContext,
+      key: ToastManager().toastGlobalContext,
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,

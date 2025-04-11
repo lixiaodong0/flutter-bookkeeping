@@ -10,6 +10,7 @@ import 'package:bookkeeping/eventbus/journal_event.dart';
 import 'package:bookkeeping/record/record_event.dart';
 import 'package:bookkeeping/record/record_state.dart';
 import 'package:bookkeeping/util/toast_util.dart';
+import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../data/bean/journal_bean.dart';
@@ -174,11 +175,19 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         if (newAmount.isEmpty) {
           return;
         }
-        newAmount = newAmount.substring(0, newAmount.length - 1);
+        if (newAmount.length != 1) {
+          newAmount = newAmount.substring(0, newAmount.length - 1);
+        } else {
+          newAmount = "";
+        }
         break;
       case KeyCode.confirm:
     }
     newAmount = _validAmount(newAmount);
+    if (newAmount.isNotEmpty && num.parse(newAmount) > 1000000) {
+      showErrorActionToast("输入金额不能大于1,000,000");
+      return;
+    }
     emit(
       state.copyWith(
         inputAmount: newAmount,
@@ -205,11 +214,6 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         return amount.substring(0, index + 3);
       }
     }
-
-    //处理位数
-    if (amount.length > 9) {
-      return amount.substring(0, 9);
-    }
     return amount;
   }
 
@@ -223,18 +227,18 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       return;
     }
     if (inputAmount == "0." || inputAmount == "0") {
-      showToast("所输入金额不得小于0.01");
+      showErrorActionToast("所输入金额不得小于0");
       return;
     }
     var amount = num.parse(inputAmount);
     print("amount:${amount}");
     if (amount < 0.01) {
-      showToast("所输入金额不得小于0.01");
+      showErrorActionToast("所输入金额不得小于0.01");
       return;
     }
     var currentProject = state.currentProject;
     if (currentProject == null) {
-      showToast("请选择服务分类");
+      showErrorActionToast("请选择服务分类");
       return;
     }
     var now = state.currentDate ?? DateTime.now();
@@ -255,6 +259,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         await repository.updateJournal(entry);
         var journalBean = await repository.getJournal(edit!.id);
         JournalEvent.publishUpdateEvent(journalBean!);
+        showSuccessActionToast("更新成功");
       }
     } else {
       var id = await repository.addJournal(entry);
@@ -263,6 +268,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         //添加成功
         var journalBean = await repository.getJournal(id);
         JournalEvent.publishAddEvent(journalBean!);
+        showSuccessActionToast("已记一笔");
       }
     }
     await monthRepository.addJournalMonth(
