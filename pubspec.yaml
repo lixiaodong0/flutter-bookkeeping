@@ -48,6 +48,11 @@ dependencies:
   intl: ^0.20.2
   event_bus: ^2.0.1
   flutter_svg: ^2.0.17
+  #表格
+  syncfusion_flutter_xlsio: ^29.1.38
+  #移动设备上创建 Excel
+  path_provider: ^2.1.5
+  open_file: ^3.0.1
 
 
 dev_dependencies:

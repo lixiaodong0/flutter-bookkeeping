@@ -1,6 +1,10 @@
+import 'package:bookkeeping/db/journal_dao.dart';
+import 'package:bookkeeping/export/export_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import '../util/excel_util.dart';
 
 class SettingsRoute {
   static String route = "/settings";
@@ -75,7 +79,9 @@ class _SettingsScreenState extends State<_SettingsScreen> {
           Row(
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  ExportDialog.showDialog(context, () {});
+                },
                 child: Column(
                   children: [
                     Icon(Icons.downloading_rounded, color: Colors.black),
