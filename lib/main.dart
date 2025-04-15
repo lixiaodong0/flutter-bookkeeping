@@ -12,6 +12,7 @@ import 'package:bookkeeping/db/journal_month_dao.dart';
 import 'package:bookkeeping/db/journal_project_dao.dart';
 import 'package:bookkeeping/detail/detail_journal_screen.dart';
 import 'package:bookkeeping/filter/filter_journal_screen.dart';
+import 'package:bookkeeping/settings/SettingsScreen.dart';
 import 'package:bookkeeping/statistics/statistics_screen.dart';
 import 'package:bookkeeping/transaction/transaction_screen.dart';
 import 'package:bookkeeping/util/toast_util.dart';
@@ -46,6 +47,7 @@ final GoRouter _router = GoRouter(
             return TransactionScreen();
           },
         ),
+        SettingsRoute.buildRoute(),
       ],
       builder: (BuildContext context, GoRouterState state, Widget child) {
         return _ScaffoldWithNavBar(child: child);
@@ -128,27 +130,37 @@ class _ScaffoldWithNavBar extends StatelessWidget {
     return Scaffold(
       key: ToastManager().toastGlobalContext,
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.green,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "明细"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pie_chart_rounded),
-            label: "统计",
-          ),
-        ],
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              context.go("/transaction");
-              break;
-            case 1:
-              context.go("/statistics");
-              break;
-          }
-        },
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(splashFactory: NoSplash.splashFactory),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.green,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "明细"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.pie_chart_rounded),
+              label: "统计",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_rounded),
+              label: "设置",
+            ),
+          ],
+          currentIndex: _calculateSelectedIndex(context),
+          onTap: (int index) {
+            switch (index) {
+              case 0:
+                context.go("/transaction");
+                break;
+              case 1:
+                context.go("/statistics");
+                break;
+              case 2:
+                SettingsRoute.launch(context);
+                break;
+            }
+          },
+        ),
       ),
     );
   }
@@ -160,6 +172,9 @@ class _ScaffoldWithNavBar extends StatelessWidget {
     }
     if (location.startsWith('/statistics')) {
       return 1;
+    }
+    if (location.startsWith(SettingsRoute.route)) {
+      return 2;
     }
     return 0;
   }
