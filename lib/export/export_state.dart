@@ -1,6 +1,8 @@
 import 'package:bookkeeping/data/bean/export_filter_condition_bean.dart';
 import 'package:equatable/equatable.dart';
 
+import '../data/bean/journal_project_bean.dart';
+
 final class ExportState extends Equatable {
   final List<ExportFilterAccountBook> filterAccountBook;
   final ExportFilterAccountBook? selectedAccountBook;
@@ -9,6 +11,8 @@ final class ExportState extends Equatable {
   final List<ExportFilterJournalType> filterJournalType;
   final ExportFilterJournalType? selectedJournalType;
 
+  final JournalTypeDialog journalTypeDialogState;
+
   const ExportState({
     this.selectedAccountBook,
     this.selectedJournalDate,
@@ -16,6 +20,7 @@ final class ExportState extends Equatable {
     this.filterAccountBook = const [],
     this.filterJournalDate = const [],
     this.filterJournalType = const [],
+    this.journalTypeDialogState = const JournalTypeDialogCloseState(),
   });
 
   ExportState copyWith({
@@ -25,6 +30,7 @@ final class ExportState extends Equatable {
     List<ExportFilterJournalType>? filterJournalType,
     ExportFilterJournalDate? selectedJournalDate,
     ExportFilterJournalType? selectedJournalType,
+    JournalTypeDialog? journalTypeDialogState,
   }) {
     return ExportState(
       filterAccountBook: filterAccountBook ?? this.filterAccountBook,
@@ -33,6 +39,8 @@ final class ExportState extends Equatable {
       filterJournalType: filterJournalType ?? this.filterJournalType,
       selectedJournalDate: selectedJournalDate ?? this.selectedJournalDate,
       selectedJournalType: selectedJournalType ?? this.selectedJournalType,
+      journalTypeDialogState:
+          journalTypeDialogState ?? this.journalTypeDialogState,
     );
   }
 
@@ -44,5 +52,26 @@ final class ExportState extends Equatable {
     filterJournalType,
     selectedJournalDate,
     selectedJournalType,
+    journalTypeDialogState,
   ];
+}
+
+final class JournalTypeDialog {
+  const JournalTypeDialog();
+}
+
+final class JournalTypeDialogOpenState extends JournalTypeDialog {
+  final JournalProjectBean? currentProject;
+  final List<JournalProjectBean> allIncomeProject;
+  final List<JournalProjectBean> allExpenseProject;
+
+  const JournalTypeDialogOpenState({
+    required this.currentProject,
+    required this.allIncomeProject,
+    required this.allExpenseProject,
+  });
+}
+
+final class JournalTypeDialogCloseState extends JournalTypeDialog {
+  const JournalTypeDialogCloseState();
 }

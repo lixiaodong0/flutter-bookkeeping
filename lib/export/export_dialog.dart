@@ -1,6 +1,9 @@
 import 'package:bookkeeping/app_bloc.dart';
+import 'package:bookkeeping/data/bean/export_filter_condition_bean.dart';
 import 'package:bookkeeping/export/export_bloc.dart';
 import 'package:bookkeeping/export/export_event.dart';
+import 'package:bookkeeping/util/date_util.dart';
+import 'package:bookkeeping/widget/project_picker_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,42 +19,67 @@ class ExportDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IconButton(
-            icon: Icon(Icons.arrow_back_ios_rounded),
-            padding: EdgeInsets.symmetric(horizontal: 4),
-            onPressed: () {},
-          ),
-          Expanded(
-            child: SingleChildScrollView(child: _buildFilterCondition()),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () {
-                  context.read<ExportBloc>().add(ExportOnExport());
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  disabledBackgroundColor: Color(0xFFF5F5F5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+    return BlocListener<ExportBloc, ExportState>(
+      listener: (context, state) {
+        if (state.journalTypeDialogState is JournalTypeDialogOpenState) {
+          var openState =
+              state.journalTypeDialogState as JournalTypeDialogOpenState;
+
+          ProjectPickerWidget.showDatePicker(
+            context,
+            currentProject: openState.currentProject,
+            allIncomeProject: openState.allIncomeProject,
+            allExpenseProject: openState.allExpenseProject,
+            onChanged: (newProject) {
+              context.read<ExportBloc>().add(
+                ExportOnJournalTypeChange(
+                  JournalTypeCustom(data: newProject, name: newProject!.name),
+                ),
+              );
+            },
+            onClose: () {
+              context.read<ExportBloc>().add(ExportOnCloseJournalTypeDialog());
+            },
+          );
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios_rounded),
+              padding: EdgeInsets.symmetric(horizontal: 4),
+              onPressed: () {},
+            ),
+            Expanded(
+              child: SingleChildScrollView(child: _buildFilterCondition()),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    context.read<ExportBloc>().add(ExportOnExport());
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    disabledBackgroundColor: Color(0xFFF5F5F5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    fixedSize: Size.fromWidth(200),
                   ),
-                  fixedSize: Size.fromWidth(200),
+                  child: Text(
+                    "确认",
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
                 ),
-                child: Text(
-                  "确认",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -128,35 +156,129 @@ class ExportDialog extends StatelessWidget {
   }
 
   Widget _buildDateCondition(BuildContext context, ExportState state) {
-    return Wrap(
-      spacing: 8,
-      children: [
-        for (var item in state.filterJournalDate)
-          _buildItemType(
-            item.name,
-            selected: item == state.selectedJournalDate,
-            onClick: () {
-              context.read<ExportBloc>().add(ExportOnJournalDateChange(item));
-            },
-          ),
-      ],
-    );
+    List<Widget> children = [];
+    for (var item in state.filterJournalDate) {
+      var selected = item.type == state.selectedJournalDate?.type;
+      var name = item.name;
+      if (selected && item.isCustomDate()) {
+        var selectedJournalDate = state.selectedJournalDate!;
+        var startDate = selectedJournalDate.start;
+        var endDate = selectedJournalDate.end;
+        if (selectedJournalDate.type == FilterJournalDate.customMonth) {
+          name = "自定义-${startDate!.month}月";
+        } else if (selectedJournalDate.type == FilterJournalDate.customYear) {
+          name = "自定义-${startDate!.year}年";
+        } else if (selectedJournalDate.type == FilterJournalDate.customRange) {
+          name =
+              "自定义-${startDate!.year}年${startDate.month}月-${endDate!.year}年${endDate.month}月";
+        }
+      }
+      var child = _buildItemType(
+        name,
+        selected: selected,
+        onClick: () {
+          if (item.isCustomDate()) {
+            context.read<ExportBloc>().add(ExportOnShowJournalTypeDialog());
+          } else {
+            DateTime now = DateTime.now();
+            DateTime start = now;
+            DateTime end = now;
+
+            //当天
+            if (item.type == FilterJournalDate.today) {
+              start = now.copyWith(hour: 0, minute: 0, second: 0);
+              end = start.copyWith(hour: 23, minute: 59, second: 59);
+            }
+
+            //本周
+            if (item.type == FilterJournalDate.currentWeek) {
+              var monday =
+                  now.weekday != DateTime.monday
+                      ? now.subtract(Duration(days: now.weekday - 1))
+                      : now;
+              start = monday.copyWith(hour: 0, minute: 0, second: 0);
+
+              var sunday = monday.add(Duration(days: DateTime.sunday - 1));
+              end = sunday.copyWith(hour: 23, minute: 59, second: 59);
+            }
+
+            //本月
+            if (item.type == FilterJournalDate.currentMonth) {
+              start = now.copyWith(
+                year: now.year,
+                month: now.month,
+                day: 1,
+                hour: 0,
+                minute: 0,
+                second: 0,
+              );
+              end = now.copyWith(
+                year: now.year,
+                month: now.month,
+                //如果day=0 会自动为上个月的最后一天
+                day: DateTime(now.year, now.month + 1, 0).day,
+                hour: 23,
+                minute: 59,
+                second: 59,
+              );
+            }
+
+            //本年
+            if (item.type == FilterJournalDate.currentYear) {
+              start = now.copyWith(
+                year: now.year,
+                month: 1,
+                day: 1,
+                hour: 0,
+                minute: 0,
+                second: 0,
+              );
+              end = now.copyWith(
+                year: now.year,
+                month: 12,
+                day: 31,
+                hour: 23,
+                minute: 59,
+                second: 59,
+              );
+            }
+
+            context.read<ExportBloc>().add(
+              ExportOnJournalDateChange(item, start: start, end: end),
+            );
+          }
+        },
+      );
+      children.add(child);
+    }
+    return Wrap(spacing: 8, children: children);
   }
 
   Widget _buildTypeCondition(BuildContext context, ExportState state) {
-    return Wrap(
-      spacing: 8,
-      children: [
-        for (var item in state.filterJournalType)
-          _buildItemType(
-            item.name,
-            selected: item == state.selectedJournalType,
-            onClick: () {
-              context.read<ExportBloc>().add(ExportOnJournalTypeChange(item));
-            },
-          ),
-      ],
-    );
+    List<Widget> children = [];
+    for (var item in state.filterJournalType) {
+      var selected = item.type == state.selectedJournalType?.type;
+      var name = item.name;
+      if (selected && state.selectedJournalType is JournalTypeCustom) {
+        var custom = state.selectedJournalType as JournalTypeCustom;
+        if (custom.data != null) {
+          name = "${item.name}-${custom.data!.name}";
+        }
+      }
+      var child = _buildItemType(
+        name,
+        selected: selected,
+        onClick: () {
+          if (item is JournalTypeCustom) {
+            context.read<ExportBloc>().add(ExportOnShowJournalTypeDialog());
+          } else {
+            context.read<ExportBloc>().add(ExportOnJournalTypeChange(item));
+          }
+        },
+      );
+      children.add(child);
+    }
+    return Wrap(spacing: 8, children: children);
   }
 
   Widget _buildItemType(

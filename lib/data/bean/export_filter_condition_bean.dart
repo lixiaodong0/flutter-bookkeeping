@@ -1,3 +1,5 @@
+import 'journal_project_bean.dart';
+
 class ExportFilterAccountBook {
   int id;
   String name;
@@ -5,50 +7,62 @@ class ExportFilterAccountBook {
   ExportFilterAccountBook({required this.id, required this.name});
 }
 
+enum FilterJournalDate {
+  today,
+  currentWeek,
+  currentMonth,
+  currentYear,
+  customMonth,
+  customYear,
+  customRange,
+}
+
 class ExportFilterJournalDate {
+  FilterJournalDate type;
   String name;
+  DateTime? start;
+  DateTime? end;
 
-  ExportFilterJournalDate({required this.name});
+  ExportFilterJournalDate({
+    required this.type,
+    required this.name,
+    this.start,
+    this.end,
+  });
+
+  bool isCustomDate() {
+    return type == FilterJournalDate.customMonth ||
+        type == FilterJournalDate.customYear ||
+        type == FilterJournalDate.customRange;
+  }
 }
 
-class JournalDateToday extends ExportFilterJournalDate {
-  JournalDateToday({required super.name});
-}
-
-class JournalDateCurrentMonth extends ExportFilterJournalDate {
-  JournalDateCurrentMonth({required super.name});
-}
-
-class JournalDateCurrentWeek extends ExportFilterJournalDate {
-  JournalDateCurrentWeek({required super.name});
-}
-
-class JournalDateCurrentYear extends ExportFilterJournalDate {
-  JournalDateCurrentYear({required super.name});
-}
-
-class JournalDateCustom extends ExportFilterJournalDate {
-  JournalDateCustom({required super.name});
-}
+enum FilterJournalType { all, income, expense, custom }
 
 class ExportFilterJournalType {
+  FilterJournalType type;
   String name;
 
-  ExportFilterJournalType({required this.name});
+  ExportFilterJournalType({required this.type, required this.name});
 }
 
 class JournalTypeAll extends ExportFilterJournalType {
-  JournalTypeAll({required super.name});
+  JournalTypeAll({required super.name}) : super(type: FilterJournalType.all);
 }
 
 class JournalTypeIncome extends ExportFilterJournalType {
-  JournalTypeIncome({required super.name});
+  JournalTypeIncome({required super.name})
+    : super(type: FilterJournalType.income);
 }
 
 class JournalTypeExpense extends ExportFilterJournalType {
-  JournalTypeExpense({required super.name});
+  JournalTypeExpense({required super.name})
+    : super(type: FilterJournalType.expense);
 }
 
 class JournalTypeCustom extends ExportFilterJournalType {
-  JournalTypeCustom({required super.name});
+  JournalProjectBean? data;
+
+  JournalTypeCustom({this.data, required super.name})
+    : super(type: FilterJournalType.custom);
 }

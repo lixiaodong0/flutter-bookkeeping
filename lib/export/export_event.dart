@@ -16,14 +16,28 @@ class ExportOnAccountBookChange extends ExportEvent {
 
 class ExportOnJournalDateChange extends ExportEvent {
   final ExportFilterJournalDate journalDate;
+  final DateTime start;
+  final DateTime end;
 
-  const ExportOnJournalDateChange(this.journalDate);
+  const ExportOnJournalDateChange(
+    this.journalDate, {
+    required this.start,
+    required this.end,
+  });
 }
 
 class ExportOnJournalTypeChange extends ExportEvent {
   final ExportFilterJournalType journalType;
 
   const ExportOnJournalTypeChange(this.journalType);
+}
+
+class ExportOnShowJournalTypeDialog extends ExportEvent {
+  const ExportOnShowJournalTypeDialog();
+}
+
+class ExportOnCloseJournalTypeDialog extends ExportEvent {
+  const ExportOnCloseJournalTypeDialog();
 }
 
 class ExportOnExport extends ExportEvent {
