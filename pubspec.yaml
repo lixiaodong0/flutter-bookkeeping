@@ -53,6 +53,7 @@ dependencies:
   #移动设备上创建 Excel
   path_provider: ^2.1.5
   open_file: ^3.0.1
+  scroll_date_picker: ^3.8.0
 
 
 dev_dependencies:

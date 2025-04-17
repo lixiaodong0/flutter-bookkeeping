@@ -59,3 +59,11 @@ class ExportOnShowYearPickerDialog extends ExportEvent {
 class ExportOnCloseYearPickerDialog extends ExportEvent {
   const ExportOnCloseYearPickerDialog();
 }
+
+class ExportOnShowDateRangeDialog extends ExportEvent {
+  const ExportOnShowDateRangeDialog();
+}
+
+class ExportOnCloseDateRangeDialog extends ExportEvent {
+  const ExportOnCloseDateRangeDialog();
+}

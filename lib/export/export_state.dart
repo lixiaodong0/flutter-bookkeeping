@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/export_filter_condition_bean.dart';
+import 'package:bookkeeping/widget/date_wheel_scroll_view.dart';
 import 'package:equatable/equatable.dart';
 
 import '../data/bean/journal_month_bean.dart';
@@ -15,6 +16,7 @@ final class ExportState extends Equatable {
   final JournalTypeDialog journalTypeDialogState;
   final MonthPickerDialogState monthPickerDialogState;
   final YearPickerDialogState yearPickerDialogState;
+  final DateRangePickerDialogState dateRangePickerDialogState;
 
   const ExportState({
     this.selectedAccountBook,
@@ -26,6 +28,7 @@ final class ExportState extends Equatable {
     this.journalTypeDialogState = const JournalTypeDialogCloseState(),
     this.monthPickerDialogState = const MonthPickerDialogCloseState(),
     this.yearPickerDialogState = const YearPickerDialogCloseState(),
+    this.dateRangePickerDialogState = const DateRangePickerDialogCloseState(),
   });
 
   ExportState copyWith({
@@ -38,6 +41,7 @@ final class ExportState extends Equatable {
     JournalTypeDialog? journalTypeDialogState,
     MonthPickerDialogState? monthPickerDialogState,
     YearPickerDialogState? yearPickerDialogState,
+    DateRangePickerDialogState? dateRangePickerDialogState,
   }) {
     return ExportState(
       filterAccountBook: filterAccountBook ?? this.filterAccountBook,
@@ -52,6 +56,8 @@ final class ExportState extends Equatable {
           monthPickerDialogState ?? this.monthPickerDialogState,
       yearPickerDialogState:
           yearPickerDialogState ?? this.yearPickerDialogState,
+      dateRangePickerDialogState:
+      dateRangePickerDialogState ?? this.dateRangePickerDialogState,
     );
   }
 
@@ -66,6 +72,7 @@ final class ExportState extends Equatable {
     journalTypeDialogState,
     monthPickerDialogState,
     yearPickerDialogState,
+    dateRangePickerDialogState,
   ];
 }
 
@@ -117,4 +124,19 @@ final class YearPickerDialogOpenState extends YearPickerDialogState {
 
 final class YearPickerDialogCloseState extends YearPickerDialogState {
   const YearPickerDialogCloseState();
+}
+
+final class DateRangePickerDialogState {
+  const DateRangePickerDialogState();
+}
+
+final class DateRangePickerDialogOpenState extends DateRangePickerDialogState {
+  final DateTime? currentDate;
+  final DateWheel dateWheel;
+
+  const DateRangePickerDialogOpenState({this.currentDate, required this.dateWheel});
+}
+
+final class DateRangePickerDialogCloseState extends DateRangePickerDialogState {
+  const DateRangePickerDialogCloseState();
 }

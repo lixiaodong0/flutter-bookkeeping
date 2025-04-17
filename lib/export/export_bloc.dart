@@ -3,6 +3,7 @@ import 'package:bookkeeping/data/repository/account_book_repository.dart';
 import 'package:bookkeeping/export/export_event.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/util/excel_util.dart';
+import 'package:bookkeeping/widget/date_wheel_scroll_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/bean/account_book_bean.dart';
@@ -42,6 +43,9 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
 
     on<ExportOnShowYearPickerDialog>(_onShowYearPicker);
     on<ExportOnCloseYearPickerDialog>(_onCloseYearPicker);
+
+    on<ExportOnShowDateRangeDialog>(_onShowDateRangePicker);
+    on<ExportOnCloseDateRangeDialog>(_onCloseDateRangePicker);
   }
 
   Future<void> onAccountBookChange(
@@ -66,6 +70,54 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
         selectedJournalDate: selectedJournalDate,
         monthPickerDialogState: MonthPickerDialogCloseState(),
         yearPickerDialogState: YearPickerDialogCloseState(),
+      ),
+    );
+  }
+
+  void _onShowDateRangePicker(
+    ExportOnShowDateRangeDialog event,
+    Emitter<ExportState> emit,
+  ) async {
+    List<JournalMonthGroupBean> group = await _createPickerData();
+
+    List<YearWheel> years = [];
+    for (var item in group) {
+      List<MonthWheel> months = [];
+      months =
+          item.list.map((month) {
+            List<DayWheel> days = [];
+            int daysCount = DateTime(month.year, month.month + 1, 0).day;
+            for (int i = 1; i <= daysCount; i++) {
+              days.add(DayWheel(year: month.year, month: month.year, day: i));
+            }
+            return MonthWheel(year: month.year, month: month.month, days: days);
+          }).toList();
+      var yearWheel = YearWheel(year: item.year, months: months);
+      years.add(yearWheel);
+    }
+    var dateWheel = DateWheel(years: years);
+
+    DateTime? currentDate;
+    if (state.selectedJournalDate?.type == FilterJournalDate.customMonth) {
+      currentDate = state.selectedJournalDate!.start;
+    }
+    emit(
+      state.copyWith(
+        dateRangePickerDialogState: DateRangePickerDialogOpenState(
+          currentDate: currentDate,
+          dateWheel: dateWheel,
+        ),
+      ),
+    );
+  }
+
+  void _onCloseDateRangePicker(
+    ExportOnCloseDateRangeDialog event,
+    Emitter<ExportState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        dateRangePickerDialogState: DateRangePickerDialogCloseState(),
       ),
     );
   }

@@ -13,6 +13,7 @@ import '../data/repository/account_book_repository.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_project_repository.dart';
 import '../data/repository/journal_repository.dart';
+import '../widget/date_range_picker_widget.dart';
 import '../widget/month_picker_widget.dart';
 import 'export_state.dart';
 
@@ -99,6 +100,38 @@ class ExportDialog extends StatelessWidget {
             },
             onClose: () {
               context.read<ExportBloc>().add(ExportOnCloseYearPickerDialog());
+            },
+          );
+        }
+
+        if (state.dateRangePickerDialogState
+            is DateRangePickerDialogOpenState) {
+          var open =
+              state.dateRangePickerDialogState
+                  as DateRangePickerDialogOpenState;
+          DateRangePickerWidget.showDatePicker(
+            context,
+            currentDate: open.currentDate,
+            dateWheel: open.dateWheel,
+            onChanged: (newDate) {
+              DateTime start = DateTime(newDate.year);
+              DateTime end = start.copyWith(
+                month: 12,
+                day: 31,
+                hour: 23,
+                minute: 59,
+                second: 59,
+              );
+              var journalDate = ExportFilterJournalDate(
+                type: FilterJournalDate.customYear,
+                name: '选择年份',
+              );
+              context.read<ExportBloc>().add(
+                ExportOnJournalDateChange(journalDate, start: start, end: end),
+              );
+            },
+            onClose: () {
+              context.read<ExportBloc>().add(ExportOnCloseDateRangeDialog());
             },
           );
         }
@@ -250,7 +283,7 @@ class ExportDialog extends StatelessWidget {
 
             //自定义范围
             if (item.type == FilterJournalDate.customRange) {
-              context.read<ExportBloc>().add(ExportOnShowMonthPickerDialog());
+              context.read<ExportBloc>().add(ExportOnShowDateRangeDialog());
             }
           } else {
             DateTime now = DateTime.now();
