@@ -43,3 +43,19 @@ class ExportOnCloseJournalTypeDialog extends ExportEvent {
 class ExportOnExport extends ExportEvent {
   const ExportOnExport();
 }
+
+class ExportOnShowMonthPickerDialog extends ExportEvent {
+  const ExportOnShowMonthPickerDialog();
+}
+
+class ExportOnCloseMonthPickerDialog extends ExportEvent {
+  const ExportOnCloseMonthPickerDialog();
+}
+
+class ExportOnShowYearPickerDialog extends ExportEvent {
+  const ExportOnShowYearPickerDialog();
+}
+
+class ExportOnCloseYearPickerDialog extends ExportEvent {
+  const ExportOnCloseYearPickerDialog();
+}

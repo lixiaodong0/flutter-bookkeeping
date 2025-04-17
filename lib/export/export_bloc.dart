@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/bean/account_book_bean.dart';
 import '../data/bean/export_filter_condition_bean.dart';
+import '../data/bean/journal_month_bean.dart';
 import '../data/bean/journal_project_bean.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_project_repository.dart';
@@ -35,6 +36,12 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     on<ExportOnJournalTypeChange>(onJournalTypeChange);
     on<ExportOnShowJournalTypeDialog>(onShowJournalTypeDialog);
     on<ExportOnCloseJournalTypeDialog>(onCloseJournalTypeDialog);
+
+    on<ExportOnShowMonthPickerDialog>(_onShowMonthPicker);
+    on<ExportOnCloseMonthPickerDialog>(_onCloseMonthPicker);
+
+    on<ExportOnShowYearPickerDialog>(_onShowYearPicker);
+    on<ExportOnCloseYearPickerDialog>(_onCloseYearPicker);
   }
 
   Future<void> onAccountBookChange(
@@ -54,7 +61,86 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     print(
       "[onJournalDateChange]start:${DateUtil.simpleFormat(selectedJournalDate.start!)},end:${DateUtil.simpleFormat(selectedJournalDate.end!)}",
     );
-    emit(state.copyWith(selectedJournalDate: selectedJournalDate));
+    emit(
+      state.copyWith(
+        selectedJournalDate: selectedJournalDate,
+        monthPickerDialogState: MonthPickerDialogCloseState(),
+        yearPickerDialogState: YearPickerDialogCloseState(),
+      ),
+    );
+  }
+
+  void _onShowMonthPicker(
+    ExportOnShowMonthPickerDialog event,
+    Emitter<ExportState> emit,
+  ) async {
+    List<JournalMonthGroupBean> group = await _createPickerData();
+    DateTime? currentDate;
+    if (state.selectedJournalDate?.type == FilterJournalDate.customMonth) {
+      currentDate = state.selectedJournalDate!.start;
+    }
+    emit(
+      state.copyWith(
+        monthPickerDialogState: MonthPickerDialogOpenState(
+          currentDate: currentDate,
+          allDate: group,
+        ),
+      ),
+    );
+  }
+
+  void _onCloseMonthPicker(
+    ExportOnCloseMonthPickerDialog event,
+    Emitter<ExportState> emit,
+  ) async {
+    emit(state.copyWith(monthPickerDialogState: MonthPickerDialogCloseState()));
+  }
+
+  void _onCloseYearPicker(
+    ExportOnCloseYearPickerDialog event,
+    Emitter<ExportState> emit,
+  ) async {
+    emit(state.copyWith(yearPickerDialogState: YearPickerDialogCloseState()));
+  }
+
+  void _onShowYearPicker(
+    ExportOnShowYearPickerDialog event,
+    Emitter<ExportState> emit,
+  ) async {
+    List<JournalMonthGroupBean> group = await _createPickerData();
+    DateTime? currentDate;
+    if (state.selectedJournalDate?.type == FilterJournalDate.customYear) {
+      currentDate = state.selectedJournalDate!.start;
+    }
+    emit(
+      state.copyWith(
+        yearPickerDialogState: YearPickerDialogOpenState(
+          currentDate: currentDate,
+          allDate: group,
+        ),
+      ),
+    );
+  }
+
+  Future<List<JournalMonthGroupBean>> _createPickerData() async {
+    var accountBookId = state.selectedAccountBook!.id;
+    var result = await monthRepository.getAllJournalMonth(accountBookId);
+
+    Map<int, List<JournalMonthBean>> map = {};
+    for (var item in result) {
+      var valueList = map[item.year];
+      valueList ??= [];
+      valueList.add(item);
+      map[item.year] = valueList;
+    }
+
+    List<JournalMonthGroupBean> group = [];
+    for (var item in map.entries) {
+      var list = item.value;
+      list.sort((a, b) => a.month.compareTo(b.month));
+      group.add(JournalMonthGroupBean(year: item.key, list: list));
+    }
+    return group;
   }
 
   Future<void> onCloseJournalTypeDialog(
@@ -136,14 +222,11 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     filterJournalDate.add(
       ExportFilterJournalDate(
         type: FilterJournalDate.customMonth,
-        name: '自定义-月份',
+        name: '选择月份',
       ),
     );
     filterJournalDate.add(
-      ExportFilterJournalDate(
-        type: FilterJournalDate.customYear,
-        name: '自定义-年份',
-      ),
+      ExportFilterJournalDate(type: FilterJournalDate.customYear, name: '选择年份'),
     );
     filterJournalDate.add(
       ExportFilterJournalDate(

@@ -1,6 +1,7 @@
 import 'package:bookkeeping/data/bean/export_filter_condition_bean.dart';
 import 'package:equatable/equatable.dart';
 
+import '../data/bean/journal_month_bean.dart';
 import '../data/bean/journal_project_bean.dart';
 
 final class ExportState extends Equatable {
@@ -12,6 +13,8 @@ final class ExportState extends Equatable {
   final ExportFilterJournalType? selectedJournalType;
 
   final JournalTypeDialog journalTypeDialogState;
+  final MonthPickerDialogState monthPickerDialogState;
+  final YearPickerDialogState yearPickerDialogState;
 
   const ExportState({
     this.selectedAccountBook,
@@ -21,6 +24,8 @@ final class ExportState extends Equatable {
     this.filterJournalDate = const [],
     this.filterJournalType = const [],
     this.journalTypeDialogState = const JournalTypeDialogCloseState(),
+    this.monthPickerDialogState = const MonthPickerDialogCloseState(),
+    this.yearPickerDialogState = const YearPickerDialogCloseState(),
   });
 
   ExportState copyWith({
@@ -31,6 +36,8 @@ final class ExportState extends Equatable {
     ExportFilterJournalDate? selectedJournalDate,
     ExportFilterJournalType? selectedJournalType,
     JournalTypeDialog? journalTypeDialogState,
+    MonthPickerDialogState? monthPickerDialogState,
+    YearPickerDialogState? yearPickerDialogState,
   }) {
     return ExportState(
       filterAccountBook: filterAccountBook ?? this.filterAccountBook,
@@ -41,6 +48,10 @@ final class ExportState extends Equatable {
       selectedJournalType: selectedJournalType ?? this.selectedJournalType,
       journalTypeDialogState:
           journalTypeDialogState ?? this.journalTypeDialogState,
+      monthPickerDialogState:
+          monthPickerDialogState ?? this.monthPickerDialogState,
+      yearPickerDialogState:
+          yearPickerDialogState ?? this.yearPickerDialogState,
     );
   }
 
@@ -53,6 +64,8 @@ final class ExportState extends Equatable {
     selectedJournalDate,
     selectedJournalType,
     journalTypeDialogState,
+    monthPickerDialogState,
+    yearPickerDialogState,
   ];
 }
 
@@ -74,4 +87,34 @@ final class JournalTypeDialogOpenState extends JournalTypeDialog {
 
 final class JournalTypeDialogCloseState extends JournalTypeDialog {
   const JournalTypeDialogCloseState();
+}
+
+final class MonthPickerDialogState {
+  const MonthPickerDialogState();
+}
+
+final class MonthPickerDialogOpenState extends MonthPickerDialogState {
+  final DateTime? currentDate;
+  final List<JournalMonthGroupBean> allDate;
+
+  const MonthPickerDialogOpenState({this.currentDate, required this.allDate});
+}
+
+final class MonthPickerDialogCloseState extends MonthPickerDialogState {
+  const MonthPickerDialogCloseState();
+}
+
+final class YearPickerDialogState {
+  const YearPickerDialogState();
+}
+
+final class YearPickerDialogOpenState extends YearPickerDialogState {
+  final DateTime? currentDate;
+  final List<JournalMonthGroupBean> allDate;
+
+  const YearPickerDialogOpenState({this.currentDate, required this.allDate});
+}
+
+final class YearPickerDialogCloseState extends YearPickerDialogState {
+  const YearPickerDialogCloseState();
 }

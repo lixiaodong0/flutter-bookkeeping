@@ -4,6 +4,7 @@ import 'package:bookkeeping/export/export_bloc.dart';
 import 'package:bookkeeping/export/export_event.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/widget/project_picker_widget.dart';
+import 'package:bookkeeping/widget/year_picker_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +13,7 @@ import '../data/repository/account_book_repository.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_project_repository.dart';
 import '../data/repository/journal_repository.dart';
+import '../widget/month_picker_widget.dart';
 import 'export_state.dart';
 
 class ExportDialog extends StatelessWidget {
@@ -39,6 +41,64 @@ class ExportDialog extends StatelessWidget {
             },
             onClose: () {
               context.read<ExportBloc>().add(ExportOnCloseJournalTypeDialog());
+            },
+          );
+        }
+
+        if (state.monthPickerDialogState is MonthPickerDialogOpenState) {
+          var open = state.monthPickerDialogState as MonthPickerDialogOpenState;
+          MonthPickerWidget.showDatePicker(
+            context,
+            currentDate: open.currentDate,
+            allDate: open.allDate,
+            onChanged: (newDate) {
+              DateTime start = DateTime(newDate.year, newDate.month, 1);
+              DateTime end = start.copyWith(
+                //如果day=0 会自动为上个月的最后一天
+                day: DateTime(start.year, start.month + 1, 0).day,
+                hour: 23,
+                minute: 59,
+                second: 59,
+              );
+              var journalDate = ExportFilterJournalDate(
+                type: FilterJournalDate.customMonth,
+                name: '选择月份',
+              );
+              context.read<ExportBloc>().add(
+                ExportOnJournalDateChange(journalDate, start: start, end: end),
+              );
+            },
+            onClose: () {
+              context.read<ExportBloc>().add(ExportOnCloseMonthPickerDialog());
+            },
+          );
+        }
+
+        if (state.yearPickerDialogState is YearPickerDialogOpenState) {
+          var open = state.yearPickerDialogState as YearPickerDialogOpenState;
+          YearPickerWidget.showDatePicker(
+            context,
+            currentDate: open.currentDate,
+            allDate: open.allDate,
+            onChanged: (newDate) {
+              DateTime start = DateTime(newDate.year);
+              DateTime end = start.copyWith(
+                month: 12,
+                day: 31,
+                hour: 23,
+                minute: 59,
+                second: 59,
+              );
+              var journalDate = ExportFilterJournalDate(
+                type: FilterJournalDate.customYear,
+                name: '选择年份',
+              );
+              context.read<ExportBloc>().add(
+                ExportOnJournalDateChange(journalDate, start: start, end: end),
+              );
+            },
+            onClose: () {
+              context.read<ExportBloc>().add(ExportOnCloseYearPickerDialog());
             },
           );
         }
@@ -165,9 +225,9 @@ class ExportDialog extends StatelessWidget {
         var startDate = selectedJournalDate.start;
         var endDate = selectedJournalDate.end;
         if (selectedJournalDate.type == FilterJournalDate.customMonth) {
-          name = "自定义-${startDate!.month}月";
+          name = "${startDate!.year}年${startDate.month}月";
         } else if (selectedJournalDate.type == FilterJournalDate.customYear) {
-          name = "自定义-${startDate!.year}年";
+          name = "${startDate!.year}年";
         } else if (selectedJournalDate.type == FilterJournalDate.customRange) {
           name =
               "自定义-${startDate!.year}年${startDate.month}月-${endDate!.year}年${endDate.month}月";
@@ -178,7 +238,20 @@ class ExportDialog extends StatelessWidget {
         selected: selected,
         onClick: () {
           if (item.isCustomDate()) {
-            context.read<ExportBloc>().add(ExportOnShowJournalTypeDialog());
+            //自定义月份
+            if (item.type == FilterJournalDate.customMonth) {
+              context.read<ExportBloc>().add(ExportOnShowMonthPickerDialog());
+            }
+
+            //自定义年份
+            if (item.type == FilterJournalDate.customYear) {
+              context.read<ExportBloc>().add(ExportOnShowYearPickerDialog());
+            }
+
+            //自定义范围
+            if (item.type == FilterJournalDate.customRange) {
+              context.read<ExportBloc>().add(ExportOnShowMonthPickerDialog());
+            }
           } else {
             DateTime now = DateTime.now();
             DateTime start = now;

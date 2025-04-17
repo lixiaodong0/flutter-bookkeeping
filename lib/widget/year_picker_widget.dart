@@ -1,12 +1,12 @@
 import 'package:bookkeeping/data/bean/journal_month_bean.dart';
 import 'package:flutter/material.dart';
 
-class MonthPickerWidget extends StatelessWidget {
+class YearPickerWidget extends StatelessWidget {
   final DateTime? currentDate;
   final List<JournalMonthGroupBean> allDate;
-  final ValueChanged<JournalMonthBean> onChanged;
+  final ValueChanged<DateTime> onChanged;
 
-  const MonthPickerWidget({
+  const YearPickerWidget({
     super.key,
     this.currentDate,
     required this.allDate,
@@ -17,7 +17,7 @@ class MonthPickerWidget extends StatelessWidget {
     BuildContext context, {
     DateTime? currentDate,
     required List<JournalMonthGroupBean> allDate,
-    required ValueChanged<JournalMonthBean> onChanged,
+    required ValueChanged<DateTime> onChanged,
     required VoidCallback onClose,
   }) {
     var rootContext = Navigator.of(context, rootNavigator: true).context;
@@ -29,7 +29,7 @@ class MonthPickerWidget extends StatelessWidget {
       ),
       scrollControlDisabledMaxHeightRatio: 0.4,
       builder: (BuildContext context) {
-        return MonthPickerWidget(
+        return YearPickerWidget(
           currentDate: currentDate,
           allDate: allDate,
           onChanged: onChanged,
@@ -40,7 +40,7 @@ class MonthPickerWidget extends StatelessWidget {
     });
   }
 
-  void _onSelectedDate(BuildContext context, JournalMonthBean data) {
+  void _onSelectedDate(BuildContext context, DateTime data) {
     onChanged(data);
     Navigator.of(context).pop();
   }
@@ -52,18 +52,12 @@ class MonthPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];
-    for (var group in allDate) {
-      children.add(
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          child: Text(
-            "${group.year}年",
-            style: TextStyle(color: Colors.black, fontSize: 16),
-          ),
-        ),
-      );
-      children.add(_monthGridContainer(context, group.list));
-    }
+    children.add(
+      Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: _yearGridContainer(context, allDate),
+      ),
+    );
     return Column(
       children: [
         _topToolbarContainer(context),
@@ -95,7 +89,7 @@ class MonthPickerWidget extends StatelessWidget {
         Align(
           alignment: Alignment.topCenter,
           child: Text(
-            "请选择月份",
+            "请选择年份",
             style: TextStyle(color: Colors.black, fontSize: 14),
           ),
         ),
@@ -103,13 +97,13 @@ class MonthPickerWidget extends StatelessWidget {
     );
   }
 
-  Widget _monthGridContainer(
+  Widget _yearGridContainer(
     BuildContext context,
-    List<JournalMonthBean> list,
+    List<JournalMonthGroupBean> list,
   ) {
     List<Widget> children = [];
     for (var value in list) {
-      children.add(_monthItem(context, value));
+      children.add(_yearItem(context, value));
     }
     return GridView.count(
       crossAxisCount: 4,
@@ -124,16 +118,16 @@ class MonthPickerWidget extends StatelessWidget {
     );
   }
 
-  Widget _monthItem(BuildContext context, JournalMonthBean data) {
-    var isSameMonth = false;
-    if (data.year == currentDate?.year && data.month == currentDate?.month) {
-      isSameMonth = true;
+  Widget _yearItem(BuildContext context, JournalMonthGroupBean data) {
+    var isSelected = false;
+    if (data.year == currentDate?.year) {
+      isSelected = true;
     }
-    Color textColor = isSameMonth ? Colors.white : Colors.black;
-    Color backgroundColor = isSameMonth ? Colors.green : Colors.white;
+    Color textColor = isSelected ? Colors.white : Colors.black;
+    Color backgroundColor = isSelected ? Colors.green : Colors.white;
     return TextButton(
       onPressed: () {
-        _onSelectedDate(context, data);
+        _onSelectedDate(context, DateTime(data.year));
       },
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
@@ -141,7 +135,7 @@ class MonthPickerWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
       child: Text(
-        "${data.month}月",
+        "${data.year}年",
         style: TextStyle(color: textColor, fontSize: 14),
       ),
     );
