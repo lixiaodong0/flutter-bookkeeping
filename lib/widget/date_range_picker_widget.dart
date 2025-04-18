@@ -1,25 +1,33 @@
-import 'package:bookkeeping/data/bean/journal_month_bean.dart';
-import 'package:bookkeeping/widget/date_wheel_scroll_view.dart';
+import 'package:bookkeeping/util/date_util.dart';
+import 'package:bookkeeping/widget/datewheel/date_wheel_dialog.dart';
+import 'package:bookkeeping/widget/datewheel/date_wheel_scroll_view.dart';
+import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:scroll_date_picker/scroll_date_picker.dart';
 
-class DateRangePickerWidget extends StatelessWidget {
-  final DateTime? currentDate;
-  final DateWheel dateWheel;
-  final ValueChanged<DateTime> onChanged;
+typedef OnDateRangeChangeCallback =
+    void Function(DateTime startDate, DateTime endDate);
 
-  const DateRangePickerWidget({
+class ExportDateRangePickerDialog extends StatefulWidget {
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final List<YearWheel> years;
+  final OnDateRangeChangeCallback onChanged;
+
+  const ExportDateRangePickerDialog({
     super.key,
-    this.currentDate,
+    this.startDate,
+    this.endDate,
     required this.onChanged,
-    required this.dateWheel,
+    required this.years,
   });
 
   static showDatePicker(
     BuildContext context, {
-    DateTime? currentDate,
-    required DateWheel dateWheel,
-    required ValueChanged<DateTime> onChanged,
+    DateTime? startDate,
+    DateTime? endDate,
+    required List<YearWheel> years,
+    required OnDateRangeChangeCallback onChanged,
     required VoidCallback onClose,
   }) {
     var rootContext = Navigator.of(context, rootNavigator: true).context;
@@ -31,9 +39,10 @@ class DateRangePickerWidget extends StatelessWidget {
       ),
       scrollControlDisabledMaxHeightRatio: 0.4,
       builder: (BuildContext context) {
-        return DateRangePickerWidget(
-          currentDate: currentDate,
-          dateWheel: dateWheel,
+        return ExportDateRangePickerDialog(
+          startDate: startDate,
+          endDate: endDate,
+          years: years,
           onChanged: onChanged,
         );
       },
@@ -42,8 +51,68 @@ class DateRangePickerWidget extends StatelessWidget {
     });
   }
 
-  void _onSelectedDate(BuildContext context, DateTime data) {
-    onChanged(data);
+  @override
+  State<StatefulWidget> createState() => _DateRangePickerDialogState();
+}
+
+class _DateRangePickerDialogState extends State<ExportDateRangePickerDialog> {
+  DateTime? startDate;
+  DateTime? endDate;
+
+  @override
+  void initState() {
+    startDate = widget.startDate;
+    endDate = widget.endDate;
+    super.initState();
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    if (date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day) {
+      return true;
+    }
+    return false;
+  }
+
+  void _onSelectedDate(BuildContext context) {
+    if (startDate == null && endDate == null) {
+      showErrorActionToast("请选择开始日期或结束日期");
+      return;
+    }
+
+    DateTime finalStartData;
+    DateTime finalEndData;
+
+    if (startDate != null && endDate != null) {
+      if (_isSameDay(startDate!, endDate!)) {
+        //同一天
+        finalStartData = startDate!.copyWith(hour: 0, minute: 0, second: 0);
+        finalEndData = endDate!.copyWith(hour: 23, minute: 59, second: 59);
+      } else {
+        //比大小
+        if (startDate!.isBefore(endDate!)) {
+          //开始日期>结束日期
+          finalStartData = startDate!.copyWith(hour: 0, minute: 0, second: 0);
+          finalEndData = endDate!.copyWith(hour: 23, minute: 59, second: 59);
+        } else {
+          //开始日期>结束日期
+          finalStartData = endDate!.copyWith(hour: 0, minute: 0, second: 0);
+          finalEndData = startDate!.copyWith(hour: 23, minute: 59, second: 59);
+        }
+      }
+    } else {
+      if (startDate == null) {
+        //开始日期未填写，取结束日期
+        finalStartData = endDate!.copyWith(hour: 0, minute: 0, second: 0);
+        finalEndData = endDate!.copyWith(hour: 23, minute: 59, second: 59);
+      } else {
+        //结束日期未填写，取开始日期
+        finalStartData = startDate!.copyWith(hour: 0, minute: 0, second: 0);
+        finalEndData = startDate!.copyWith(hour: 23, minute: 59, second: 59);
+      }
+    }
+    widget.onChanged(finalStartData, finalEndData);
     Navigator.of(context).pop();
   }
 
@@ -57,11 +126,96 @@ class DateRangePickerWidget extends StatelessWidget {
       children: [
         _topToolbarContainer(context),
         Divider(height: 1),
-        SizedBox(height: 250, child: DateWheelScrollView(dateWheel: dateWheel)),
-        // Expanded(
-        //   child: SingleChildScrollView(child: Column(children: children)),
-        // ),
+
+        SizedBox(height: 20),
+
+        _buildDateRangeContainer(
+          context,
+          "开始日期",
+          currentDate: startDate,
+          onClick: () {
+            DateWheelDialog.showDatePicker(
+              context,
+              years: widget.years,
+              initSelectedDate: startDate,
+              onChanged: (data) {
+                setState(() {
+                  startDate = data;
+                });
+              },
+              onClose: () {},
+            );
+          },
+        ),
+
+        _buildDateRangeContainer(
+          context,
+          "结束日期",
+          currentDate: endDate,
+          onClick: () {
+            DateWheelDialog.showDatePicker(
+              context,
+              years: widget.years,
+              initSelectedDate: endDate,
+              onChanged: (data) {
+                setState(() {
+                  endDate = data;
+                });
+              },
+              onClose: () {},
+            );
+          },
+        ),
+        SizedBox(height: 30),
+        TextButton(
+          onPressed: () {
+            _onSelectedDate(context);
+          },
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.green,
+            minimumSize: Size(200, 40),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: Text(
+            "确定",
+            style: TextStyle(fontSize: 14, color: Colors.white),
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildDateRangeContainer(
+    BuildContext context,
+    String title, {
+    DateTime? currentDate,
+    VoidCallback? onClick,
+  }) {
+    var dateString =
+        currentDate != null
+            ? DateUtil.formatYearMonthDay(currentDate)
+            : "请选择日期";
+    var dateTextColor = currentDate != null ? Colors.green : Colors.grey;
+    return InkWell(
+      onTap: () {
+        onClick?.call();
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        child: Row(
+          children: [
+            Text(title, style: TextStyle(color: Colors.black, fontSize: 16)),
+            Spacer(),
+            Text(
+              dateString,
+              style: TextStyle(color: dateTextColor, fontSize: 14),
+            ),
+            Icon(Icons.navigate_next_rounded),
+          ],
+        ),
+      ),
     );
   }
 
@@ -85,55 +239,11 @@ class DateRangePickerWidget extends StatelessWidget {
         Align(
           alignment: Alignment.topCenter,
           child: Text(
-            "请选择年份",
+            "请选择日期范围",
             style: TextStyle(color: Colors.black, fontSize: 14),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _yearGridContainer(
-    BuildContext context,
-    List<JournalMonthGroupBean> list,
-  ) {
-    List<Widget> children = [];
-    for (var value in list) {
-      children.add(_yearItem(context, value));
-    }
-    return GridView.count(
-      crossAxisCount: 4,
-      childAspectRatio: 1 / 0.5,
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      // 禁用滚动
-      children: children,
-    );
-  }
-
-  Widget _yearItem(BuildContext context, JournalMonthGroupBean data) {
-    var isSelected = false;
-    if (data.year == currentDate?.year) {
-      isSelected = true;
-    }
-    Color textColor = isSelected ? Colors.white : Colors.black;
-    Color backgroundColor = isSelected ? Colors.green : Colors.white;
-    return TextButton(
-      onPressed: () {
-        _onSelectedDate(context, DateTime(data.year));
-      },
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-        backgroundColor: backgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      ),
-      child: Text(
-        "${data.year}年",
-        style: TextStyle(color: textColor, fontSize: 14),
-      ),
     );
   }
 }

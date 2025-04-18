@@ -1,5 +1,5 @@
 import 'package:bookkeeping/data/bean/export_filter_condition_bean.dart';
-import 'package:bookkeeping/widget/date_wheel_scroll_view.dart';
+import 'package:bookkeeping/widget/datewheel/date_wheel_scroll_view.dart';
 import 'package:equatable/equatable.dart';
 
 import '../data/bean/journal_month_bean.dart';
@@ -131,10 +131,11 @@ final class DateRangePickerDialogState {
 }
 
 final class DateRangePickerDialogOpenState extends DateRangePickerDialogState {
-  final DateTime? currentDate;
-  final DateWheel dateWheel;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final List<YearWheel> years;
 
-  const DateRangePickerDialogOpenState({this.currentDate, required this.dateWheel});
+  const DateRangePickerDialogOpenState({this.startDate, this.endDate, required this.years});
 }
 
 final class DateRangePickerDialogCloseState extends DateRangePickerDialogState {

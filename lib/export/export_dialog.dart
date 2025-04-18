@@ -109,25 +109,23 @@ class ExportDialog extends StatelessWidget {
           var open =
               state.dateRangePickerDialogState
                   as DateRangePickerDialogOpenState;
-          DateRangePickerWidget.showDatePicker(
+
+          ExportDateRangePickerDialog.showDatePicker(
             context,
-            currentDate: open.currentDate,
-            dateWheel: open.dateWheel,
-            onChanged: (newDate) {
-              DateTime start = DateTime(newDate.year);
-              DateTime end = start.copyWith(
-                month: 12,
-                day: 31,
-                hour: 23,
-                minute: 59,
-                second: 59,
-              );
+            startDate: open.startDate,
+            endDate: open.endDate,
+            years: open.years,
+            onChanged: (startDate, endDate) {
               var journalDate = ExportFilterJournalDate(
-                type: FilterJournalDate.customYear,
-                name: '选择年份',
+                type: FilterJournalDate.customRange,
+                name: '自定义',
               );
               context.read<ExportBloc>().add(
-                ExportOnJournalDateChange(journalDate, start: start, end: end),
+                ExportOnJournalDateChange(
+                  journalDate,
+                  start: startDate,
+                  end: endDate,
+                ),
               );
             },
             onClose: () {
@@ -263,7 +261,7 @@ class ExportDialog extends StatelessWidget {
           name = "${startDate!.year}年";
         } else if (selectedJournalDate.type == FilterJournalDate.customRange) {
           name =
-              "自定义-${startDate!.year}年${startDate.month}月-${endDate!.year}年${endDate.month}月";
+              "${DateUtil.formatYearMonthDay(startDate!)}-${DateUtil.formatYearMonthDay(endDate!)}";
         }
       }
       var child = _buildItemType(

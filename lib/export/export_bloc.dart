@@ -3,7 +3,7 @@ import 'package:bookkeeping/data/repository/account_book_repository.dart';
 import 'package:bookkeeping/export/export_event.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/util/excel_util.dart';
-import 'package:bookkeeping/widget/date_wheel_scroll_view.dart';
+import 'package:bookkeeping/widget/datewheel/date_wheel_scroll_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/bean/account_book_bean.dart';
@@ -70,6 +70,7 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
         selectedJournalDate: selectedJournalDate,
         monthPickerDialogState: MonthPickerDialogCloseState(),
         yearPickerDialogState: YearPickerDialogCloseState(),
+        dateRangePickerDialogState: DateRangePickerDialogCloseState(),
       ),
     );
   }
@@ -95,17 +96,19 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
       var yearWheel = YearWheel(year: item.year, months: months);
       years.add(yearWheel);
     }
-    var dateWheel = DateWheel(years: years);
 
-    DateTime? currentDate;
-    if (state.selectedJournalDate?.type == FilterJournalDate.customMonth) {
-      currentDate = state.selectedJournalDate!.start;
+    DateTime? startDate;
+    DateTime? endDate;
+    if (state.selectedJournalDate?.type == FilterJournalDate.customRange) {
+      startDate = state.selectedJournalDate!.start;
+      endDate = state.selectedJournalDate!.end;
     }
     emit(
       state.copyWith(
         dateRangePickerDialogState: DateRangePickerDialogOpenState(
-          currentDate: currentDate,
-          dateWheel: dateWheel,
+          startDate: startDate,
+          endDate: endDate,
+          years: years,
         ),
       ),
     );
@@ -283,7 +286,7 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     filterJournalDate.add(
       ExportFilterJournalDate(
         type: FilterJournalDate.customRange,
-        name: '自定义-范围',
+        name: '自定义',
       ),
     );
 
