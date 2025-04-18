@@ -23,4 +23,9 @@ class ExportParams {
     this.journalType,
     this.projectId,
   });
+
+  @override
+  String toString() {
+    return 'ExportParams{accountBookId: $accountBookId, startDate: $startDate, endDate: $endDate, journalType: $journalType, projectId: $projectId}';
+  }
 }

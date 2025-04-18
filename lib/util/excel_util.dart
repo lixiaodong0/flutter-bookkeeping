@@ -1,7 +1,9 @@
 //表格工具类
 //操作文档：https://help.syncfusion.com/flutter/xlsio/getting-started
+import 'dart:collection';
 import 'dart:io';
 
+import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
@@ -13,28 +15,95 @@ import '../data/bean/journal_bean.dart';
 typedef OnCreateExcel = void Function(Workbook workbook);
 typedef OnCreateStyle = void Function(Style style);
 
+enum ExcelCellType {
+  journalType,
+  projectName,
+  amount,
+  date,
+  description;
+
+  String get name {
+    switch (this) {
+      case ExcelCellType.journalType:
+        return "类型";
+      case ExcelCellType.projectName:
+        return "分类";
+      case ExcelCellType.amount:
+        return "金额";
+      case ExcelCellType.date:
+        return "日期";
+      case ExcelCellType.description:
+        return "描述";
+    }
+  }
+}
+
 class ExcelUtil {
-  static Future<void> saveToExcel(List<JournalBean> data) async {
+  static ExcelDataRow _toExcelDataRow(
+    Map<ExcelCellType, String> cellReferenceMap,
+    JournalBean item,
+  ) {
+    List<ExcelDataCell> cells = [];
+    for (var entries in cellReferenceMap.entries) {
+      cells.add(_toExcelDataCell(entries.key, item));
+    }
+    return ExcelDataRow(cells: cells);
+  }
+
+  static ExcelDataCell _toExcelDataCell(
+    ExcelCellType cellType,
+    JournalBean item,
+  ) {
+    if (cellType == ExcelCellType.date) {
+      return ExcelDataCell(columnHeader: cellType.name, value: item.date);
+    }
+    if (cellType == ExcelCellType.journalType) {
+      var name = item.type == JournalType.expense ? "入账" : "支出";
+      return ExcelDataCell(columnHeader: cellType.name, value: name);
+    }
+    if (cellType == ExcelCellType.projectName) {
+      return ExcelDataCell(
+        columnHeader: cellType.name,
+        value: item.journalProjectName,
+      );
+    }
+    if (cellType == ExcelCellType.description) {
+      return ExcelDataCell(
+        columnHeader: cellType.name,
+        value: item.description,
+      );
+    }
+    if (cellType == ExcelCellType.amount) {
+      var amount =
+          item.type == JournalType.expense
+              ? num.parse("-${item.amount}")
+              : num.parse(item.amount);
+      return ExcelDataCell(columnHeader: cellType.name, value: amount);
+    }
+    return ExcelDataCell(columnHeader: "未定义", value: "");
+  }
+
+  static Future<void> exportJournalDataToExcel(
+    ExportParams params,
+    List<JournalBean> data,
+  ) async {
     createExcel((workbook) {
       final Worksheet sheet = workbook.worksheets[0];
       int totalRows = 0;
+
+      //方便调换顺序，用个有顺序的map维护映射关系。
+      LinkedHashMap<ExcelCellType, String> cellReferenceMap =
+          LinkedHashMap.from({
+            ExcelCellType.date: "A",
+            ExcelCellType.journalType: "B",
+            ExcelCellType.projectName: "C",
+            ExcelCellType.description: "D",
+            ExcelCellType.amount: "E",
+          });
+
       final excelDataRows =
           data.map<ExcelDataRow>((JournalBean item) {
-            var amount =
-                item.type == JournalType.expense
-                    ? num.parse("-${item.amount}")
-                    : num.parse(item.amount);
-            return ExcelDataRow(
-              cells: [
-                ExcelDataCell(
-                  columnHeader: "类型",
-                  value: item.journalProjectName,
-                ),
-                ExcelDataCell(columnHeader: "金额", value: amount),
-                ExcelDataCell(columnHeader: "日期", value: item.date),
-                ExcelDataCell(columnHeader: "描述", value: item.description),
-              ],
-            );
+            return _toExcelDataRow(cellReferenceMap, item);
           }).toList();
       sheet.importData(excelDataRows, 1, 1);
 
@@ -46,13 +115,26 @@ class ExcelUtil {
 
       var centerStyle = addCenterStyle(workbook);
 
+      //产品整列样式配置
+      var projectReference = cellReferenceMap[ExcelCellType.projectName];
+      var projectColumns = sheet.getRangeByName(
+        "${projectReference}2:$projectReference$totalRows",
+      );
+      projectColumns.cellStyle = centerStyle;
+      projectColumns.autoFitColumns();
+
       //类型整列样式配置
-      var typeColumns = sheet.getRangeByName("A2:A$totalRows");
+      var typeReference = cellReferenceMap[ExcelCellType.journalType];
+      var typeColumns = sheet.getRangeByName(
+        "${typeReference}2:$typeReference$totalRows",
+      );
       typeColumns.cellStyle = centerStyle;
       typeColumns.autoFitColumns();
 
       //金额整列样式配置
-      var amountCellReference = "B2:B$totalRows";
+      var amountReference = cellReferenceMap[ExcelCellType.amount];
+      var amountCellReference =
+          "${amountReference}2:$amountReference$totalRows";
       var amountColumns = sheet.getRangeByName(amountCellReference);
       amountColumns.cellStyle = addStyle(workbook, "amountStyle", (
         Style style,
@@ -62,7 +144,10 @@ class ExcelUtil {
       amountColumns.autoFitColumns();
 
       //日期整列样式配置
-      var dateColumns = sheet.getRangeByName("C2:C${excelDataRows.length + 1}");
+      var dateReference = cellReferenceMap[ExcelCellType.date];
+      var dateColumns = sheet.getRangeByName(
+        "${dateReference}2:$dateReference${excelDataRows.length + 1}",
+      );
       dateColumns.cellStyle = addStyle(workbook, "dateStyle", (Style style) {
         style.hAlign = HAlignType.center;
         style.vAlign = VAlignType.center;
@@ -71,12 +156,19 @@ class ExcelUtil {
       dateColumns.autoFitColumns();
 
       //描述整列样式配置
-      var descriptionColumns = sheet.getRangeByName("D2:D$totalRows");
+      var descriptionReference = cellReferenceMap[ExcelCellType.date];
+      var descriptionColumns = sheet.getRangeByName(
+        "${descriptionReference}2:$descriptionReference$totalRows",
+      );
       descriptionColumns.cellStyle = centerStyle;
       descriptionColumns.autoFitColumns();
 
       //表头整行头部配置
-      var headerColumns = sheet.getRangeByName("A1:D1");
+      var firstReference = cellReferenceMap.entries.first.value;
+      var endReference = cellReferenceMap.entries.last.value;
+      var headerColumns = sheet.getRangeByName(
+        "${firstReference}1:${endReference}1",
+      );
       headerColumns.cellStyle = addStyle(workbook, "headerStyle", (
         Style style,
       ) {
@@ -87,12 +179,15 @@ class ExcelUtil {
         style.fontSize = 16;
         style.bold = true;
       });
+      headerColumns.rowHeight = 30;
       totalRows++;
 
       //开启公式计算
       sheet.enableSheetCalculations();
       //添加统计行
-      var endRow = sheet.getRangeByName("A$totalRows:D$totalRows");
+      var endRow = sheet.getRangeByName(
+        "$firstReference$totalRows:$endReference$totalRows",
+      );
       //合并单元格
       endRow.merge();
       endRow.setFormula('="总计：" & SUM($amountCellReference)');
@@ -106,6 +201,7 @@ class ExcelUtil {
           style.bold = true;
         },
       );
+      endRow.rowHeight = 30;
     }, isPreview: true);
   }
 

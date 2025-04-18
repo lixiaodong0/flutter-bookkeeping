@@ -340,8 +340,10 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     ExportOnExportJournal event,
     Emitter<ExportState> emit,
   ) async {
-    var result = await repository.exportJournal(_buildExportParams());
+    var exportParams = _buildExportParams();
+    var result = await repository.exportJournal(exportParams);
     print("result:${result.length}");
-    ExcelUtil.saveToExcel(result);
+    print("exportParams:$exportParams");
+    ExcelUtil.exportJournalDataToExcel(exportParams, result);
   }
 }
