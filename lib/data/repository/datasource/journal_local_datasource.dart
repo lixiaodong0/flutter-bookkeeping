@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/db/journal_dao.dart';
@@ -102,5 +103,10 @@ class JournalLocalDataSource implements JournalDataSource {
   @override
   Future<int> deleteJournal(int id) {
     return dao.delete(id);
+  }
+
+  @override
+  Future<List<JournalBean>> exportJournal(ExportParams params) {
+    return dao.export(params);
   }
 }

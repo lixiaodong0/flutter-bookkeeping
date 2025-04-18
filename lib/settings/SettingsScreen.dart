@@ -44,14 +44,14 @@ class _SettingsScreenState extends State<_SettingsScreen> {
         child: Column(
           children: [
             _buildDataTableKit(),
-            SizedBox(height: 20),
+            /*SizedBox(height: 20),
             _buildListItem(Icons.contrast_rounded, "深色模式", desc: "跟随系统"),
             _buildListItem(
               Icons.translate,
               "多语言",
               desc: "跟随系统",
               isDivider: false,
-            ),
+            ),*/
           ],
         ),
       ),

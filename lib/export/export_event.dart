@@ -40,8 +40,8 @@ class ExportOnCloseJournalTypeDialog extends ExportEvent {
   const ExportOnCloseJournalTypeDialog();
 }
 
-class ExportOnExport extends ExportEvent {
-  const ExportOnExport();
+class ExportOnExportJournal extends ExportEvent {
+  const ExportOnExportJournal();
 }
 
 class ExportOnShowMonthPickerDialog extends ExportEvent {

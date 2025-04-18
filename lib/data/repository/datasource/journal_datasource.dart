@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 
 import '../../../db/model/journal_entry.dart';
@@ -5,6 +6,9 @@ import '../../bean/journal_bean.dart';
 import '../../bean/journal_project_bean.dart';
 
 abstract class JournalDataSource {
+
+  Future<List<JournalBean>> exportJournal(ExportParams params);
+
   Future<JournalBean?> getJournal(int id);
 
   Future<List<JournalBean>> getMonthJournal(

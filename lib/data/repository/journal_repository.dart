@@ -1,4 +1,5 @@
 import 'package:bookkeeping/data/bean/daily_date_amount.dart';
+import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/repository/datasource/journal_datasource.dart';
@@ -150,5 +151,10 @@ class JournalRepository implements JournalDataSource {
   @override
   Future<int> deleteJournal(int id) {
     return _localDataSource.deleteJournal(id);
+  }
+
+  @override
+  Future<List<JournalBean>> exportJournal(ExportParams params) {
+    return _localDataSource.exportJournal(params);
   }
 }

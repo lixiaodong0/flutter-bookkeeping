@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../data/bean/journal_type.dart';
 import '../data/repository/account_book_repository.dart';
 import '../data/repository/journal_month_repository.dart';
 import '../data/repository/journal_project_repository.dart';
@@ -152,7 +153,7 @@ class ExportDialog extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    context.read<ExportBloc>().add(ExportOnExport());
+                    context.read<ExportBloc>().add(ExportOnExportJournal());
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -366,7 +367,13 @@ class ExportDialog extends StatelessWidget {
       if (selected && state.selectedJournalType is JournalTypeCustom) {
         var custom = state.selectedJournalType as JournalTypeCustom;
         if (custom.data != null) {
-          name = "${item.name}-${custom.data!.name}";
+          if(custom.data!.isAllItemBean()){
+            name = custom.data!.name;
+          }else{
+            var title =
+            custom.data!.journalType == JournalType.income ? "入账" : "支出";
+            name = "$title-${custom.data!.name}";
+          }
         }
       }
       var child = _buildItemType(

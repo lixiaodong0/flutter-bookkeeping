@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_bean.dart';
 import 'package:bookkeeping/data/bean/journal_project_bean.dart';
 import 'package:bookkeeping/db/model/journal_project_entry.dart';
@@ -92,6 +93,81 @@ class JournalDao {
     print("[queryById]$results");
     var list = results.map((e) => JournalBean.fromJson(e)).toList();
     return list.firstOrNull;
+  }
+
+  ///账单导出
+  Future<List<JournalBean>> export(ExportParams params) async {
+    final String tableName = JournalEntry.table;
+    final String projectTableName = JournalProjectEntry.table;
+
+    final List<String> columns = [
+      JournalEntry.tableColumnId,
+      JournalEntry.tableColumnType,
+      JournalEntry.tableColumnAmount,
+      JournalEntry.tableColumnDate,
+      JournalEntry.tableColumnDescription,
+      JournalEntry.tableColumnJournalProjectId,
+      JournalEntry.tableColumnAccountBookId,
+
+      '$projectTableName.${JournalProjectEntry.tableColumnName}',
+    ];
+
+    // 动态构建 WHERE 子句
+    List<String> whereClauses = [];
+    List<Object?> arguments = [];
+
+    //账本ID筛选
+    whereClauses.add('${JournalEntry.tableColumnAccountBookId} = ?');
+    arguments.add(params.accountBookId);
+
+    //时间筛选条件
+    whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
+    String startTime = params.startDate.toIso8601String();
+    String endTime = params.endDate.toIso8601String();
+    arguments.add(startTime);
+    arguments.add(endTime);
+
+    //类型筛选条件
+    if(params.journalType != null){
+      whereClauses.add('${JournalEntry.tableColumnType} = ?');
+      arguments.add(params.journalType!.name);
+    }
+
+    //产品ID筛选
+    if (params.projectId != null && params.projectId! > 0) {
+      whereClauses.add('${JournalEntry.tableColumnJournalProjectId} = ?');
+      arguments.add(params.projectId);
+    }
+
+    String whereClause =
+        whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+
+    final List<String> selectFields =
+        columns
+            .map(
+              (column) => column.contains('.') ? column : '$tableName.$column',
+            )
+            .toList();
+
+    String sql = '''
+      SELECT 
+      ${selectFields.join(', ')}
+      FROM $tableName 
+      JOIN
+      $projectTableName ON $tableName.${JournalEntry.tableColumnJournalProjectId} = $projectTableName.${JournalProjectEntry.tableColumnId} 
+      $whereClause
+      ORDER BY $tableName.${JournalEntry.tableColumnDate} DESC
+    ''';
+
+    // 获取数据库实例
+    Database db = DatabaseHelper().db;
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      sql,
+      arguments,
+    );
+    print("[export]$sql");
+    print("[export]$results");
+    return results.map((e) => JournalBean.fromJson(e)).toList();
   }
 
   ///查询月份账单

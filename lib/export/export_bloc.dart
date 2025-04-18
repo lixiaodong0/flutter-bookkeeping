@@ -1,3 +1,4 @@
+import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
 import 'package:bookkeeping/data/repository/account_book_repository.dart';
 import 'package:bookkeeping/export/export_event.dart';
@@ -30,7 +31,7 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     required this.monthRepository,
   }) : super(const ExportState()) {
     on<ExportOnInit>(onInit);
-    on<ExportOnExport>(onExport);
+    on<ExportOnExportJournal>(onExportJournal);
 
     on<ExportOnAccountBookChange>(onAccountBookChange);
     on<ExportOnJournalDateChange>(onJournalDateChange);
@@ -284,17 +285,14 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
       ExportFilterJournalDate(type: FilterJournalDate.customYear, name: '选择年份'),
     );
     filterJournalDate.add(
-      ExportFilterJournalDate(
-        type: FilterJournalDate.customRange,
-        name: '自定义',
-      ),
+      ExportFilterJournalDate(type: FilterJournalDate.customRange, name: '自定义'),
     );
 
     List<ExportFilterJournalType> filterJournalType = [];
     ExportFilterJournalType selectedJournalType = JournalTypeAll(name: "全部");
     filterJournalType.add(selectedJournalType);
-    filterJournalType.add(JournalTypeIncome(name: "入账"));
     filterJournalType.add(JournalTypeExpense(name: "支出"));
+    filterJournalType.add(JournalTypeIncome(name: "入账"));
     filterJournalType.add(JournalTypeCustom(name: "自定义"));
 
     emit(
@@ -309,12 +307,40 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     );
   }
 
-  Future<void> onExport(ExportOnExport event, Emitter<ExportState> emit) async {
-    var result = await repository.getMonthJournal(
-      currentAccountBook.id,
-      DateTime.now(),
-      JournalType.expense,
+  ExportParams _buildExportParams() {
+    var accountBookId = state.selectedAccountBook!.id;
+    var startDate = state.selectedJournalDate!.start!;
+    var endDate = state.selectedJournalDate!.end!;
+
+    JournalType? journalType;
+    int? projectId;
+
+    if (state.selectedJournalType is JournalTypeIncome) {
+      journalType = JournalType.income;
+    }
+    if (state.selectedJournalType is JournalTypeExpense) {
+      journalType = JournalType.expense;
+    }
+
+    if (state.selectedJournalType is JournalTypeCustom) {
+      projectId = (state.selectedJournalType as JournalTypeCustom).data?.id;
+    }
+
+    return ExportParams(
+      accountBookId: accountBookId,
+      startDate: startDate,
+      endDate: endDate,
+
+      journalType: journalType,
+      projectId: projectId,
     );
+  }
+
+  Future<void> onExportJournal(
+    ExportOnExportJournal event,
+    Emitter<ExportState> emit,
+  ) async {
+    var result = await repository.exportJournal(_buildExportParams());
     print("result:${result.length}");
     ExcelUtil.saveToExcel(result);
   }
