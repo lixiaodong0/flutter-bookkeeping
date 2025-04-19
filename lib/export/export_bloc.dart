@@ -386,6 +386,28 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
       showErrorActionToast("暂无数据");
       return;
     }
-    ExcelUtil.exportJournalDataToExcel(exportParams, result);
+    //统计价格
+    num totalIncome = 0;
+    num totalExpense = 0;
+    num total = 0;
+    for (var item in result) {
+      var amount =
+      item.type == JournalType.expense
+          ? num.parse("-${item.amount}")
+          : num.parse(item.amount);
+      if (item.type == JournalType.income) {
+        totalIncome += amount;
+      } else {
+        totalExpense += amount;
+      }
+      total += amount;
+    }
+    ExcelUtil.exportJournalDataToExcel(
+      exportParams,
+      result,
+      totalExpense,
+      totalIncome,
+      total,
+    );
   }
 }

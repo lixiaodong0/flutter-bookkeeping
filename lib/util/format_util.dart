@@ -3,6 +3,11 @@ class FormatUtil {
     return num.parse(amount).toStringAsFixed(2);
   }
 
+  static String formatNum(num amount) {
+    return amount.toStringAsFixed(2);
+  }
+
+
   static String formatAmountWanYuan(String amount) {
     var value = num.parse(amount);
     if (value > 10000) {

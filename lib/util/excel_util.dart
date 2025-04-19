@@ -5,7 +5,9 @@ import 'dart:io';
 
 import 'package:bookkeeping/data/bean/export_params.dart';
 import 'package:bookkeeping/data/bean/journal_type.dart';
+import 'package:bookkeeping/util/format_util.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
@@ -86,6 +88,9 @@ class ExcelUtil {
   static Future<void> exportJournalDataToExcel(
     ExportParams params,
     List<JournalBean> data,
+    num totalExpense,
+    num totalIncome,
+    num total,
   ) async {
     String createExcelName = params.exportCreateExcelName;
 
@@ -149,6 +154,7 @@ class ExcelUtil {
       typeColumns.autoFitColumns();
 
       //金额整列样式配置
+      var amountNumberFormat = '#,###0.00';
       var amountReference = cellReferenceMap[ExcelCellType.amount];
       var amountCellReference =
           "${amountReference}2:$amountReference$totalRows";
@@ -156,7 +162,8 @@ class ExcelUtil {
       amountColumns.cellStyle = addStyle(workbook, "amountStyle", (
         Style style,
       ) {
-        style.numberFormat = '¥#,##0.00';
+        // style.numberFormat = '¥#,##0.00';
+        style.numberFormat = amountNumberFormat;
       });
       amountColumns.autoFitColumns();
 
@@ -187,6 +194,7 @@ class ExcelUtil {
       headerColumns.rowHeight = 30;
       totalRows++;
 
+      /*
       //开启公式计算
       sheet.enableSheetCalculations();
       //添加统计行
@@ -206,7 +214,28 @@ class ExcelUtil {
           style.bold = true;
         },
       );
-      endRow.rowHeight = 30;
+      endRow.rowHeight = 30;*/
+
+      //添加统计行
+      var endRow = sheet.getRangeByName(
+        "$firstReference$totalRows:$endReference$totalRows",
+      );
+      //合并单元格
+      endRow.merge();
+      endRow.cellStyle = addStyle(workbook, "endRowStyle", (style) {
+        style.hAlign = HAlignType.right;
+        style.vAlign = VAlignType.center;
+        style.backColorRgb = Colors.green;
+        style.fontColorRgb = Colors.white;
+        style.fontSize = 12;
+        style.bold = true;
+      });
+
+      final format = NumberFormat(amountNumberFormat);
+      endRow.setValue(
+        "总支出：${format.format(totalExpense)}\n总入账：${format.format(totalIncome)}\n合计：${format.format(total)}",
+      );
+      endRow.rowHeight = 60;
     }, isPreview: true);
   }
 

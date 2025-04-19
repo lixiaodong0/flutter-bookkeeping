@@ -8,6 +8,7 @@ import 'package:bookkeeping/widget/year_picker_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/bean/journal_type.dart';
 import '../data/repository/account_book_repository.dart';
@@ -136,14 +137,16 @@ class ExportDialog extends StatelessWidget {
         }
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.only(top: 16, bottom: 60),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             IconButton(
               icon: Icon(Icons.arrow_back_ios_rounded),
               padding: EdgeInsets.symmetric(horizontal: 4),
-              onPressed: () {},
+              onPressed: () {
+                context.pop();
+              },
             ),
             Expanded(
               child: SingleChildScrollView(child: _buildFilterCondition()),
@@ -164,7 +167,7 @@ class ExportDialog extends StatelessWidget {
                     fixedSize: Size.fromWidth(200),
                   ),
                   child: Text(
-                    "确认",
+                    "确认导出",
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),
@@ -367,11 +370,11 @@ class ExportDialog extends StatelessWidget {
       if (selected && state.selectedJournalType is JournalTypeCustom) {
         var custom = state.selectedJournalType as JournalTypeCustom;
         if (custom.data != null) {
-          if(custom.data!.isAllItemBean()){
+          if (custom.data!.isAllItemBean()) {
             name = custom.data!.name;
-          }else{
+          } else {
             var title =
-            custom.data!.journalType == JournalType.income ? "入账" : "支出";
+                custom.data!.journalType == JournalType.income ? "入账" : "支出";
             name = "$title-${custom.data!.name}";
           }
         }
@@ -417,7 +420,7 @@ class ExportDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
-      scrollControlDisabledMaxHeightRatio: 0.8,
+      scrollControlDisabledMaxHeightRatio: 0.85,
       builder: (BuildContext context) {
         return BlocProvider(
           create:
