@@ -5,6 +5,7 @@ import 'package:bookkeeping/export/export_event.dart';
 import 'package:bookkeeping/util/date_util.dart';
 import 'package:bookkeeping/util/excel_util.dart';
 import 'package:bookkeeping/widget/datewheel/date_wheel_scroll_view.dart';
+import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/bean/account_book_bean.dart';
@@ -309,6 +310,7 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
 
   ExportParams _buildExportParams() {
     var accountBookId = state.selectedAccountBook!.id;
+    var accountBookName = state.selectedAccountBook!.name;
     var startDate = state.selectedJournalDate!.start!;
     var endDate = state.selectedJournalDate!.end!;
 
@@ -323,11 +325,13 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     }
 
     if (state.selectedJournalType is JournalTypeCustom) {
-      projectId = (state.selectedJournalType as JournalTypeCustom).data?.id;
+      var data = (state.selectedJournalType as JournalTypeCustom).data;
+      projectId = data?.id;
     }
 
     return ExportParams(
       accountBookId: accountBookId,
+      exportCreateExcelName: _createExcelName(),
       startDate: startDate,
       endDate: endDate,
 
@@ -336,14 +340,52 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
     );
   }
 
+  String _createExcelName() {
+    var accountBookName = state.selectedAccountBook!.name;
+    var startDate = state.selectedJournalDate!.start!;
+    var endDate = state.selectedJournalDate!.end!;
+
+    List<String> list = [];
+    list.add(accountBookName);
+
+    if (DateUtil.isSameDateDay(startDate, endDate)) {
+      list.add(DateUtil.formatYearMonthDay(startDate));
+    } else {
+      list.add(
+        "${DateUtil.formatYearMonthDay(startDate)}-${DateUtil.formatYearMonthDay(endDate)}",
+      );
+    }
+
+    if (state.selectedJournalType is JournalTypeAll) {
+      list.add("全部收支");
+    }
+    if (state.selectedJournalType is JournalTypeIncome) {
+      list.add("入账");
+    }
+    if (state.selectedJournalType is JournalTypeExpense) {
+      list.add("支出");
+    }
+    if (state.selectedJournalType is JournalTypeCustom) {
+      var data = (state.selectedJournalType as JournalTypeCustom).data;
+      list.add(data?.journalType == JournalType.income ? "入账" : "支出");
+      list.add(data?.name ?? "");
+    }
+    return list.join("_");
+  }
+
   Future<void> onExportJournal(
     ExportOnExportJournal event,
     Emitter<ExportState> emit,
   ) async {
     var exportParams = _buildExportParams();
     var result = await repository.exportJournal(exportParams);
+
     print("result:${result.length}");
     print("exportParams:$exportParams");
+    if (result.isEmpty) {
+      showErrorActionToast("暂无数据");
+      return;
+    }
     ExcelUtil.exportJournalDataToExcel(exportParams, result);
   }
 }

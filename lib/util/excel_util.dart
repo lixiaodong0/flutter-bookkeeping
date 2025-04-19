@@ -58,7 +58,7 @@ class ExcelUtil {
       return ExcelDataCell(columnHeader: cellType.name, value: item.date);
     }
     if (cellType == ExcelCellType.journalType) {
-      var name = item.type == JournalType.expense ? "入账" : "支出";
+      var name = item.type == JournalType.expense ? "支出" : "入账";
       return ExcelDataCell(columnHeader: cellType.name, value: name);
     }
     if (cellType == ExcelCellType.projectName) {
@@ -87,7 +87,9 @@ class ExcelUtil {
     ExportParams params,
     List<JournalBean> data,
   ) async {
-    createExcel((workbook) {
+    String createExcelName = params.exportCreateExcelName;
+
+    createExcel(excelName: createExcelName, (workbook) {
       final Worksheet sheet = workbook.worksheets[0];
       int totalRows = 0;
 
@@ -131,7 +133,10 @@ class ExcelUtil {
       dateColumns.cellStyle = addStyle(workbook, "dateStyle", (Style style) {
         style.hAlign = HAlignType.center;
         style.vAlign = VAlignType.center;
-        style.numberFormat = "yyyy-mm-dd hh:mm:ss";
+        // style.numberFormat = "m/d/yy h:mm";
+        // style.numberFormat = "m/d/yy h:mm AM/PM";
+        // style.numberFormat = "m/d/yyyy h:mm AM/PM";
+        style.numberFormat = "m/d/yyyy h:mm";
       });
       dateColumns.autoFitColumns();
 
@@ -176,7 +181,7 @@ class ExcelUtil {
         style.vAlign = VAlignType.center;
         style.backColorRgb = Colors.green;
         style.fontColorRgb = Colors.white;
-        style.fontSize = 16;
+        style.fontSize = 12;
         style.bold = true;
       });
       headerColumns.rowHeight = 30;
@@ -197,7 +202,7 @@ class ExcelUtil {
         onCreateStyle: (style) {
           style.backColorRgb = Colors.green;
           style.fontColorRgb = Colors.white;
-          style.fontSize = 16;
+          style.fontSize = 12;
           style.bold = true;
         },
       );
@@ -237,6 +242,9 @@ class ExcelUtil {
     Directory? directory,
     bool isPreview = false,
   }) async {
+    if (excelName.isEmpty) {
+      excelName = "Output";
+    }
     final Workbook workbook = Workbook();
     onCreate.call(workbook);
     final List<int> bytes = workbook.saveSync();

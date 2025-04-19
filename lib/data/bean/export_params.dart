@@ -16,8 +16,12 @@ class ExportParams {
   //账单产品分类
   int? projectId;
 
+  //导出的Excel文件名
+  String exportCreateExcelName;
+
   ExportParams({
     required this.accountBookId,
+    this.exportCreateExcelName = "",
     required this.startDate,
     required this.endDate,
     this.journalType,
@@ -26,6 +30,6 @@ class ExportParams {
 
   @override
   String toString() {
-    return 'ExportParams{accountBookId: $accountBookId, startDate: $startDate, endDate: $endDate, journalType: $journalType, projectId: $projectId}';
+    return 'ExportParams{exportCreateExcelName: $exportCreateExcelName,accountBookId: $accountBookId, startDate: $startDate, endDate: $endDate, journalType: $journalType, projectId: $projectId}';
   }
 }

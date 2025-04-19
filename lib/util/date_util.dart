@@ -31,6 +31,13 @@ class DateUtil {
     return false;
   }
 
+  static bool isSameDateDay(DateTime date1,  DateTime date2) {
+    if (date1.year == date2.year && date1.month == date2.month && date1.day == date2.day) {
+      return true;
+    }
+    return false;
+  }
+
   static bool isSameMonth(DateTime date1, DateTime? date2) {
     if (date1.year == date2?.year && date1.month == date2?.month) {
       return true;
