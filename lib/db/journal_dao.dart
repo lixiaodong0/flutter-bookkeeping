@@ -10,6 +10,14 @@ import 'database.dart';
 import 'model/journal_entry.dart';
 
 class JournalDao {
+  DateTime _fixMinMicroseconds(DateTime data) {
+    return data.copyWith(microsecond: 0, millisecond: 0);
+  }
+
+  DateTime _fixMaxMicroseconds(DateTime data) {
+    return data.copyWith(microsecond: 999, millisecond: 999);
+  }
+
   //插入数据
   Future<int> insert(JournalEntry journalEntry) async {
     // 获取数据库实例
@@ -122,13 +130,14 @@ class JournalDao {
 
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
-    String startTime = params.startDate.toIso8601String();
-    String endTime = params.endDate.toIso8601String();
+
+    String startTime = _fixMinMicroseconds(params.startDate).toIso8601String();
+    String endTime = _fixMaxMicroseconds(params.endDate).toIso8601String();
     arguments.add(startTime);
     arguments.add(endTime);
 
     //类型筛选条件
-    if(params.journalType != null){
+    if (params.journalType != null) {
       whereClauses.add('${JournalEntry.tableColumnType} = ?');
       arguments.add(params.journalType!.name);
     }
@@ -213,16 +222,21 @@ class JournalDao {
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
     String startTime =
-        DateTime(limitDate.year, limitDate.month, 1).toIso8601String();
-    String endTime =
-        DateTime(
-          limitDate.year,
-          limitDate.month,
-          DateUtil.calculateMonthDays(limitDate.year, limitDate.month),
-          23,
-          59,
-          59,
+        _fixMinMicroseconds(
+          DateTime(limitDate.year, limitDate.month, 1),
         ).toIso8601String();
+    String endTime =
+        _fixMaxMicroseconds(
+          DateTime(
+            limitDate.year,
+            limitDate.month,
+            DateUtil.calculateMonthDays(limitDate.year, limitDate.month),
+            23,
+            59,
+            59,
+          ),
+        ).toIso8601String();
+
     arguments.add(startTime);
     arguments.add(endTime);
 
@@ -291,21 +305,16 @@ class JournalDao {
     arguments.add(journalType.name);
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
+
     String startTime =
-        DateTime(
-          limitDate.year,
-          limitDate.month,
-          limitDate.day,
+        _fixMinMicroseconds(
+          DateTime(limitDate.year, limitDate.month, limitDate.day),
         ).toIso8601String();
     String endTime =
-        DateTime(
-          limitDate.year,
-          limitDate.month,
-          limitDate.day,
-          23,
-          59,
-          59,
+        _fixMaxMicroseconds(
+          DateTime(limitDate.year, limitDate.month, limitDate.day, 23, 59, 59),
         ).toIso8601String();
+
     arguments.add(startTime);
     arguments.add(endTime);
 
@@ -458,10 +467,16 @@ class JournalDao {
 
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
+
     String startTime =
-        DateTime(date.year, date.month, date.day).toIso8601String();
+        _fixMinMicroseconds(
+          DateTime(date.year, date.month, date.day),
+        ).toIso8601String();
     String endTime =
-        DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
+        _fixMaxMicroseconds(
+          DateTime(date.year, date.month, date.day, 23, 59, 59),
+        ).toIso8601String();
+
     arguments.add(startTime);
     arguments.add(endTime);
 
@@ -521,16 +536,23 @@ class JournalDao {
 
     //时间筛选条件
     whereClauses.add('${JournalEntry.tableColumnDate} BETWEEN ? AND ?');
-    String startTime = DateTime(date.year, date.month, 1).toIso8601String();
-    String endTime =
-        DateTime(
-          date.year,
-          date.month,
-          DateUtil.calculateMonthDays(date.year, date.month),
-          23,
-          59,
-          59,
+
+    String startTime =
+        _fixMinMicroseconds(
+          DateTime(date.year, date.month, 1),
         ).toIso8601String();
+    String endTime =
+        _fixMaxMicroseconds(
+          DateTime(
+            date.year,
+            date.month,
+            DateUtil.calculateMonthDays(date.year, date.month),
+            23,
+            59,
+            59,
+          ),
+        ).toIso8601String();
+
     arguments.add(startTime);
     arguments.add(endTime);
 

@@ -123,6 +123,18 @@ class ExcelUtil {
       projectColumns.cellStyle = centerStyle;
       projectColumns.autoFitColumns();
 
+      //日期整列样式配置
+      var dateReference = cellReferenceMap[ExcelCellType.date];
+      var dateColumns = sheet.getRangeByName(
+        "${dateReference}2:$dateReference${excelDataRows.length + 1}",
+      );
+      dateColumns.cellStyle = addStyle(workbook, "dateStyle", (Style style) {
+        style.hAlign = HAlignType.center;
+        style.vAlign = VAlignType.center;
+        style.numberFormat = "yyyy-mm-dd hh:mm:ss";
+      });
+      dateColumns.autoFitColumns();
+
       //类型整列样式配置
       var typeReference = cellReferenceMap[ExcelCellType.journalType];
       var typeColumns = sheet.getRangeByName(
@@ -143,20 +155,8 @@ class ExcelUtil {
       });
       amountColumns.autoFitColumns();
 
-      //日期整列样式配置
-      var dateReference = cellReferenceMap[ExcelCellType.date];
-      var dateColumns = sheet.getRangeByName(
-        "${dateReference}2:$dateReference${excelDataRows.length + 1}",
-      );
-      dateColumns.cellStyle = addStyle(workbook, "dateStyle", (Style style) {
-        style.hAlign = HAlignType.center;
-        style.vAlign = VAlignType.center;
-        style.numberFormat = "yyyy-mm-dd hh:mm:ss";
-      });
-      dateColumns.autoFitColumns();
-
       //描述整列样式配置
-      var descriptionReference = cellReferenceMap[ExcelCellType.date];
+      var descriptionReference = cellReferenceMap[ExcelCellType.description];
       var descriptionColumns = sheet.getRangeByName(
         "${descriptionReference}2:$descriptionReference$totalRows",
       );
