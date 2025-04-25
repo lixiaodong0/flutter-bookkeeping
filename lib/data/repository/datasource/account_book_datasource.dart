@@ -8,6 +8,8 @@ abstract class AccountBookDataSource {
 
   Future<int> insert(AccountBookEntry entry);
 
+  Future<int> update(AccountBookEntry entry);
+
   Future<int> delete(int id);
 
   Future<int> setCurrentShowId(int id);

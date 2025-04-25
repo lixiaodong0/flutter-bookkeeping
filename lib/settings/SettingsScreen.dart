@@ -53,6 +53,9 @@ class _SettingsScreenState extends State<_SettingsScreen> {
       onCreateSuccessCallback: (data) {
         context.read<AppBloc>().add(AppCreateNewAccountBook(data));
       },
+      onUpdateSuccessCallback: (data) {
+        context.read<AppBloc>().add(AppUpdateAccountBook(data));
+      },
     );
   }
 
@@ -195,15 +198,7 @@ class _SettingsScreenState extends State<_SettingsScreen> {
             children: [
               TextButton(
                 onPressed: () {
-                  CreateAccountBookDialog.showDialog(
-                    context,
-                    context.read<AccountBookRepository>(),
-                    onCreateSuccessCallback: (data) {
-                      context.read<AppBloc>().add(
-                        AppCreateNewAccountBook(data),
-                      );
-                    },
-                  );
+                  _showCreateAccountBookDialog(null);
                 },
                 child: Column(
                   children: [

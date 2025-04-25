@@ -3,6 +3,7 @@ import 'package:bookkeeping/data/repository/account_book_repository.dart';
 import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scroll_date_picker/scroll_date_picker.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   final AccountBookRepository accountBookRepository;
@@ -10,6 +11,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({required this.accountBookRepository}) : super(AppState()) {
     on<AppInitLoad>(_onInitLoad);
     on<AppUpdateCurrentAccountBook>(_onUpdateCurrentAccountBook);
+    on<AppUpdateAccountBook>(_onUpdateAccountBook);
     on<AppUpdateAllAccountBook>(_onUpdateAllAccountBook);
     on<AppCreateNewAccountBook>(_onCreateNewAccountBook);
   }
@@ -47,6 +49,37 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   //更新账本
+  void _onUpdateAccountBook(
+    AppUpdateAccountBook event,
+    Emitter<AppState> emit,
+  ) async {
+    var newAccountBook = event.accountBook;
+    List<AccountBookBean> allAccountBooks = [];
+    allAccountBooks.addAll(state.allAccountBooks);
+    var findIndex = allAccountBooks.indexWhere(
+      (element) => element.id == newAccountBook.id,
+    );
+    allAccountBooks[findIndex] = newAccountBook;
+
+    if (newAccountBook.id == state.currentAccountBook?.id) {
+      emit(
+        state.copyWith(
+          currentAccountBook: newAccountBook,
+          allAccountBooks: allAccountBooks,
+        ),
+      );
+    } else {
+      emit(state.copyWith(allAccountBooks: allAccountBooks));
+    }
+  }
+
+  AccountBookBean _findCurrentAccountBook(
+    List<AccountBookBean> allAccountBooks,
+  ) {
+    return allAccountBooks.singleWhere((element) => element.show == 1);
+  }
+
+  //更新账本
   void _onUpdateCurrentAccountBook(
     AppUpdateCurrentAccountBook event,
     Emitter<AppState> emit,
@@ -80,12 +113,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         allAccountBooks: allAccountBooks,
       ),
     );
-  }
-
-  AccountBookBean _findCurrentAccountBook(
-    List<AccountBookBean> allAccountBooks,
-  ) {
-    return allAccountBooks.singleWhere((element) => element.show == 1);
   }
 }
 
@@ -125,6 +152,12 @@ class AppCreateNewAccountBook extends AppEvent {
   final AccountBookBean accountBook;
 
   const AppCreateNewAccountBook(this.accountBook);
+}
+
+class AppUpdateAccountBook extends AppEvent {
+  final AccountBookBean accountBook;
+
+  const AppUpdateAccountBook(this.accountBook);
 }
 
 class AppUpdateCurrentAccountBook extends AppEvent {

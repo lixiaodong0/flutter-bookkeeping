@@ -31,6 +31,11 @@ class AccountBookRepository extends AccountBookDataSource {
   }
 
   @override
+  Future<int> update(AccountBookEntry entry) {
+    return _localDataSource.update(entry);
+  }
+
+  @override
   Future<int> setCurrentShowId(int id) {
     return _localDataSource.setCurrentShowId(id);
   }

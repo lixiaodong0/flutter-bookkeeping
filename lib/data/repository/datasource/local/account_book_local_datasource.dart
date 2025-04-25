@@ -32,4 +32,9 @@ class AccountBookLocalDataSource extends AccountBookDataSource {
   Future<int> setCurrentShowId(int id) {
     return dao.setCurrentShowId(id);
   }
+
+  @override
+  Future<int> update(AccountBookEntry entry) {
+    return dao.update(entry);
+  }
 }

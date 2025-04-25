@@ -11,6 +11,17 @@ class AccountBookDao {
     return db.insert(AccountBookEntry.table, entry.toMap());
   }
 
+  //更新
+  Future<int> update(AccountBookEntry entry) async {
+    Database db = DatabaseHelper().db;
+    return db.update(
+      AccountBookEntry.table,
+      entry.toMap(),
+      where: '${AccountBookEntry.tableColumnId} = ?',
+      whereArgs: [entry.id],
+    );
+  }
+
   //设置当前正常显示的账本
   Future<int> setCurrentShowId(int id) async {
     Database db = DatabaseHelper().db;

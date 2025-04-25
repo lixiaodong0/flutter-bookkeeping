@@ -1,4 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
 
 import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/repository/account_book_repository.dart';
@@ -67,6 +66,7 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
 
   void _create(String name) async {
     if (widget.edit != null) {
+      _update(widget.edit!, name);
       return;
     }
     var find = await widget.repository.findAccountBookByName(name);
@@ -102,12 +102,11 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
       sysDefault: data.sysDefault,
       show: data.show,
     );
-    var result = await widget.repository.insert(insert);
+    var result = await widget.repository.update(insert);
     if (result <= 0) {
       showErrorActionToast("更新失败");
       return;
     }
-    insert.id = result;
     showSuccessActionToast("更新成功");
     var bean = AccountBookBean.fromJson(insert.toMap());
     setState(() {
