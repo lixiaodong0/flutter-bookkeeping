@@ -30,10 +30,12 @@ final class AccountBookPickerDialogOpenState
     extends AccountBookPickerDialogState {
   final AccountBookBean? current;
   final List<AccountBookBean> list;
+  final bool isDelete;
 
   const AccountBookPickerDialogOpenState({
     required this.current,
     required this.list,
+    required this.isDelete,
   });
 }
 

@@ -195,6 +195,19 @@ class _AccountBookPickerDialogState extends State<AccountBookPickerDialog> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (data.sysDefault == 1)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  "系统",
+                  style: TextStyle(fontSize: 10, color: Colors.white),
+                ),
+              ),
             Text(
               data.name,
               style: TextStyle(fontSize: 16, color: textColor),

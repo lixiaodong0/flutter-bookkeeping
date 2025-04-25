@@ -14,6 +14,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     on<AppUpdateAccountBook>(_onUpdateAccountBook);
     on<AppUpdateAllAccountBook>(_onUpdateAllAccountBook);
     on<AppCreateNewAccountBook>(_onCreateNewAccountBook);
+    on<AppDeleteAccountBook>(_onDeleteAccountBook);
   }
 
   //初始化
@@ -73,18 +74,51 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
   }
 
+  //删除账本
+  void _onDeleteAccountBook(
+    AppDeleteAccountBook event,
+    Emitter<AppState> emit,
+  ) async {
+    var deleteAccountBook = event.accountBook;
+    List<AccountBookBean> allAccountBooks = [];
+    allAccountBooks.addAll(state.allAccountBooks);
+    var findIndex = allAccountBooks.indexWhere(
+      (element) => element.id == deleteAccountBook.id,
+    );
+    allAccountBooks.removeAt(findIndex);
+    emit(state.copyWith(allAccountBooks: allAccountBooks));
+
+    //当前正在显示的账本被删除，默认选中系统的。
+    if (deleteAccountBook.id == state.currentAccountBook?.id) {
+      var findIndex = allAccountBooks.indexWhere(
+        (element) => element.sysDefault == 1,
+      );
+      var newCurrentAccountBook = allAccountBooks[findIndex];
+      //延迟1秒再执行切换操作
+      await Future.delayed(Duration(seconds: 1));
+      await startUpdateCurrentAccountBook(newCurrentAccountBook, emit);
+    }
+  }
+
   AccountBookBean _findCurrentAccountBook(
     List<AccountBookBean> allAccountBooks,
   ) {
     return allAccountBooks.singleWhere((element) => element.show == 1);
   }
 
-  //更新账本
+  //更新当前账本
   void _onUpdateCurrentAccountBook(
     AppUpdateCurrentAccountBook event,
     Emitter<AppState> emit,
   ) async {
     var newCurrentAccountBook = event.currentAccountBook;
+    await startUpdateCurrentAccountBook(newCurrentAccountBook, emit);
+  }
+
+  Future<void> startUpdateCurrentAccountBook(
+    AccountBookBean newCurrentAccountBook,
+    Emitter<AppState> emit,
+  ) async {
     if (newCurrentAccountBook.id == state.currentAccountBook?.id) {
       return;
     }
@@ -158,6 +192,12 @@ class AppUpdateAccountBook extends AppEvent {
   final AccountBookBean accountBook;
 
   const AppUpdateAccountBook(this.accountBook);
+}
+
+class AppDeleteAccountBook extends AppEvent {
+  final AccountBookBean accountBook;
+
+  const AppDeleteAccountBook(this.accountBook);
 }
 
 class AppUpdateCurrentAccountBook extends AppEvent {

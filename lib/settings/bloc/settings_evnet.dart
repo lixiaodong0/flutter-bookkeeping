@@ -6,10 +6,19 @@ sealed class SettingsEvent {
 
 class SettingsOnShowAccountBookPickerDialog extends SettingsEvent {
   final AccountBookBean? current;
+  final bool isDelete;
 
-  const SettingsOnShowAccountBookPickerDialog(this.current);
+  const SettingsOnShowAccountBookPickerDialog(
+    this.current, {
+    required this.isDelete,
+  });
 }
 
 class SettingsOnCloseAccountBookPickerDialog extends SettingsEvent {
   const SettingsOnCloseAccountBookPickerDialog();
+}
+
+class SettingsOnDeleteAccountBook extends SettingsEvent {
+  final AccountBookBean accountBook;
+  const SettingsOnDeleteAccountBook(this.accountBook);
 }

@@ -4,6 +4,7 @@ import 'package:bookkeeping/export/export_dialog.dart';
 import 'package:bookkeeping/settings/bloc/settings_bloc.dart';
 import 'package:bookkeeping/settings/bloc/settings_state.dart';
 import 'package:bookkeeping/widget/account_book_picker_dialog.dart';
+import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import '../app_bloc.dart';
 import '../data/repository/account_book_repository.dart';
 import '../util/excel_util.dart';
+import '../widget/alert_dialog.dart';
 import '../widget/create_account_book_dialog.dart';
 import 'bloc/settings_evnet.dart';
 
@@ -59,6 +61,23 @@ class _SettingsScreenState extends State<_SettingsScreen> {
     );
   }
 
+  void _showDeleteConfirmDialog(AccountBookBean delete) {
+    if (delete.sysDefault == 1) {
+      showErrorActionToast("操作失败，系统账本禁止删除！");
+      return;
+    }
+    AlertConfirmDialog.showAlertDialog(
+      context,
+      confirm: "删除",
+      desc: "删除后数据无法恢复，确定要删除${delete.name}账本吗？",
+      onCancel: () {},
+      onConfirm: () {
+        context.read<SettingsBloc>().add(SettingsOnDeleteAccountBook(delete));
+        context.read<AppBloc>().add(AppDeleteAccountBook(delete));
+      },
+    );
+  }
+
   AccountBookBean _getCurrentAccountBook() {
     return context.read<AppBloc>().state.currentAccountBook!;
   }
@@ -77,7 +96,11 @@ class _SettingsScreenState extends State<_SettingsScreen> {
             list: openState.list,
             current: openState.current,
             onPickerSuccessCallback: (data) {
-              _showCreateAccountBookDialog(data);
+              if (openState.isDelete) {
+                _showDeleteConfirmDialog(data);
+              } else {
+                _showCreateAccountBookDialog(data);
+              }
             },
             onClose: () {
               context.read<SettingsBloc>().add(
@@ -219,6 +242,7 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                   context.read<SettingsBloc>().add(
                     SettingsOnShowAccountBookPickerDialog(
                       _getCurrentAccountBook(),
+                      isDelete: false,
                     ),
                   );
                 },
@@ -234,7 +258,14 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<SettingsBloc>().add(
+                    SettingsOnShowAccountBookPickerDialog(
+                      _getCurrentAccountBook(),
+                      isDelete: true,
+                    ),
+                  );
+                },
                 child: Column(
                   children: [
                     Icon(Icons.delete_outline_rounded, color: Colors.black),
