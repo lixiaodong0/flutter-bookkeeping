@@ -52,6 +52,9 @@ android {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
         }
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release")
+        }
     }
 
     ndkVersion = "27.0.12077973"

@@ -1,20 +1,28 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
 import 'package:bookkeeping/data/bean/account_book_bean.dart';
 import 'package:bookkeeping/data/repository/account_book_repository.dart';
 import 'package:bookkeeping/db/model/account_book_entry.dart';
 import 'package:bookkeeping/util/toast_util.dart';
+import 'package:bookkeeping/widget/toast_action_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 typedef OnCreateSuccessCallback = void Function(AccountBookBean);
+typedef OnUpdateSuccessCallback = void Function(AccountBookBean);
 
 class CreateAccountBookDialog extends StatefulWidget {
   final OnCreateSuccessCallback onCreateSuccessCallback;
+  final OnUpdateSuccessCallback? onUpdateSuccessCallback;
   final AccountBookRepository repository;
+  final AccountBookBean? edit;
 
   const CreateAccountBookDialog({
     super.key,
     required this.onCreateSuccessCallback,
+    required this.onUpdateSuccessCallback,
     required this.repository,
+    this.edit,
   });
 
   @override
@@ -24,6 +32,8 @@ class CreateAccountBookDialog extends StatefulWidget {
     BuildContext context,
     AccountBookRepository repository, {
     required OnCreateSuccessCallback onCreateSuccessCallback,
+    OnUpdateSuccessCallback? onUpdateSuccessCallback,
+    AccountBookBean? edit,
   }) {
     var rootContext = Navigator.of(context, rootNavigator: true).context;
     showModalBottomSheet(
@@ -37,7 +47,9 @@ class CreateAccountBookDialog extends StatefulWidget {
       builder: (BuildContext context) {
         return CreateAccountBookDialog(
           repository: repository,
+          onUpdateSuccessCallback: onUpdateSuccessCallback,
           onCreateSuccessCallback: onCreateSuccessCallback,
+          edit: edit,
         );
       },
     );
@@ -49,10 +61,14 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
 
   @override
   void initState() {
+    _remarkController.text = widget.edit?.name ?? "";
     super.initState();
   }
 
   void _create(String name) async {
+    if (widget.edit != null) {
+      return;
+    }
     var find = await widget.repository.findAccountBookByName(name);
     if (find != null) {
       showToast("账本名称已存在，请修改");
@@ -69,10 +85,33 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
       return;
     }
     insert.id = result;
-
+    showSuccessActionToast("创建成功");
     var bean = AccountBookBean.fromJson(insert.toMap());
     setState(() {
       widget.onCreateSuccessCallback(bean);
+      context.pop();
+    });
+  }
+
+  void _update(AccountBookBean data, String newName) async {
+    var insert = AccountBookEntry(
+      id: data.id,
+      name: newName,
+      description: data.description,
+      createDate: data.createDate,
+      sysDefault: data.sysDefault,
+      show: data.show,
+    );
+    var result = await widget.repository.insert(insert);
+    if (result <= 0) {
+      showErrorActionToast("更新失败");
+      return;
+    }
+    insert.id = result;
+    showSuccessActionToast("更新成功");
+    var bean = AccountBookBean.fromJson(insert.toMap());
+    setState(() {
+      widget.onUpdateSuccessCallback?.call(bean);
       context.pop();
     });
   }
@@ -90,6 +129,7 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
   }
 
   Widget _topBar() {
+    var title = widget.edit != null ? "编辑账本" : "创建账本";
     return AppBar(
       surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.transparent,
@@ -99,7 +139,7 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
           context.pop();
         },
       ),
-      title: Text("创建账本", style: TextStyle(fontSize: 16, color: Colors.black)),
+      title: Text(title, style: TextStyle(fontSize: 16, color: Colors.black)),
       centerTitle: true,
     );
   }
@@ -164,7 +204,7 @@ class _CreateAccountBookDialogState extends State<CreateAccountBookDialog> {
                   fixedSize: Size.fromWidth(200),
                 ),
                 child: Text(
-                  "创建",
+                  widget.edit != null ? "更新" : "创建",
                   style: TextStyle(color: textColor, fontSize: 14),
                 ),
               );
