@@ -31,8 +31,8 @@ class JournalMonthDao {
     final List<Map<String, dynamic>> results = await db.query(
       JournalMonthEntry.table,
       where:
-          '${JournalMonthEntry.tableColumnYear} = ? AND ${JournalMonthEntry.tableColumnMonth} = ?',
-      whereArgs: [entry.year, entry.month],
+          '${JournalMonthEntry.tableColumnYear} = ? AND ${JournalMonthEntry.tableColumnMonth} = ? AND ${JournalMonthEntry.tableColumnAccountBookId} = ?',
+      whereArgs: [entry.year, entry.month, entry.accountBookId],
     );
     if (results.isEmpty) {
       return null;
